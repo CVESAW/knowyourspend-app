@@ -164,6 +164,8 @@ try {
   await page.goto(`${BASE}/settings`);
   if (countBodies.length) throw new Error("counts were sent while switched off");
   await tid("share-counts").click();
+  // the setting is saved to IndexedDB asynchronously: give it a moment before the full page load below
+  await page.waitForTimeout(800);
   await page.goto(BASE);
   await tid("email-results").click();
   await tid("email-preview").waitFor();
@@ -173,6 +175,8 @@ try {
   const eb = emailBodies[0];
   if (emailBodies.length !== 1 || Object.keys(eb).sort().join() !== "countries,headline,period,shops,to,updates" || eb.updates !== false) throw new Error(`email request: ${JSON.stringify(eb)}`);
   if (/£|amount|balance|\d{2}\/\d{2}/i.test(JSON.stringify(eb))) throw new Error(`email carried more than percentages and shop names: ${JSON.stringify(eb)}`);
+  // the count is sent in the background after the email, so allow it a few seconds to arrive
+  for (let i = 0; i < 50 && !countBodies.length; i++) await page.waitForTimeout(100);
   if (countBodies.map((b) => JSON.stringify(b)).join() !== '{"event":"results_emailed"}') throw new Error(`counts: ${JSON.stringify(countBodies)}`);
   await tid("email-done").click();
   step(`results emailed (${eb.countries.length} countries, ${eb.shops.length} shops, no amounts); one anonymous count`);

@@ -138,8 +138,8 @@ contains no Meta Pixel or other advertising tracker.
 ### 9. If you email us
 
 We keep your email address and message to answer you, and for up to two years afterwards in case you
-follow up. Lawful basis: legitimate interests (answering you). Our email is handled by [email provider
-to confirm].
+follow up. Lawful basis: legitimate interests (answering you). Email to hello@knowyourspend.org is
+forwarded by Cloudflare to a Gmail inbox (Google).
 
 ### 10. App stores
 
