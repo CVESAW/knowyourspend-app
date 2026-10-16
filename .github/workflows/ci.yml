@@ -26,6 +26,8 @@ jobs:
         run: pnpm --filter @kys/ownership validate
       - name: Unit tests
         run: pnpm -r test
+      - name: Look-up service tests (no network)
+        run: node services/lookup/test/names.mjs && node services/lookup/test/pipeline.mjs
       - name: Type check
         run: pnpm -r typecheck
       - name: Build Expo web app (with the server-backed extras on, so the smoke test covers them)

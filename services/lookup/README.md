@@ -21,6 +21,14 @@ was recovered from its deployed bundle on 12 Oct.
 4. **Companies House** — UK banks only: one active company with exactly that name, with its owners from its
    "persons with significant control" filings.
 5. **Wikidata alone** — an owner chain GLEIF can't confirm.
+
+   Since 16 Oct 2026 three kinds of register answer go to the AI step first, and stand only if it isn't sure or
+   can't be reached: a Companies House chain that stops at a UK company (often a UK arm whose foreign owner isn't
+   in the filings, or an unrelated company with the same name, such as CAR PARK or a person's name), Wikidata
+   alone, and any register answer whose top company is in a place holding companies are registered (Luxembourg,
+   Jersey, Guernsey, the Isle of Man, the Cayman Islands, the British Virgin Islands, Bermuda, Gibraltar, Cyprus,
+   Malta). On the 170-name check these answers were wrong 17 times in 52. A register answer kept because the AI
+   step couldn't be reached isn't cached, so it's checked again next time.
 6. **AI estimate by Mistral AI (Paris)**, only for names none of the above could place:
    - Mistral Large 4 gives five answers in one call. At least three must name the same owner's country, and if
      most say it isn't a business (a person's name, a transfer, a generic word), it's treated as one.
@@ -144,5 +152,6 @@ Node 22.18 or later (it runs the `.ts` files directly):
     node services/lookup/test/ai-step.mjs   # the AI step's decisions, with a stand-in for Mistral
     node services/lookup/test/deadline.mjs  # time limits
     node services/lookup/test/handler.mjs   # the live handler, with a stand-in database and Mistral
+    node services/lookup/test/pipeline.mjs  # which register answers go to the AI step (no network)
 
 The last three look owners up on Wikidata and GLEIF for real, so they need the internet.

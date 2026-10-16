@@ -1,9 +1,17 @@
 // @ts-nocheck — recovered bundle code (plain JavaScript), split out of kys-lookup on 14 Oct 2026.
 // The look-up order for one name: cache → our list → Wikidata + GLEIF → Companies House → Wikidata alone → AI.
+// Since 16 Oct 2026, when the AI step is connected, a Companies House answer that stops at a UK company and a
+// Wikidata answer no register confirms are checked by the AI step first, and stand only if it isn't sure or can't
+// answer: on the 170-name check they were wrong 17 times in 52, for shops that are UK arms of owners abroad, and for
+// a person's name or a word (CAR PARK, INTEREST) that some UK company happens to be registered under. The same goes
+// for an answer that stops at a holding company in a place companies are registered for tax (Caffè Nero's filings end
+// in Luxembourg; Spotify's register entry is in Luxembourg too), which the AI step is told not to give as the owner.
 import { CompaniesHouse, Gleif, Wikidata, normaliseName, ownershipFromWikidata, slug, stripLegalSuffix } from "./registries.ts";
 import { aiEstimate } from "./ai.ts";
 // When the Mistral AI step went live: cached "no answer" decisions from before are looked up again.
 export var AI_STEP_SINCE = "2026-10-14";
+// Where holding companies are often registered rather than run from.
+export var HOLDING_PLACES = new Set(["LU", "JE", "GG", "IM", "KY", "VG", "BM", "GI", "CY", "MT"]);
 // Answers are kept per name; for a bank outside the UK (14 Oct 2026) per country and name, since "COOP" in Denmark
 // is not the Co-op in Britain.
 export var cacheKey = (name, country = "GB") => country && country !== "GB" ? `${country}:${stripLegalSuffix(name, true)}` : stripLegalSuffix(name), time = async (f) => {
@@ -40,7 +48,7 @@ export async function lookupName(query, deps) {
       return note("reference_list", "found", `In our list as ${e.display_name}.`), result("RESOLVED", e, "reference_list");
     note("reference_list", "not_found", "Not in our list.");
   }
-  let wd = deps.wikidata ?? new Wikidata(deps.fetch), gleif = deps.gleif ?? new Gleif(deps.fetch), base = (aliases) => ({ id: `lookup-${slug(name)}`, display_name: titleCase(name), kind: "merchant", aliases, as_of: today, reviewed_by: null, reviewed_at: null }), wdCandidate, wdLabel = "";
+  let wd = deps.wikidata ?? new Wikidata(deps.fetch), gleif = deps.gleif ?? new Gleif(deps.fetch), base = (aliases) => ({ id: `lookup-${slug(name)}`, display_name: titleCase(name), kind: "merchant", aliases, as_of: today, reviewed_by: null, reviewed_at: null }), wdCandidate, wdLabel = "", fallback;
   try {
     let [found, ms] = await time(async () => {
       for (let variant of nameVariants(name, abroad)) {
@@ -52,35 +60,53 @@ export async function lookupName(query, deps) {
       }
     });
     if (found) {
-      if (wdCandidate = found.o, wdLabel = found.label, found.o.tier === "EXACT_ID")
-        return note("wikidata_gleif", "found", `${found.o.summary}.`, ms), result("RESOLVED", { ...base([name]), display_name: found.label, chain: found.o.chain, owner_country: found.o.owner_country, ...found.o.legal_country ? { legal_country: found.o.legal_country } : {}, tier: "EXACT_ID", technique: found.o.technique, sources: found.o.sources }, "wikidata_gleif");
-      note("wikidata_gleif", "not_found", `Found ${found.label} on Wikidata, but the global register (GLEIF) can't confirm its owner.`, ms);
+      if (wdCandidate = found.o, wdLabel = found.label, found.o.tier === "EXACT_ID") {
+        let entry = { ...base([name]), display_name: found.label, chain: found.o.chain, owner_country: found.o.owner_country, ...found.o.legal_country ? { legal_country: found.o.legal_country } : {}, tier: "EXACT_ID", technique: found.o.technique, sources: found.o.sources };
+        if (!deps.llm || !HOLDING_PLACES.has(found.o.owner_country))
+          return note("wikidata_gleif", "found", `${found.o.summary}.`, ms), result("RESOLVED", entry, "wikidata_gleif");
+        fallback = { entry, via: "wikidata_gleif" };
+        note("wikidata_gleif", "found", `${found.o.summary}. The top company is in ${found.o.owner_country}, where holding companies are often registered rather than run from, so the AI step checks it.`, ms);
+      } else note("wikidata_gleif", "not_found", `Found ${found.label} on Wikidata, but the global register (GLEIF) can't confirm its owner.`, ms);
     } else note("wikidata_gleif", "not_found", "No business with exactly this name on Wikidata.", ms);
   } catch (e) {
     note("wikidata_gleif", "error", `Wikidata or GLEIF didn't answer (${e.message}).`);
   }
   // Companies House is the UK's register: for a bank elsewhere, a UK company with the same name is likely a different business.
   let chApi = deps.companiesHouseKey && (deps.country ?? "GB") === "GB" ? deps.ch ?? new CompaniesHouse(deps.fetch, deps.companiesHouseKey) : void 0;
-  if (chApi)
+  if (chApi && !fallback)
     try {
       let ch = chApi, [r, ms] = await time(async () => {
         let co = await ch.findActive(name);
         return co ? ch.chainFrom(co) : void 0;
       });
-      if (r)
-        return note("companies_house", "found", `${r.summary} (from the company's filings of who controls it).`, ms), result("RESOLVED", { ...base([name]), display_name: titleCase(stripLegalSuffix(r.chain[0].name)), chain: r.chain, owner_country: r.owner_country, tier: "NAME_MATCH", technique: "Found by exact name in the UK company register (Companies House); owner from its 'persons with significant control' filings.", sources: r.sources }, "companies_house");
-      note("companies_house", "not_found", "No single active UK company with exactly this name.", ms);
+      if (r) {
+        let entry = { ...base([name]), display_name: titleCase(stripLegalSuffix(r.chain[0].name)), chain: r.chain, owner_country: r.owner_country, tier: "NAME_MATCH", technique: "Found by exact name in the UK company register (Companies House); owner from its 'persons with significant control' filings.", sources: r.sources };
+        // An owner abroad in the filings is taken as it is; a UK company, or a holding company registered in a place
+        // like Luxembourg or Jersey, at the top goes to the AI step first.
+        if (!deps.llm || (r.owner_country !== "GB" && !HOLDING_PLACES.has(r.owner_country)))
+          return note("companies_house", "found", `${r.summary} (from the company's filings of who controls it).`, ms), result("RESOLVED", entry, "companies_house");
+        fallback = { entry, via: "companies_house" };
+        note("companies_house", "found", `${r.summary} (from the company's filings of who controls it). A UK company with this name may not be this shop, or may be the UK arm of an owner abroad, so the AI step checks it.`, ms);
+      } else note("companies_house", "not_found", "No single active UK company with exactly this name.", ms);
     } catch (e) {
       note("companies_house", "error", `Companies House didn't answer (${e.message}).`);
     }
-  else note("companies_house", "skipped", (deps.country ?? "GB") === "GB" ? "Not connected yet." : "UK register; not used for a bank outside the UK.");
-  if (wdCandidate)
-    return note("wikidata", "found", `${wdCandidate.summary}. Open data, not confirmed by a register.`), result("RESOLVED", { ...base([name]), display_name: wdLabel, chain: wdCandidate.chain, owner_country: wdCandidate.owner_country, tier: "NAME_MATCH", technique: wdCandidate.technique, sources: wdCandidate.sources }, "wikidata");
+  else if (!fallback) note("companies_house", "skipped", (deps.country ?? "GB") === "GB" ? "Not connected yet." : "UK register; not used for a bank outside the UK.");
+  if (wdCandidate && !fallback) {
+    let entry = { ...base([name]), display_name: wdLabel, chain: wdCandidate.chain, owner_country: wdCandidate.owner_country, tier: "NAME_MATCH", technique: wdCandidate.technique, sources: wdCandidate.sources };
+    if (!deps.llm) return note("wikidata", "found", `${wdCandidate.summary}. Open data, not confirmed by a register.`), result("RESOLVED", entry, "wikidata");
+    fallback = { entry, via: "wikidata" };
+    note("wikidata", "found", `${wdCandidate.summary}. Open data, not confirmed by a register, so the AI step checks it.`);
+  } else if (!wdCandidate) note("wikidata", "not_found", "Nothing usable on Wikidata.");
+  // The register's answer when the AI step can't settle it. Noted with an AI error, it isn't kept, so it's checked again.
+  let standing = () => result("RESOLVED", fallback.entry, fallback.via);
   // A paused AI step (today's limit reached, or the AI account out of credit) is noted as an error, so neither our
   // cache nor the app records the name as unknown and it is tried again later.
   let paused = deps.llm?.state?.paused;
-  if (note("wikidata", "not_found", "Nothing usable on Wikidata."), deps.llm && paused)
+  if (deps.llm && paused) {
     note("llm", "error", `AI step paused (${paused}); try again later.`);
+    if (fallback) return standing();
+  }
   else if (deps.llm)
     try {
       // 14 Oct 2026: Mistral AI (ai.ts): five answers that must agree and the owner looked up in Wikidata/GLEIF; unless
@@ -94,10 +120,12 @@ export async function lookupName(query, deps) {
       if (a.decision === "not_business")
         return note("llm", "rejected", `AI: doesn't look like a business we can identify (${a.reason}).`, ms), result("NOT_A_BUSINESS");
       note("llm", "rejected", `AI wasn't sure enough (${a.reason}).`, ms);
+      if (fallback) return note(fallback.via, "found", "The register's answer stands."), standing();
     } catch (e) {
       // 402: Mistral's prepaid credit has run out; stop asking for the rest of this request
       if (e.status === 402 && deps.llm.state) deps.llm.state.paused = "the AI account is out of credit";
       note("llm", "error", `AI service didn't answer (${e.status === 402 ? "the AI account is out of credit" : e.status ? `HTTP ${e.status}` : e.message}).`);
+      if (fallback) return standing();
     }
   else note("llm", "skipped", "Not connected yet.");
   return result("UNRESOLVED");
