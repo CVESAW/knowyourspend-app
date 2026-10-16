@@ -148,7 +148,7 @@ export default function AddStatement() {
           {bank && (
             <Card style={{ padding: 16, gap: 6 }}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                <P bold style={{ flex: 1, fontSize: 18 }}>Getting your {bank.name} statement</P>
+                <P bold style={{ flex: 1, fontSize: 18 }}>{bank.heading ?? `Getting your ${bank.name} statement`}</P>
                 <LinkText onPress={() => setStep("bank")}>Change bank</LinkText>
               </View>
               <P small muted={3}>{bank.format} · {bank.history}</P>
@@ -170,7 +170,7 @@ export default function AddStatement() {
           <Card dashed style={{ padding: 24, alignItems: "center", gap: 12, borderWidth: 2 }}>
             <Text style={{ fontSize: 40 }}>📄</Text>
             <P bold>Choose your statement file</P>
-            <P small muted={3}>{PDF_AVAILABLE ? "CSV, TXT or PDF" : "CSV or TXT"}</P>
+            <P small muted={3}>{PDF_AVAILABLE ? "CSV, TXT, OFX, QIF or PDF" : "CSV, TXT, OFX or QIF"}</P>
             <Button title="Choose file" onPress={choose} testID="choose-file" />
           </Card>
           <P small muted={3} style={{ textAlign: "center" }}>Your file is opened on this phone. There's no upload.</P>
@@ -210,6 +210,15 @@ export default function AddStatement() {
               </View>
             </View>
           ))}
+          {mapping.amount !== undefined && mapping.paidOut === undefined && (
+            <View style={{ gap: 6 }}>
+              <P bold small>How does spending show?</P>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+                <Chip label="As minus: −12.50" active={!mapping.invertSign} onPress={() => setMapping((m) => ({ ...m, invertSign: false }))} testID="sign-normal" />
+                <Chip label="As plus: 12.50 (credit cards)" active={!!mapping.invertSign} onPress={() => setMapping((m) => ({ ...m, invertSign: true }))} testID="sign-invert" />
+              </View>
+            </View>
+          )}
           <Button title="Read it" onPress={applyMapping} disabled={mapping.date === undefined || mapping.description === undefined || (mapping.amount === undefined && mapping.paidOut === undefined)} />
         </View>
       )}

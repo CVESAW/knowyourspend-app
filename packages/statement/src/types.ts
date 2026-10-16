@@ -62,4 +62,9 @@ export interface ColumnMapping {
    */
   payee?: number;
   dateOrder?: "DMY" | "MDY" | "YMD";
+  /**
+   * Added: card statements list charges as positive numbers. When true, a single `amount` column is
+   * negated so charges become spending. `guessMapping` sets it when most amounts are positive.
+   */
+  invertSign?: boolean;
 }

@@ -102,6 +102,8 @@ export interface ParsedAmount {
   value: number;
   /** ISO code when the cell carried a currency symbol or code. */
   currency?: string;
+  /** The cell said which way the money went (`12.50 CR` / `12.50 DR`), so its sign is final. */
+  marked?: "CR" | "DR";
 }
 
 const SYMBOLS: Record<string, string> = { "£": "GBP", "€": "EUR", $: "USD" };
@@ -116,6 +118,7 @@ export function parseAmount(input: string): ParsedAmount | null {
   if (!s) return null;
   let currency: string | undefined;
   let negative = false;
+  let marked: "CR" | "DR" | undefined;
 
   const code = /(GBP|EUR|USD|CHF|SEK|NOK|DKK|PLN|CZK|HUF|AUD|CAD|NZD|JPY)/i.exec(s);
   if (code) {
@@ -131,7 +134,8 @@ export function parseAmount(input: string): ParsedAmount | null {
   // Credit/debit suffix or prefix.
   const crdr = /^(CR|DR)|(CR|DR)$/i.exec(s);
   if (crdr) {
-    if ((crdr[1] ?? crdr[2])!.toUpperCase() === "DR") negative = true;
+    marked = (crdr[1] ?? crdr[2])!.toUpperCase() as "CR" | "DR";
+    if (marked === "DR") negative = true;
     s = s.replace(/^(CR|DR)|(CR|DR)$/i, "");
   }
   if (/^\(.*\)$/.test(s)) {
@@ -171,7 +175,7 @@ export function parseAmount(input: string): ParsedAmount | null {
   if (!Number.isFinite(n)) return null;
   // Round to cents to kill float noise (e.g. 0.1 + 0.2).
   const value = Math.round((negative ? -n : n) * 100) / 100;
-  return { value: Object.is(value, -0) ? 0 : value, currency };
+  return { value: Object.is(value, -0) ? 0 : value, currency, ...(marked ? { marked } : {}) };
 }
 
 /** Normalise a header cell for comparison: lowercase, trimmed, BOM/quotes/NBSP removed. */

@@ -27,3 +27,19 @@ export const nationwide: BankDefinition = {
   dateOrder: "DMY",
   defaultCurrency: "GBP",
 };
+
+/**
+ * Nationwide, older current-account and credit-card layout (open-source importer test files, Oct 2026):
+ * the same "Account Name:" preamble, then "Date","Transactions","Location","Paid out","Paid in".
+ * UNCONFIRMED.
+ */
+export const nationwideOld: BankDefinition = {
+  id: "nationwide-old",
+  name: "Nationwide (older layout)",
+  confidence: "unconfirmed",
+  source: "accountmerge test data (nationwide_csv_5), Oct 2026",
+  match: (h, lines) => hasAll(h, ["date", "transactions", "paid out", "paid in"]) && lines.some((l) => /^\W*account name:/i.test(l)),
+  columns: { date: "Date", description: "Transactions", paidOut: "Paid out", paidIn: "Paid in", balance: "Balance" },
+  dateOrder: "DMY",
+  defaultCurrency: "GBP",
+};

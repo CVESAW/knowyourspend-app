@@ -1,6 +1,6 @@
 # @kys/statement
 
-Browser-only bank statement parser for KnowYourSpend. It turns a UK/EU bank export (CSV or Santander `.txt`) into typed transactions, classifies each row, and reduces merchant descriptors to a short normalised key. **It runs entirely on the user's device** (main thread or Web Worker). There are no Node APIs, no network calls and no Web Crypto dependency.
+Browser-only bank statement parser for KnowYourSpend. It turns a UK/EU bank export (CSV, OFX/QFX, QIF or Santander `.txt`) into typed transactions, classifies each row, and reduces merchant descriptors to a short normalised key. **It runs entirely on the user's device** (main thread or Web Worker). There are no Node APIs, no network calls and no Web Crypto dependency.
 
 ```ts
 import { decodeFile, parseStatement, sendablePayees, mergeTransactions } from "@kys/statement";
@@ -30,25 +30,36 @@ The normaliser strips locations and references, but it cannot hide the payee its
 
 ## Supported banks
 
-The parser identifies each bank by its header row (the "fingerprint"). Date order is **tied to the detected bank** and never guessed row by row. A bank is marked `confirmed` only when the research notes cite a header row from an importer's source code or a primary source. **No format below has yet been tested against a real exported file.** Collect redacted samples before relying on any of them.
+The parser identifies each bank by its header row (the "fingerprint"). Date order is **tied to the detected bank** and never guessed row by row. A bank is marked `confirmed` only when the research notes cite a header row from an importer's source code or a primary source. **No format below has yet been tested against a file we exported ourselves.** In October 2026 they were run against about 85 published UK sample exports from open-source importers (not kept in this repo). Collect redacted samples of your own before relying on any of them.
 
 | id | Bank | Confidence | Fingerprint / notes |
 |---|---|---|---|
-| `monzo` | Monzo | confirmed | `Transaction ID` + `Emoji`; payee = `Name` (cleaned), raw = `Description` |
+| `monzo` | Monzo | confirmed | `Transaction ID` + `Name` + `Amount`, plus `Emoji`, `Local amount` or `Category`; payee = `Name` (cleaned), raw = `Description` |
 | `starling` | Starling | confirmed | `Counter Party` + `Amount (GBP)`; skips `Opening Balance` row; header from a 2019 business sample |
 | `revolut` | Revolut | confirmed | `Started Date` + `Completed Date` + `State`; COMPLETED rows only; `Fee` → separate fee row |
 | `wise` | Wise | confirmed | `TransferWise ID`; payee = `Merchant`, then payee/payer name; DD-MM-YYYY |
 | `lloyds` | Lloyds / Halifax / Bank of Scotland | confirmed (Lloyds) | `Sort Code` + `Transaction Description` + `Debit Amount`; LBG type codes. That Halifax/BoS files are identical is unconfirmed |
 | `barclays` | Barclays | confirmed | `Number,Date,Account,Amount,Subcategory,Memo`; re-joins unquoted commas, handles tab padding and whole-pound amounts |
 | `nationwide` | Nationwide | confirmed | `Account Name:` preamble + `Paid out`/`Paid in`; `29-Dec-14` and `29 Dec 2024` dates (the latter unconfirmed); £ amounts, Windows-1252 |
+| `nationwide-old` | Nationwide (older layout) | **unconfirmed** | `Account name:` preamble + `Transactions`/`Paid out`/`Paid in` |
 | `natwest` | NatWest / RBS | confirmed | `Value` + `Account Name` + `Account Number` (column names are sourced, exact spelling is not) |
 | `santander` | Santander (.txt) | confirmed | `From: … to …` + `Description:`/`Amount:` key:value blocks, Latin-1 with NBSPs. Santander CSV goes to the generic mapper |
 | `n26` / `n26-legacy` | N26 | confirmed | New: `Booking Date` + `Partner Name`; old: `Payee` + `Amount (EUR)`; ISO dates |
 | `amex` | American Express (UK) | **unconfirmed** | `Appears On Your Statement As` / `Extended Details`; sign inverted. The header comes from the US layout |
 | `hsbc` | HSBC / First Direct | **unconfirmed** | Headerless 3 columns: date, details, amount. This matches *any* headerless file with that shape |
-| `chase-uk` | Chase UK | **unconfirmed** | No header has been sourced. Matched only when the file name contains "chase"; columns come from `guessMapping` |
+| `chase-uk` | Chase UK | **unconfirmed** | `Date,Time,Transaction Type,Description,Amount,Currency,Balance` (from two importers' samples), or any file whose name contains "chase"; columns come from `guessMapping` |
+| `barclaycard` | Barclaycard | **unconfirmed** | `Transaction Date,Posting Date,Card Number,Description,Category,Amount` or `Card Holder Name,…,Merchant Name,Transaction Amount`; sign inverted, `CR`/`DR` marks respected |
+| `mbna` | MBNA | **unconfirmed** | `Transaction Cleared Date` + `Transaction Description` + `Transaction Amount`; sign inverted |
+| `tesco-bank` | Tesco Bank credit card | **unconfirmed** | `Billing Amount` + `Merchant`; £ amounts; sign inverted |
+| `aqua` | Aqua | **unconfirmed** | `Date,Description,Note,Amount(GBP)`; raw = `Note`; sign inverted |
+| `amex-short` | American Express (UK), short download | **unconfirmed** | Exactly `Date,Description,Amount` and a file name like `activity.csv` or containing "amex"; sign inverted |
+| `curve` | Curve | **unconfirmed** | `Merchant` + `Txn Amount (Funding Card)`; ISO dates; sign inverted; Curve Cash (CPT) rows skipped |
+| `ofx` | Any bank, OFX/QFX | confirmed | OFX 1.x SGML or 2.x XML `<STMTTRN>` blocks: `DTPOSTED`, `TRNAMT`, `NAME` + `MEMO`, `FITID`, `CURDEF` |
+| `qif` | Any bank, QIF | confirmed | `!Type:Bank` / `CCard` / `Cash` records (`D`, `T`, `P`, `M`, `N`, ended by `^`); date order worked out over the whole file |
 
-Any other file returns `needsMapping: true` with `headers` and up to 8 `previewRows`. The UI then asks the user for the date, description and amount columns (`ColumnMapping`). `guessMapping` pre-fills the form. It reads the date order from the data where the data settles it; if the data is ambiguous it assumes day-first and adds a warning.
+Before asking, the parser tries an unknown file by its column names alone. If the header names a date and a description, plus either paid out/paid in columns or one amount column where at least 60% of rows are negative, and the dates can only be read one way, it reads the file and adds a warning asking the user to check a few rows.
+
+Any other file returns `needsMapping: true` with `headers` and up to 8 `previewRows`. The UI then asks the user for the date, description and amount columns (`ColumnMapping`). `guessMapping` pre-fills the form. It reads the date order from the data where the data settles it; if the data is ambiguous it assumes day-first and adds a warning. For card files, where charges are positive, the mapper has a sign switch (`invertSign`); `guessMapping` turns it on when at least 75% of the amounts are positive.
 
 ## Adding a bank
 

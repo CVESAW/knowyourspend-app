@@ -1,4 +1,4 @@
-import { hasAll, type BankDefinition } from "./format";
+import { hasAll, hasAny, type BankDefinition } from "./format";
 
 /**
  * Monzo (personal). Header verbatim from rustledger#2387:
@@ -12,7 +12,9 @@ export const monzo: BankDefinition = {
   name: "Monzo",
   confidence: "confirmed",
   source: "rustledger issue #2387; beancount.io Monzo preset",
-  match: (h) => hasAll(h, ["transaction id", "emoji", "name", "amount"]),
+  // Some exports (and older ones) have no Emoji column; Transaction ID + Name + Amount + Local amount or
+  // Category is still Monzo's layout.
+  match: (h) => hasAll(h, ["transaction id", "name", "amount"]) && hasAny(h, ["emoji", "local amount", "category"]),
   columns: {
     date: "Date",
     description: "Description",

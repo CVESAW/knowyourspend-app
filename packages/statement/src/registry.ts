@@ -11,8 +11,10 @@ import { toBankFormat } from "./banks/format";
 import { hsbc } from "./banks/hsbc";
 import { lloyds } from "./banks/lloyds";
 import { monzo } from "./banks/monzo";
+import { ofx, qif } from "./banks/ofx";
 import { n26New, n26Old } from "./banks/n26";
-import { nationwide } from "./banks/nationwide";
+import { nationwide, nationwideOld } from "./banks/nationwide";
+import { amexShort, aqua, barclaycard, curve, mbna, tescoBankCard } from "./banks/cards";
 import { natwest } from "./banks/natwest";
 import { revolut } from "./banks/revolut";
 import { santander } from "./banks/santander";
@@ -20,6 +22,8 @@ import { starling } from "./banks/starling";
 import { wise } from "./banks/wise";
 
 export const BANKS: readonly BankDefinition[] = [
+  ofx,
+  qif,
   monzo,
   starling,
   revolut,
@@ -29,8 +33,15 @@ export const BANKS: readonly BankDefinition[] = [
   lloyds,
   barclays,
   nationwide,
+  nationwideOld,
   natwest,
   amex,
+  barclaycard,
+  mbna,
+  tescoBankCard,
+  aqua,
+  curve,
+  amexShort,
   santander,
   hsbc,
   chaseUk,

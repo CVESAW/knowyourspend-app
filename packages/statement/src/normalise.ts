@@ -16,6 +16,7 @@
  * Implementation: one `pass` of ordered rules, repeated until the output stops changing (a fixed
  * point), which is what makes the function idempotent by construction.
  */
+import { MORE_PLACES } from "./places-more";
 
 export const MAX_PAYEE_LENGTH = 40;
 
@@ -123,6 +124,7 @@ const PREFIX_RE = new RegExp(`^(?:${alt(BANK_PREFIXES)})(?=$|[\\s,:;\\-])[\\s,:;
 const PADDED_COUNTRY_RE = new RegExp(`\\s{2,}(?:${alt([...COUNTRIES_SAFE, ...COUNTRIES_PADDED_ONLY])})\\s*$`);
 const TRAILING_COUNTRY_RE = new RegExp(`\\s(?:${alt(COUNTRIES_SAFE)})$`);
 const TRAILING_PLACE_RE = new RegExp(`\\s(?:${alt(PLACE_NAMES)})$`);
+const MORE_PLACE_RE = new RegExp(`\\s(?:${alt(MORE_PLACES)})$`);
 const TRAILING_CODE_RE = new RegExp(`\\s(?:${alt(TRAILING_CODES)})$`);
 const TLD = "CO\\.UK|ORG\\.UK|GOV\\.UK|AC\\.UK|LTD\\.UK|ME\\.UK|COM|NET|ORG|UK|IE|DE|FR|NL|IO|EU|ES|IT|BE|LU|APP|TV|CO";
 const DOMAIN_TOKEN_RE = new RegExp(`^(?:HTTPS?://)?(?:WWW\\.)?(?:[A-Z0-9-]+\\.)*?([A-Z0-9-]*[A-Z][A-Z0-9-]*)\\.(?:${TLD})(?:/\\S*)?$`);
@@ -134,6 +136,13 @@ function keep(prev: string, next: string): string {
 }
 
 /** Repeatedly apply a trailing-strip regex until it stops matching. */
+/** A town from the longer list comes off only when a word of the shop's name is left before it. */
+function stripMorePlaces(s: string): string {
+  const next = s.replace(MORE_PLACE_RE, "").trim();
+  if (next === s || !/[A-Z].*[A-Z]|[A-Z]&[A-Z]/.test(next) || CONNECTOR_BEFORE.test(next)) return s;
+  return next;
+}
+
 function stripTrailing(s: string, re: RegExp, guardConnector = false): string {
   for (;;) {
     const next = s.replace(re, "").trim();
@@ -164,8 +173,9 @@ function pass(input: string): string {
   s = keep(s, s.replace(/\s*,\s*[\d.,]+\s*[A-Z]{3}\s*,\s*RATE\s+[\d.]+\s*\/\s*[A-Z]{3}(?:\s+ON\s+\S+)?.*$/, ""));
   // `ON 12 MAR`, `ON 12MAR24`, `ON 01-03-2018` and everything after (Barclays memo tail codes).
   s = keep(s, s.replace(new RegExp(`\\s+ON\\s+(?:\\d{1,2}\\s?(?:${MONTHS})(?:\\s?\\d{2,4})?|\\d{1,2}[-/.]\\d{1,2}[-/.]\\d{2,4})\\b.*$`), ""));
-  // NatWest card+date prefix: `4298 11JAN19 C , TESCO …` / `4298 11JAN19 , …`
-  s = keep(s, s.replace(new RegExp(`^\\d{4}\\s+\\d{1,2}(?:${MONTHS})\\d{2}(?:\\s+[A-Z])?\\s*,`), ""));
+  // NatWest card+date prefix: `4298 11JAN19 C , TESCO …` / `7114 20DEC24 CD , SHOP …` / `4298 11JAN19 , …`
+  // / `4321 01SEP26 TESCO …` (the code letters only count when a comma follows them).
+  s = keep(s, s.replace(new RegExp(`^\\d{4}\\s+\\d{1,2}(?:${MONTHS})\\d{2}(?:\\s+[A-Z]{1,2}\\s*,|\\s*,|\\s+)`), ""));
 
   // Punctuation that is never part of a merchant key.
   s = s.replace(/[",;:!?()[\]{}<>|=~^]/g, " ").replace(/\)\)\)/g, " ").replace(/\s+/g, " ").trim();
@@ -237,6 +247,7 @@ function pass(input: string): string {
     s = stripTrailing(s, /[\s\-&/.*+#]+$/);
     s = stripTrailing(s, TRAILING_COUNTRY_RE, true);
     s = stripTrailing(s, TRAILING_PLACE_RE, true);
+    s = stripMorePlaces(s);
     s = stripTrailing(s, /\s(?:[BEGLMNSW]|[A-Z]{2})\d[A-Z\d]?$/); // outward postcode: SE10, M1, EC1A
     s = stripTrailing(s, /\s#?\d+$/); // store / terminal numbers
     s = stripTrailing(s, TRAILING_CODE_RE);

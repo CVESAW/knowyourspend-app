@@ -206,6 +206,7 @@ interface Resolved {
   state?: number;
   fee?: number;
   dateOrder: DateOrder;
+  invertSign?: boolean;
 }
 
 function resolveRef(ref: ColumnRef | undefined, headers: string[], headerless: boolean): number[] {
@@ -263,6 +264,7 @@ function fromColumnMapping(m: Partial<ColumnMapping>, width: number): Resolved |
     currency: ok(m.currency),
     type: ok(m.type),
     dateOrder: m.dateOrder ?? "DMY",
+    invertSign: !!m.invertSign && ok(m.amount) !== undefined,
   };
   return isUsable(res) ? res : null;
 }
@@ -341,6 +343,12 @@ export function guessMapping(headers: string[], rows: string[][]): Partial<Colum
     delete m.paidIn;
   }
   if (m.date !== undefined) m.dateOrder = guessDateOrder(col(m.date)).order;
+  // Card statements list charges as positive numbers: when most amounts in a single amount column
+  // are positive, suggest flipping the sign (the UI shows it as a switch).
+  if (m.amount !== undefined) {
+    const values = col(m.amount).map((c) => parseAmount(c)?.value).filter((v): v is number => v !== undefined && v !== 0);
+    if (values.length >= 3 && values.filter((v) => v > 0).length / values.length >= 0.75) m.invertSign = true;
+  }
   for (const k of Object.keys(m) as (keyof ColumnMapping)[]) if (m[k] === undefined) delete m[k];
   return m;
 }
@@ -420,9 +428,10 @@ function buildTransactions(ctx: BuildContext): Pick<ParseResult, "transactions" 
     // Amount: single signed column, or unsigned paid-in / paid-out pair.
     let amount: number | null = null;
     let symbolCurrency: string | undefined;
+    let signFinal = false; // "12.50 CR" / "12.50 DR": the cell already says which way the money went
     if (res.amount !== undefined) {
       const a = parseAmount(cells[res.amount] ?? "");
-      if (a) [amount, symbolCurrency] = [a.value, a.currency];
+      if (a) [amount, symbolCurrency, signFinal] = [a.value, a.currency, !!a.marked];
     }
     if (amount === null && (res.paidOut !== undefined || res.paidIn !== undefined)) {
       const out = res.paidOut !== undefined ? parseAmount(cells[res.paidOut] ?? "") : null;
@@ -436,7 +445,7 @@ function buildTransactions(ctx: BuildContext): Pick<ParseResult, "transactions" 
       skipped.push({ row: rowNo, reason: "no amount" });
       continue;
     }
-    if (bank?.invertSign) amount = amount === 0 ? 0 : -amount;
+    if ((bank?.invertSign || res.invertSign) && !signFinal) amount = amount === 0 ? 0 : -amount;
 
     const description = collapse(firstNonEmpty(cells, res.description));
     const payee = collapse(firstNonEmpty(cells, res.payee));
@@ -614,8 +623,42 @@ export async function parseStatement(text: string, opts: ParseOptions = {}): Pro
     }
   }
 
-  // 3. Unknown: hand over to the generic mapper.
+  // 3. Unknown bank, but the columns say clearly what they are: read it by their names.
+  const generic = readByColumnNames(table);
+  if (generic) return generic;
+
+  // 4. Unknown: hand over to the generic mapper.
   return needsMapping(locateGenericHeader(table.map(cleanRow)), table);
+}
+
+/**
+ * An unknown bank whose header row names its columns plainly (a date, a description, and money in /
+ * money out columns, or a signed amount that is mostly negative) and whose dates can only be read one
+ * way. Anything less certain goes to the mapper, where the person confirms the columns.
+ */
+function readByColumnNames(table: string[][]): ParseResult | null {
+  const clean = table.map(cleanRow);
+  const loc = locateGenericHeader(clean);
+  if (loc.headerIdx < 0) return null;
+  const byName = guessMapping(loc.headers, []); // header names only, no guessing from the data
+  if (byName.date === undefined || byName.description === undefined) return null;
+  const rows = clean.slice(loc.dataStart, loc.dataStart + 200).filter((r) => !isBlankRow(r));
+  if (!rows.length) return null;
+  const split = byName.paidOut !== undefined && byName.paidIn !== undefined;
+  if (!split) {
+    if (byName.amount === undefined) return null;
+    const values = rows.map((r) => parseAmount(r[byName.amount!] ?? "")?.value).filter((v): v is number => v !== undefined && v !== 0);
+    if (values.length < 2 || values.filter((v) => v < 0).length / values.length < 0.6) return null;
+  }
+  const order = guessDateOrder(rows.map((r) => r[byName.date!] ?? "").filter(Boolean));
+  if (order.ambiguous) return null;
+  const width = Math.max(loc.headers.length, ...table.slice(loc.dataStart, loc.dataStart + 20).map((r) => r.length));
+  const res = fromColumnMapping({ ...byName, invertSign: false, dateOrder: order.order } as ColumnMapping, width);
+  if (!res) return null;
+  const built = buildTransactions({ table, dataStart: loc.dataStart, headers: loc.headers, res, bank: null, defaultCurrency: "GBP" });
+  const unreadable = built.skipped.filter((s) => s.reason === "unparseable date" || s.reason === "no amount").length;
+  if (!built.transactions.length || unreadable > built.transactions.length / 5) return null;
+  return finish(null, built, loc.headers, preview(table, loc.dataStart), ["We didn't recognise this bank, so we read the file by its column names. Check a few rows look right."]);
 }
 
 /**

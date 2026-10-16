@@ -17,7 +17,7 @@ WHAT YOU SEE
 • "Which country is this?" to fix any shop yourself
 • A share card with your percentages, never your amounts
 
-Reads CSV statements from Monzo, Starling, Revolut, Barclays, Lloyds, NatWest, RBS, Nationwide, Santander, Wise and N26, and PDF statements (tested with Revolut, Monzo and Barclays). Other banks' CSV files can be read by matching their columns.
+Reads CSV statements from Monzo, Starling, Revolut, Barclays, Lloyds, NatWest, RBS, Nationwide, Santander, Wise and N26, credit card CSVs from Barclaycard, MBNA, Tesco Bank, Aqua and Amex, OFX and QIF files from any bank, and PDF statements (tested with Revolut, Monzo and Barclays). Other banks' CSV files can be read by matching their columns.
 
 GOOD TO KNOW
 Ownership estimates are based on published data (Companies House, Wikidata, GLEIF and OpenStreetMap) and, where those are missing or out of date, AI estimates labelled "Unverified". They may contain errors; tell us and we'll look into it. Brand names are used for identification only; no affiliation or endorsement. KnowYourSpend doesn't give financial advice and can't move money.

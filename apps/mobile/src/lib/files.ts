@@ -57,7 +57,7 @@ export function isPdf(p: Picked): boolean {
 export async function pickStatement(): Promise<(Picked & { bytes: () => Promise<ArrayBuffer> }) | null> {
   const r = await DocumentPicker.getDocumentAsync({
     // Phones label CSVs inconsistently (text/csv, text/comma-separated-values, application/vnd.ms-excel…), so accept anything there.
-    type: Platform.OS === "web" ? ["text/csv", ".csv", "text/plain", ".txt", "application/vnd.ms-excel", "application/pdf"] : "*/*",
+    type: Platform.OS === "web" ? ["text/csv", ".csv", "text/plain", ".txt", "application/vnd.ms-excel", "application/pdf", ".ofx", ".qfx", ".qif"] : "*/*",
     copyToCacheDirectory: true,
     base64: false,
   });
