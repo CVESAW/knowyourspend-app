@@ -1,0 +1,61 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "copyright": "2026 KnowYourSpend Ltd",
+    "categories": [
+      "LIFESTYLE",
+      "SHOPPING"
+    ],
+    "advisory": {
+      "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+      "contests": "NONE",
+      "gamblingSimulated": "NONE",
+      "horrorOrFearThemes": "NONE",
+      "matureOrSuggestiveThemes": "NONE",
+      "medicalOrTreatmentInformation": "NONE",
+      "profanityOrCrudeHumor": "NONE",
+      "sexualContentGraphicAndNudity": "NONE",
+      "sexualContentOrNudity": "NONE",
+      "violenceCartoonOrFantasy": "NONE",
+      "violenceRealistic": "NONE",
+      "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+      "gambling": false,
+      "unrestrictedWebAccess": false,
+      "kidsAgeBand": null
+    },
+    "info": {
+      "en-GB": {
+        "title": "KnowYourSpend",
+        "subtitle": "See who owns the shops you pay",
+        "description": "KnowYourSpend shows which countries own the companies behind your everyday spending.\n\nAdd a bank statement (a PDF or CSV from your banking app) or take a photo of a receipt. KnowYourSpend reads it on your phone, works out who owns each shop, and shows your spending by the owner's country: a pie chart, a ranked list, a map and a timeline.\n\nPRIVATE BY DESIGN\n• Your statement is read on your phone. Amounts, dates, balances and account details are never uploaded.\n• Receipt photos are read on your phone and not kept.\n• No account, no sign-up, no ads, no advertising trackers.\n• Every report has a \"What data leaves your phone\" panel that lists what, if anything, was sent and why.\n• Look-ups for shops we don't know send the shop name only. Filters hold back people's names and sensitive payees, and you can switch look-ups off.\n• Receipt reading on the phone uses Google's ML Kit, which sends Google basic diagnostics (never the photo or its text).\n\nWHAT YOU SEE\n• The share of your spending that goes to companies owned in the UK, the US, Germany, France and elsewhere\n• Who you pay most, and who ultimately owns them\n• Where each answer came from, and how sure we are\n• \"Which country is this?\" to fix any shop yourself\n• A share card with your percentages, never your amounts\n\nReads CSV statements from Monzo, Starling, Revolut, Barclays, Lloyds, NatWest, RBS, Nationwide, Santander, Wise and N26, and PDF statements (tested with Revolut, Monzo and Barclays). Other banks' CSV files can be read by matching their columns.\n\nGOOD TO KNOW\nOwnership estimates are based on published data (Companies House, Wikidata, GLEIF and OpenStreetMap) and, where those are missing or out of date, AI estimates labelled \"Unverified\". They may contain errors; tell us and we'll look into it. Brand names are used for identification only; no affiliation or endorsement. KnowYourSpend doesn't give financial advice and can't move money.",
+        "keywords": [
+          "ownership",
+          "country",
+          "british",
+          "buy local",
+          "statement",
+          "receipt",
+          "shops",
+          "brands",
+          "spending",
+          "owner",
+          "uk",
+          "privacy"
+        ],
+        "releaseNotes": "First release.",
+        "promoText": "Add a bank statement and see which countries own the shops you pay. It's read on your phone, and the file is never uploaded.",
+        "marketingUrl": "https://knowyourspend.org",
+        "supportUrl": "https://knowyourspend.org/support",
+        "privacyPolicyUrl": "https://knowyourspend.org/privacy"
+      }
+    },
+    "release": {
+      "automaticRelease": false,
+      "phasedRelease": true
+    },
+    "review": {
+      "demoRequired": false,
+      "notes": "KnowYourSpend reads bank statements (PDF or CSV files the user chooses) and receipt photos on the device, and shows which countries own the shops the user paid. It moves no money, gives no financial or investment advice, has no accounts or sign-in, and does not connect to any bank.\n\nTo try it without a statement: open the app and tap \"Try the demo\" on the home screen.\n\nTo try a statement: download https://knowyourspend.org/sample-statement.csv (made-up data) to Files, then tap + > Bank statement > Monzo > Choose file, and pick it.\n\nNetwork use: the app's only request is an optional look-up that sends the names of unfamiliar shops (filtered to exclude people's names; never amounts or dates) to our look-up service. It can be turned off in Settings > Shops we don't know > Look up their owners online > Never. Receipt text recognition runs on the device with Google ML Kit, which sends Google its own basic diagnostics."
+    }
+  }
+}

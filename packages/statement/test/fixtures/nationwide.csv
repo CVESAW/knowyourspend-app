@@ -1,0 +1,13 @@
+"Account Name:","FlexAccount ****12345"
+"Account Balance:","£3,109.25"
+"Available Balance: ","£3,109.25"
+
+"Date","Transaction type","Description","Paid out","Paid in","Balance"
+"01 May 2025","Visa purchase","UBER *TRIP HELP.UBER.COM GB","£5.00","","£1,229.56"
+"02 May 2025","Visa purchase","TESCO STORES 3456 LONDON GB","£23.10","","£1,206.46"
+"03 May 2025","Direct debit","BRITISH GAS","£60.00","","£1,146.46"
+"04 May 2025","Transfer to","J SMITH","£20.00","","£1,126.46"
+"05 May 2025","Bank credit","ACME WIDGETS LTD","","£2,000.00","£3,126.46"
+"06 May 2025","Cash withdrawal","LINK ATM","£30.00","","£3,096.46"
+"07 May 2025","Visa purchase","SQ *THE COFFEE HOUSE","£3.20","","£3,093.26"
+"08 May 2025","Visa purchase","AMAZON.CO.UK*AB12CD34E","","£15.99","£3,109.25"

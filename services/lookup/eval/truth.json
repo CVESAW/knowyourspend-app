@@ -1,0 +1,154 @@
+{
+ "checked": "2026-10-14",
+ "note": "Hand checks of test names where our list (Wikidata/GLEIF) looks out of date or the answer is ambiguous. accept = countries counted as right (rule: the country the ultimate owner is run from; private equity = the firm's head office; franchise = brand owner). skip = left out of the score because the right answer is unclear or the name is ambiguous. Sources are news reports or Wikipedia pages read on the day.",
+ "names": {
+  "ASDA": {
+   "accept": [
+    "GB"
+   ],
+   "why": "Walmart sold Asda in 2021; TDR Capital (London) is now the majority owner.",
+   "source": "https://en.wikipedia.org/wiki/Asda"
+  },
+  "MORRISONS DAILY": {
+   "accept": [
+    "US"
+   ],
+   "why": "Morrisons has been owned by Clayton, Dubilier & Rice (New York private equity) since 2021.",
+   "source": "https://en.wikipedia.org/wiki/Morrisons"
+  },
+  "WELCOME BREAK": {
+   "accept": [
+    "US"
+   ],
+   "why": "Welcome Break is majority-owned by Applegreen, which has been majority-owned by Blackstone since 2021.",
+   "source": "https://en.wikipedia.org/wiki/Applegreen"
+  },
+  "SHARPS": {
+   "accept": [
+    "GB"
+   ],
+   "why": "Sharps Bedrooms is owned by Epiris, a London private-equity firm (not Sun Capital).",
+   "source": "https://en.wikipedia.org/wiki/Sharps_Bedrooms"
+  },
+  "EVANS": {
+   "accept": [
+    "GB"
+   ],
+   "why": "City Chic sold Evans in 2023 to AK Retail Holdings (owner of Yours Clothing and M&Co, Peterborough).",
+   "source": "https://fashionunited.uk/news/business/m-co-owner-ak-retail-holdings-snaps-up-plus-size-retailer-evans/2023080470942"
+  },
+  "FIRED EARTH": {
+   "accept": [
+    "GB"
+   ],
+   "why": "The Fired Earth name was bought by Topps Tiles; no longer part of Middleby.",
+   "source": "https://banburyfm.com/news/fired-earth-name-acquired-by-topps-tiles/"
+  },
+  "PREZZO": {
+   "accept": [
+    "GB",
+    "US"
+   ],
+   "why": "Bought in 2023 by Cain International, an investor run from London and Los Angeles.",
+   "source": "https://thecaterer.com/news/cain-international-acquires-prezzo"
+  },
+  "FARMHOUSE INNS": {
+   "accept": [
+    "HK"
+   ],
+   "why": "A Greene King brand; Greene King is owned by CK Asset Holdings, run from Hong Kong (our list said CN because of how Wikidata records Hong Kong).",
+   "source": "https://en.wikipedia.org/wiki/Greene_King"
+  },
+  "TEMU": {
+   "accept": [
+    "IE",
+    "CN"
+   ],
+   "why": "PDD Holdings' head office has been in Dublin since 2023, but the business is largely run from China; both are defensible.",
+   "source": "https://en.wikipedia.org/wiki/PDD_Holdings"
+  },
+  "ESSAR ENERGY": {
+   "accept": [
+    "IN",
+    "GB"
+   ],
+   "why": "Essar is controlled by the Ruia family, who run it from Mumbai and London.",
+   "source": "https://en.wikipedia.org/wiki/Essar_Group"
+  },
+  "BETTER": {
+   "skip": true,
+   "why": "Ambiguous: GLL's 'Better' leisure centres (GB) or Better.com (US)."
+  },
+  "MACE": {
+   "skip": true,
+   "why": "Ambiguous: the Mace convenience symbol group (different owners in GB and Northern Ireland) or Mace the construction company."
+  },
+  "MACE NORTHERN IRELAND": {
+   "skip": true,
+   "why": "Current owner of the Mace NI franchise not confirmed."
+  },
+  "FITNESS FIRST": {
+   "skip": true,
+   "why": "The UK clubs passed to DW Sports in 2016 and DW to Frasers Group in 2020; current owner of the UK Fitness First clubs not confirmed."
+  },
+  "A&O HOSTELS": {
+   "skip": true,
+   "why": "Current owner not confirmed (founder-run, previously TPG Real Estate; our list says StepStone)."
+  },
+  "OVO": {
+   "accept": [
+    "DE"
+   ],
+   "why": "E.ON completed its takeover of OVO Energy on 8 October 2026.",
+   "source": "https://www.energylivenews.com/2026/10/08/e-on-completes-ovo-takeover/"
+  },
+  "FABB FURNITURE": {
+   "accept": [
+    "AU"
+   ],
+   "why": "Bought by Nick Scali (Australia, listed) to enter the UK.",
+   "source": "https://insideretail.com.au/business/nick-scali-to-acquire-fabb-furniture-to-enter-uk-202404"
+  },
+  "OBRIENS CAFE": {
+   "accept": [
+    "ZA"
+   ],
+   "why": "BWG Group bought O'Briens in June 2026; BWG is wholly owned by SPAR South Africa.",
+   "source": "https://en.wikipedia.org/wiki/BWG_Foods"
+  },
+  "EASYJET": {
+   "accept": [
+    "GB"
+   ],
+   "why": "Apollo's takeover was agreed in August 2026 but completes next year; until then easyJet plc is its own owner.",
+   "source": "https://www.bloomberg.com/news/articles/2026-10-08/easyjet-sees-apollo-takeover-on-track-for-completion-next-year"
+  },
+  "BOOTS": {
+   "accept": [
+    "US"
+   ],
+   "why": "Sycamore Partners (US) owns Boots; its sale to Wittington Investments and Fairfax (Canada), agreed on 7 October 2026, hasn't completed.",
+   "source": "https://www.alternativeswatch.com/2026/10/07/sycamore-partial-exit-boots-8-9bn-wittington-fairfax/"
+  },
+  "PRET A MANGER": {
+   "accept": [
+    "LU",
+    "DE"
+   ],
+   "why": "Owned by JAB Holding (run from Luxembourg), which is controlled by Germany's Reimann family; both are defensible.",
+   "source": "https://en.wikipedia.org/wiki/JAB_Holding_Company"
+  },
+  "PETIT PRET": {
+   "accept": [
+    "LU",
+    "DE"
+   ],
+   "why": "Part of Pret A Manger; see PRET A MANGER.",
+   "source": "https://en.wikipedia.org/wiki/JAB_Holding_Company"
+  },
+  "PARKERS": {
+   "skip": true,
+   "why": "Ambiguous: Parkers estate agents (GB) or the Parkers car-price guide (Bauer Media, DE)."
+  }
+ }
+}

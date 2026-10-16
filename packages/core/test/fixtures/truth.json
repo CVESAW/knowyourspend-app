@@ -1,0 +1,28 @@
+{
+ "revolut": {
+  "rows": 46,
+  "out": 1957.93,
+  "in": 1850.0,
+  "first": "Amazon",
+  "closing": 1092.07
+ },
+ "monzo": {
+  "rows": 30,
+  "out": 1182.79,
+  "in": 1850.0,
+  "first": "Amazon",
+  "closing": 1867.21
+ },
+ "barclays": {
+  "rows": 30,
+  "out": 1182.79,
+  "in": 1850.0,
+  "first": "Amazon",
+  "closing": 1867.21
+ },
+ "revolut-2026": {
+  "rows": 28,
+  "out": 11020.86,
+  "in": 7524.73
+ }
+}

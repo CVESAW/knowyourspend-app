@@ -1,0 +1,46 @@
+KnowYourSpend
+Copyright (c) 2026 the KnowYourSpend authors. The code is under the MIT licence (see LICENSE).
+
+The KnowYourSpend name and logo are not licensed under the MIT licence.
+
+This repository also contains data from other sources, which keeps its own licence:
+
+1. packages/ownership/data/open-brands.json (and the brand list the app downloads)
+   Built from OpenStreetMap's name-suggestion-index (https://github.com/osmlab/name-suggestion-index),
+   BSD-3-Clause, and Wikidata (https://www.wikidata.org), CC0 1.0. The name-suggestion-index licence:
+
+   Copyright 2018, name-suggestion-index contributors
+   
+   Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+   
+   1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+   
+   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+   
+   3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+   
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+2. packages/ownership/data/merchants.json and product-brands.json
+   Our own list. Facts in it come from Wikidata (CC0 1.0), GLEIF's LEI data (CC0 1.0,
+   https://www.gleif.org), Companies House (Open Government Licence v3.0,
+   https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/) and the company pages
+   and press releases cited in each entry's sources.
+
+3. packages/core/data/places.json
+   Town and city names from GeoNames (https://www.geonames.org), CC BY 4.0
+   (https://creativecommons.org/licenses/by/4.0/). Reduced to names and country codes.
+
+4. packages/core/data/geo.json
+   World land outline from world-atlas (https://github.com/topojson/world-atlas), derived from Natural
+   Earth (public domain). world-atlas is Copyright 2013-2019 Michael Bostock, under the ISC licence:
+
+   Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee
+   is hereby granted, provided that the above copyright notice and this permission notice appear in all
+   copies.
+
+5. Look-up answers served by services/lookup
+   Answers drawn from Wikidata (CC0 1.0), GLEIF (CC0 1.0) and Companies House (Open Government Licence
+   v3.0, "Contains public sector information licensed under the Open Government Licence v3.0").
+
+Third-party npm packages are listed in pnpm-lock.yaml and keep their own licences.

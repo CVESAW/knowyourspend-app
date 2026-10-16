@@ -1,0 +1,462 @@
+[
+ {
+  "raw": "TESCO STORES 3456",
+  "expected": "TESCO STORES"
+ },
+ {
+  "raw": "TESCO STORES 3456 LONDON GB",
+  "expected": "TESCO STORES"
+ },
+ {
+  "raw": "CARD PAYMENT TO TESCO STORES 3456 ON 12 MAR",
+  "expected": "TESCO STORES"
+ },
+ {
+  "raw": "SAINSBURYS S/MKTS",
+  "expected": "SAINSBURYS S/MKTS"
+ },
+ {
+  "raw": "SAINSBURY'S S/MKT LONDON",
+  "expected": "SAINSBURYS S/MKT"
+ },
+ {
+  "raw": "COSTA COFFEE 43012",
+  "expected": "COSTA COFFEE"
+ },
+ {
+  "raw": "COSTA COFFEE 43012        LONDON        GBR",
+  "expected": "COSTA COFFEE"
+ },
+ {
+  "raw": "PRET A MANGER",
+  "expected": "PRET A MANGER"
+ },
+ {
+  "raw": "PRET A MANGER LONDON SE10",
+  "expected": "PRET A MANGER"
+ },
+ {
+  "raw": "AMAZON.CO.UK*AB12CD34E",
+  "expected": "AMAZON"
+ },
+ {
+  "raw": "AMZNMKTPLACE",
+  "expected": "AMAZON"
+ },
+ {
+  "raw": "AMZN MKTP UK*2A3B45CD6",
+  "expected": "AMAZON"
+ },
+ {
+  "raw": "AMZN Mktp",
+  "expected": "AMAZON"
+ },
+ {
+  "raw": "Amazon.co.uk*RT5YU78K9 AMAZON.CO.UK LUX",
+  "expected": "AMAZON"
+ },
+ {
+  "raw": "NETFLIX.COM",
+  "expected": "NETFLIX"
+ },
+ {
+  "raw": "NETFLIX.COM               AMSTERDAM     NLD",
+  "expected": "NETFLIX"
+ },
+ {
+  "raw": "SPOTIFY",
+  "expected": "SPOTIFY"
+ },
+ {
+  "raw": "SPOTIFY P1A2B3C4D5 STOCKHOLM",
+  "expected": "SPOTIFY"
+ },
+ {
+  "raw": "TFL TRAVEL CH",
+  "expected": "TFL"
+ },
+ {
+  "raw": "TFL TRAVEL CHARGE TFL.GOV.UK/CP",
+  "expected": "TFL"
+ },
+ {
+  "raw": "UBER *TRIP HELP.UBER.COM GB",
+  "expected": "UBER"
+ },
+ {
+  "raw": "UBER *TRIP HELP.UBER.COM FR",
+  "expected": "UBER"
+ },
+ {
+  "raw": "UBER *EATS",
+  "expected": "UBER EATS"
+ },
+ {
+  "raw": "UBER * EATS PENDING",
+  "expected": "UBER EATS"
+ },
+ {
+  "raw": "UBEREATS",
+  "expected": "UBER EATS"
+ },
+ {
+  "raw": "SHELL",
+  "expected": "SHELL"
+ },
+ {
+  "raw": "SHELL WEMBLEY 123",
+  "expected": "SHELL"
+ },
+ {
+  "raw": "DELIVEROO",
+  "expected": "DELIVEROO"
+ },
+ {
+  "raw": "DELIVEROO*ORDER 12345678",
+  "expected": "DELIVEROO"
+ },
+ {
+  "raw": "SQ *THE COFFEE HOUSE",
+  "expected": "THE COFFEE HOUSE"
+ },
+ {
+  "raw": "SQ*BLUE BOTTLE",
+  "expected": "BLUE BOTTLE"
+ },
+ {
+  "raw": "SUMUP *JOES BARBERS",
+  "expected": "JOES BARBERS"
+ },
+ {
+  "raw": "SUMUP*MARKET STALL",
+  "expected": "MARKET STALL"
+ },
+ {
+  "raw": "SUMUP  *  COFFEE CART",
+  "expected": "COFFEE CART"
+ },
+ {
+  "raw": "ZETTLE_*GREEN CAFE",
+  "expected": "GREEN CAFE"
+ },
+ {
+  "raw": "IZ *FARMERS MARKET",
+  "expected": "FARMERS MARKET"
+ },
+ {
+  "raw": "PAYPAL *EBAY",
+  "expected": "EBAY"
+ },
+ {
+  "raw": "PAYPAL *EBAY 35314369001 LUX",
+  "expected": "EBAY"
+ },
+ {
+  "raw": "PAYPAL *STEAM GAMES",
+  "expected": "STEAM GAMES"
+ },
+ {
+  "raw": "PAYPAL",
+  "expected": "PAYPAL"
+ },
+ {
+  "raw": "PAYPAL *",
+  "expected": "PAYPAL"
+ },
+ {
+  "raw": "PP*DEPOP",
+  "expected": "DEPOP"
+ },
+ {
+  "raw": "GOOGLE *YOUTUBE PREMIUM",
+  "expected": "YOUTUBE PREMIUM"
+ },
+ {
+  "raw": "GOOGLE *GOOGLE STORAGE",
+  "expected": "GOOGLE STORAGE"
+ },
+ {
+  "raw": "CRV*TESCO STORES 3456",
+  "expected": "TESCO STORES"
+ },
+ {
+  "raw": "CARD PAYMENT TO STAGECOACH BUS,4.40 GBP, RATE 1.00/GBP ON 01-03-2018",
+  "expected": "STAGECOACH BUS"
+ },
+ {
+  "raw": "DIRECT DEBIT PAYMENT TO OCTOPUS ENERGY REF 12345678",
+  "expected": "OCTOPUS ENERGY"
+ },
+ {
+  "raw": "DD THAMES WATER",
+  "expected": "THAMES WATER"
+ },
+ {
+  "raw": "D STEPHENS 18MAY19",
+  "expected": "D STEPHENS"
+ },
+ {
+  "raw": "POS COSTA COFFEE",
+  "expected": "COSTA COFFEE"
+ },
+ {
+  "raw": "VIS TESCO STORES",
+  "expected": "TESCO STORES"
+ },
+ {
+  "raw": "CRD NANDOS",
+  "expected": "NANDOS"
+ },
+ {
+  "raw": "DEB GREGGS PLC 1234 LONDON",
+  "expected": "GREGGS PLC"
+ },
+ {
+  "raw": "CONTACTLESS PAYMENT PRET A MANGER",
+  "expected": "PRET A MANGER"
+ },
+ {
+  "raw": "FPO OCTOPUS ENERGY",
+  "expected": "OCTOPUS ENERGY"
+ },
+ {
+  "raw": "BGC ACME WIDGETS LTD",
+  "expected": "ACME WIDGETS LTD"
+ },
+ {
+  "raw": "PURCHASE WAITROSE 123",
+  "expected": "WAITROSE"
+ },
+ {
+  "raw": "DREAMHOST.COM         UNITED STATES",
+  "expected": "DREAMHOST"
+ },
+ {
+  "raw": "WWW.HETZNER.DE        GERMANY",
+  "expected": "HETZNER"
+ },
+ {
+  "raw": "COSTA COFFEE 12345      ON 14 MAR          BCC",
+  "expected": "COSTA COFFEE"
+ },
+ {
+  "raw": "'4298 11JAN19 C , TESCO STORES 2468 , LONDON GB",
+  "expected": "TESCO STORES"
+ },
+ {
+  "raw": "4298 11JAN19 , SAINSBURYS S/MKT , CROYDON GB",
+  "expected": "SAINSBURYS S/MKT"
+ },
+ {
+  "raw": "TESCO STORES 3456 )))",
+  "expected": "TESCO STORES"
+ },
+ {
+  "raw": "MCDONALD'S 1234 MANCHESTER",
+  "expected": "MCDONALDS"
+ },
+ {
+  "raw": "APPLE.COM/BILL",
+  "expected": "APPLE"
+ },
+ {
+  "raw": "LIDL GB LONDON",
+  "expected": "LIDL"
+ },
+ {
+  "raw": "ALDI STORES 78",
+  "expected": "ALDI STORES"
+ },
+ {
+  "raw": "BOOTS 1234 BIRMINGHAM",
+  "expected": "BOOTS"
+ },
+ {
+  "raw": "TESCO STORES *1234",
+  "expected": "TESCO STORES"
+ },
+ {
+  "raw": "TESCO STORES CARD ENDING 1234",
+  "expected": "TESCO STORES"
+ },
+ {
+  "raw": "TESCO STORES CD 1234",
+  "expected": "TESCO STORES"
+ },
+ {
+  "raw": "PRET A MANGER 12:34",
+  "expected": "PRET A MANGER"
+ },
+ {
+  "raw": "EASYJET 01/03/2024 ABCD1234",
+  "expected": "EASYJET"
+ },
+ {
+  "raw": "CAFÉ NERO 123 LONDON",
+  "expected": "CAFE NERO"
+ },
+ {
+  "raw": "AIR FRANCE",
+  "expected": "AIR FRANCE"
+ },
+ {
+  "raw": "BANK OF IRELAND",
+  "expected": "BANK OF IRELAND"
+ },
+ {
+  "raw": "NETFLIX NEW YORK",
+  "expected": "NETFLIX"
+ },
+ {
+  "raw": "TOYS R US",
+  "expected": "TOYS R US"
+ },
+ {
+  "raw": "TOYS R US      GB",
+  "expected": "TOYS R US"
+ },
+ {
+  "raw": "IKEA LTD GREENWICH SE10 0QJ",
+  "expected": "IKEA LTD"
+ },
+ {
+  "raw": "ARGOS LTD EC1A 1BB",
+  "expected": "ARGOS LTD"
+ },
+ {
+  "raw": "7-ELEVEN",
+  "expected": "7-ELEVEN"
+ },
+ {
+  "raw": "O2 UK",
+  "expected": "O2"
+ },
+ {
+  "raw": "EE LIMITED",
+  "expected": "EE LIMITED"
+ },
+ {
+  "raw": "LONDON",
+  "expected": "LONDON"
+ },
+ {
+  "raw": "12345678",
+  "expected": "12345678"
+ },
+ {
+  "raw": "",
+  "expected": ""
+ },
+ {
+  "raw": "   tesco    stores   ",
+  "expected": "TESCO STORES"
+ },
+ {
+  "raw": "GBP 12.50 TESCO",
+  "expected": "TESCO"
+ },
+ {
+  "raw": "TESCO 12.50 GBP",
+  "expected": "TESCO"
+ },
+ {
+  "raw": "HMRC PAYE REF 123PA00012345",
+  "expected": "HMRC PAYE"
+ },
+ {
+  "raw": "SPOTIFY UK",
+  "expected": "SPOTIFY"
+ },
+ {
+  "raw": "DISNEY PLUS",
+  "expected": "DISNEY PLUS"
+ },
+ {
+  "raw": "GREGGS 3456 ON 01 MAR 2024",
+  "expected": "GREGGS"
+ },
+ {
+  "raw": "TESCO PFS 3456",
+  "expected": "TESCO PFS"
+ },
+ {
+  "raw": "SHELL 12:34 03/03/24",
+  "expected": "SHELL"
+ },
+ {
+  "raw": "TRAINLINE.COM",
+  "expected": "TRAINLINE"
+ },
+ {
+  "raw": "WWW.ASOS.COM",
+  "expected": "ASOS"
+ },
+ {
+  "raw": "Deliveroo.co.uk",
+  "expected": "DELIVEROO"
+ },
+ {
+  "raw": "STARBUCKS DUBLIN IRL",
+  "expected": "STARBUCKS"
+ },
+ {
+  "raw": "Visa purchase COSTA COFFEE",
+  "expected": "COSTA COFFEE"
+ },
+ {
+  "raw": "DIRECT DEBIT EE LIMITED",
+  "expected": "EE LIMITED"
+ },
+ {
+  "raw": "TRANSPORT FOR LONDON",
+  "expected": "TFL"
+ },
+ {
+  "raw": "BET365",
+  "expected": "BET365"
+ },
+ {
+  "raw": "MATCH.COM",
+  "expected": "MATCH"
+ },
+ {
+  "raw": "WAITROSE 123 LONDON SW1A 1AA GB",
+  "expected": "WAITROSE"
+ },
+ {
+  "raw": "NANDOS CHICKENLAND LTD      LEEDS",
+  "expected": "NANDOS CHICKENLAND LTD"
+ },
+ {
+  "raw": "PRIMARK STORES LTD\tLIVERPOOL",
+  "expected": "PRIMARK STORES LTD"
+ },
+ {
+  "raw": "LUSH RETAIL LTD LONDON ON 03 JAN",
+  "expected": "LUSH RETAIL LTD"
+ },
+ {
+  "raw": "ASDA SUPERSTORE 4567 ON 12MAR24",
+  "expected": "ASDA SUPERSTORE"
+ },
+ {
+  "raw": "DIRECT DEBIT PAYMENT TO VODAFONE LTD REF 123456789, MANDATE NO 0012",
+  "expected": "VODAFONE LTD"
+ },
+ {
+  "raw": "A VERY LONG MERCHANT NAME THAT GOES ON AND ON FOREVER LIMITED",
+  "expected": "A VERY LONG MERCHANT NAME THAT GOES ON A"
+ },
+ {
+  "raw": "4298 07MAR25 , DELIVEROO , LONDON GB",
+  "expected": "DELIVEROO"
+ },
+ {
+  "raw": "UBER *TRIP-ABCDEFGH HELP.UBER.COM",
+  "expected": "UBER"
+ },
+ {
+  "raw": "SMITH, JONES & CO LTD ON 02 MAR BCC",
+  "expected": "SMITH JONES & CO LTD"
+ }
+]

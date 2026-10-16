@@ -1,0 +1,7 @@
+Account Name:,Flexaccount ****12345
+Account Balance:,£0.00
+Available Balance: £0.00
+
+Date,Transaction type,Description,Paid out,Paid in,Balance
+29-Dec-14,Transfer to,ABC,£1.23,,£0.00
+30-Dec-14,Visa purchase,COSTA COFFEE LONDON GB,£2.50,,£-2.50

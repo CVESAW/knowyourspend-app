@@ -1,0 +1,1006 @@
+{
+ "built": "2026-10-11",
+ "note": "Expected = owner country in our list (Wikidata/GLEIF); null = should not name an owner.",
+ "cases": [
+  {
+   "name": "WHSMITH",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "WH Smith PLC"
+  },
+  {
+   "name": "EE",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "BT Group plc"
+  },
+  {
+   "name": "NEXT RETAIL",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "Next plc"
+  },
+  {
+   "name": "STARBUCKS",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Starbucks Corporation"
+  },
+  {
+   "name": "APPLE.COM/BILL",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Apple Inc."
+  },
+  {
+   "name": "SCREWFIX",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "Kingfisher plc"
+  },
+  {
+   "name": "TEMU",
+   "expected": "IE",
+   "set": "known-chains",
+   "owner": "PDD Holdings Inc."
+  },
+  {
+   "name": "UNIQLO",
+   "expected": "JP",
+   "set": "known-chains",
+   "owner": "Fast Retailing Co., Ltd."
+  },
+  {
+   "name": "PADDY POWER",
+   "expected": "IE",
+   "set": "known-chains",
+   "owner": "Flutter Entertainment plc"
+  },
+  {
+   "name": "NETFLIX",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Netflix, Inc."
+  },
+  {
+   "name": "CURRYS",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "Currys plc"
+  },
+  {
+   "name": "ESSO",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Exxon Mobil Corporation"
+  },
+  {
+   "name": "AVANTI WEST COAST",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "FirstGroup plc"
+  },
+  {
+   "name": "ALIEXPRESS",
+   "expected": "CN",
+   "set": "known-chains",
+   "owner": "Alibaba Group Holding Limited"
+  },
+  {
+   "name": "DAZN",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Access Industries, Inc."
+  },
+  {
+   "name": "SPOTIFY",
+   "expected": "SE",
+   "set": "known-chains",
+   "owner": "Spotify Technology S.A."
+  },
+  {
+   "name": "AIRBNB",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Airbnb, Inc."
+  },
+  {
+   "name": "AUDIBLE",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Amazon.com, Inc."
+  },
+  {
+   "name": "PAYPAL",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "PayPal Holdings, Inc."
+  },
+  {
+   "name": "GOOGLE",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Alphabet Inc."
+  },
+  {
+   "name": "COSTA",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "The Coca-Cola Company"
+  },
+  {
+   "name": "BRITISH GAS",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "Centrica plc"
+  },
+  {
+   "name": "XBOX",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Microsoft Corporation"
+  },
+  {
+   "name": "ADOBE",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Adobe Inc."
+  },
+  {
+   "name": "EASYJET",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "easyJet plc"
+  },
+  {
+   "name": "GREGGS",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "Greggs plc"
+  },
+  {
+   "name": "JOHN LEWIS",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "John Lewis plc"
+  },
+  {
+   "name": "E.ON",
+   "expected": "DE",
+   "set": "known-chains",
+   "owner": "E.ON SE"
+  },
+  {
+   "name": "UBER EATS",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Uber Technologies, Inc."
+  },
+  {
+   "name": "RYANAIR",
+   "expected": "IE",
+   "set": "known-chains",
+   "owner": "Ryanair Holdings plc"
+  },
+  {
+   "name": "SKY",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Comcast Corporation"
+  },
+  {
+   "name": "PLAYSTATION",
+   "expected": "JP",
+   "set": "known-chains",
+   "owner": "Sony Group Corporation"
+  },
+  {
+   "name": "LIME RIDE",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Neutron Holdings, Inc. (Lime)"
+  },
+  {
+   "name": "B&Q",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "Kingfisher plc"
+  },
+  {
+   "name": "KFC",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Yum! Brands, Inc."
+  },
+  {
+   "name": "BOOKING.COM",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Booking Holdings Inc."
+  },
+  {
+   "name": "SHELL",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "Shell plc"
+  },
+  {
+   "name": "SCOTTISH POWER",
+   "expected": "ES",
+   "set": "known-chains",
+   "owner": "Iberdrola, S.A."
+  },
+  {
+   "name": "M&S",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "Marks and Spencer Group plc"
+  },
+  {
+   "name": "EBAY",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "eBay Inc."
+  },
+  {
+   "name": "BET365",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "bet365 Group Ltd"
+  },
+  {
+   "name": "TESCO",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "Tesco PLC"
+  },
+  {
+   "name": "NINTENDO",
+   "expected": "JP",
+   "set": "known-chains",
+   "owner": "Nintendo Co., Ltd."
+  },
+  {
+   "name": "ASOS",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "ASOS plc"
+  },
+  {
+   "name": "BT",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "BT Group plc"
+  },
+  {
+   "name": "MICROSOFT",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Microsoft Corporation"
+  },
+  {
+   "name": "PIZZA HUT",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Yum! Brands, Inc."
+  },
+  {
+   "name": "SAINSBURYS",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "J Sainsbury plc"
+  },
+  {
+   "name": "DISNEY PLUS",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "The Walt Disney Company"
+  },
+  {
+   "name": "PREMIER INN",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "Whitbread PLC"
+  },
+  {
+   "name": "DAVID LLOYD",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "TDR Capital LLP"
+  },
+  {
+   "name": "BOOHOO",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "Debenhams Group plc (formerly boohoo group plc)"
+  },
+  {
+   "name": "ETSY",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Etsy, Inc."
+  },
+  {
+   "name": "AMAZON",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Amazon.com, Inc."
+  },
+  {
+   "name": "ARGOS",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "J Sainsbury plc"
+  },
+  {
+   "name": "OVO",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "OVO Energy Ltd"
+  },
+  {
+   "name": "UBER",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Uber Technologies, Inc."
+  },
+  {
+   "name": "VODAFONE",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "Vodafone Group Plc"
+  },
+  {
+   "name": "DUNELM",
+   "expected": "GB",
+   "set": "known-chains",
+   "owner": "Dunelm Group plc"
+  },
+  {
+   "name": "YOUTUBE",
+   "expected": "US",
+   "set": "known-chains",
+   "owner": "Alphabet Inc."
+  },
+  {
+   "name": "ONEILLS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Mitchells & Butlers"
+  },
+  {
+   "name": "H SAMUEL",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Signet Jewelers Limited"
+  },
+  {
+   "name": "MILLETS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Pentland Group"
+  },
+  {
+   "name": "CONRAD HOTELS & RESORTS",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Hilton Worldwide"
+  },
+  {
+   "name": "BARGAIN BOOZE SELECT CONVENIENCE",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Bestway"
+  },
+  {
+   "name": "ALL BAR ONE",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Mitchells & Butlers"
+  },
+  {
+   "name": "SHARPS",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Sun Capital Partners"
+  },
+  {
+   "name": "EDITION HOTELS",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Marriott International"
+  },
+  {
+   "name": "WELCOME BREAK",
+   "expected": "IE",
+   "set": "owned-brands",
+   "owner": "Applegreen"
+  },
+  {
+   "name": "TABLE TABLE",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Whitbread"
+  },
+  {
+   "name": "AS 24",
+   "expected": "FR",
+   "set": "owned-brands",
+   "owner": "Q154037"
+  },
+  {
+   "name": "PLACES LEISURE",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Places for People"
+  },
+  {
+   "name": "CHARLOTTE TILBURY BEAUTY",
+   "expected": "ES",
+   "set": "owned-brands",
+   "owner": "Puig"
+  },
+  {
+   "name": "ROGER PLATT",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Sequence UK"
+  },
+  {
+   "name": "FABB FURNITURE",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "AHF"
+  },
+  {
+   "name": "NEXT HOME",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Next plc"
+  },
+  {
+   "name": "THE CO OPERATIVE FUNERALCARE",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "The Co-operative Group"
+  },
+  {
+   "name": "TICKETMASTER",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Liberty Media"
+  },
+  {
+   "name": "PIZZA HUT DELIVERY",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Yum! Brands"
+  },
+  {
+   "name": "PRET A MANGER",
+   "expected": "LU",
+   "set": "owned-brands",
+   "owner": "JAB Holding Company"
+  },
+  {
+   "name": "HAART",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Spicerhaart"
+  },
+  {
+   "name": "HMV RETAIL LTD",
+   "expected": "CA",
+   "set": "owned-brands",
+   "owner": "Sunrise Records"
+  },
+  {
+   "name": "WAITROSE & PARTNERS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "John Lewis Partnership"
+  },
+  {
+   "name": "BOOTS",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Walgreens Boots Alliance"
+  },
+  {
+   "name": "HOME BARGAINS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "TJ Morris"
+  },
+  {
+   "name": "LEADERS",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Platinum Equity"
+  },
+  {
+   "name": "CANOPY BY HILTON",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Hilton Worldwide"
+  },
+  {
+   "name": "MOOCH",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Cardzone"
+  },
+  {
+   "name": "PARKERS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "The Property Franchise Group"
+  },
+  {
+   "name": "BUBBA GUMP SHRIMP COMPANY",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Landry's, Inc."
+  },
+  {
+   "name": "PUCCINOS",
+   "expected": "IT",
+   "set": "owned-brands",
+   "owner": "Massimo Zanetti Beverage Group"
+  },
+  {
+   "name": "ACCESS BANK",
+   "expected": "NG",
+   "set": "owned-brands",
+   "owner": "Access Bank Group"
+  },
+  {
+   "name": "JOHNSONS CLEANERS UK",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Timpson"
+  },
+  {
+   "name": "BANK OF SCOTLAND",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Lloyds Banking Group"
+  },
+  {
+   "name": "JD GYMS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Pentland Group"
+  },
+  {
+   "name": "DAYS INN",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Wyndham Worldwide"
+  },
+  {
+   "name": "BANANA TREE",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "The Big Table Group"
+  },
+  {
+   "name": "KWIK FIT",
+   "expected": "JP",
+   "set": "owned-brands",
+   "owner": "Itochu"
+  },
+  {
+   "name": "LONDIS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Tesco"
+  },
+  {
+   "name": "MANNERS & HARRISON",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Sequence UK"
+  },
+  {
+   "name": "TOWNENDS ESTATE AGENTS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "TRSL Ltd."
+  },
+  {
+   "name": "TAYLORS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Countrywide"
+  },
+  {
+   "name": "TGJONES",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Modella Capital"
+  },
+  {
+   "name": "PETIT PRET",
+   "expected": "LU",
+   "set": "owned-brands",
+   "owner": "JAB Holding Company"
+  },
+  {
+   "name": "SYTNER SELECT",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Penske Corporation"
+  },
+  {
+   "name": "BETTER",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Greenwich Leisure Limited"
+  },
+  {
+   "name": "SAINSBURYS BANK",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "J Sainsbury"
+  },
+  {
+   "name": "CO OP FOOD",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "The Co-operative Group"
+  },
+  {
+   "name": "SUPER 8",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Wyndham Worldwide"
+  },
+  {
+   "name": "ESSAR ENERGY",
+   "expected": "IN",
+   "set": "owned-brands",
+   "owner": "Essar Group"
+  },
+  {
+   "name": "SWETENHAMS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Sequence UK"
+  },
+  {
+   "name": "FARMHOUSE INNS",
+   "expected": "CN",
+   "set": "owned-brands",
+   "owner": "CK Asset Holdings"
+  },
+  {
+   "name": "BROWNS RESTAURANTS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Mitchells & Butlers"
+  },
+  {
+   "name": "TACO BELL",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Yum! Brands"
+  },
+  {
+   "name": "EVANS",
+   "expected": "AU",
+   "set": "owned-brands",
+   "owner": "City Chic Collective"
+  },
+  {
+   "name": "MACE",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Mace"
+  },
+  {
+   "name": "CENTRA",
+   "expected": "IE",
+   "set": "owned-brands",
+   "owner": "Musgrave Group"
+  },
+  {
+   "name": "FIRED EARTH",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Middleby Corporation"
+  },
+  {
+   "name": "MAJE",
+   "expected": "FR",
+   "set": "owned-brands",
+   "owner": "SMCP Group"
+  },
+  {
+   "name": "BARGAIN BOOZE",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Bestway"
+  },
+  {
+   "name": "WHOLE FOODS MARKET",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Amazon"
+  },
+  {
+   "name": "PAUL",
+   "expected": "FR",
+   "set": "owned-brands",
+   "owner": "Groupe Holder"
+  },
+  {
+   "name": "DENMANS",
+   "expected": "FR",
+   "set": "owned-brands",
+   "owner": "Rexel"
+  },
+  {
+   "name": "GO OUTDOORS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Pentland Group"
+  },
+  {
+   "name": "PREZZO",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Prezzo Holdings"
+  },
+  {
+   "name": "BULGARI",
+   "expected": "FR",
+   "set": "owned-brands",
+   "owner": "LVMH"
+  },
+  {
+   "name": "OBRIENS CAFE",
+   "expected": "IE",
+   "set": "owned-brands",
+   "owner": "Abrakebabra Investments"
+  },
+  {
+   "name": "JD SPORTS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Pentland Group"
+  },
+  {
+   "name": "ASDA",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Q483551"
+  },
+  {
+   "name": "GAME DIGITAL PLC",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Frasers Group"
+  },
+  {
+   "name": "THE ORIGINAL FACTORY SHOP",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Duke Street Capital"
+  },
+  {
+   "name": "SIZZLING PUBS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Mitchells & Butlers"
+  },
+  {
+   "name": "FITNESS FIRST",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Oaktree Capital Management"
+  },
+  {
+   "name": "MACE NORTHERN IRELAND",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Mace"
+  },
+  {
+   "name": "ACCESSORIZE",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Monsoon Accessorize"
+  },
+  {
+   "name": "WELCOME STORES",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Southern Co-op"
+  },
+  {
+   "name": "CO OP DAILY",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "East of England Co-operative Society"
+  },
+  {
+   "name": "POUNDBAKERY",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Sayers"
+  },
+  {
+   "name": "MORRISONS DAILY",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Morrisons"
+  },
+  {
+   "name": "NH HOTEL GROUP",
+   "expected": "TH",
+   "set": "owned-brands",
+   "owner": "Minor International"
+  },
+  {
+   "name": "A&O HOSTELS",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "StepStone Group"
+  },
+  {
+   "name": "FLANNELS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Frasers Group"
+  },
+  {
+   "name": "KEYLINE",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Travis Perkins"
+  },
+  {
+   "name": "YOUR CO OP FOOD",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Midcounties Co-operative"
+  },
+  {
+   "name": "BLACKS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "Pentland Group"
+  },
+  {
+   "name": "SURESTAY COLLECTION",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "BWH Hotels"
+  },
+  {
+   "name": "ROMANS",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Platinum Equity"
+  },
+  {
+   "name": "DAVID LLOYD LEISURE",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "TDR Capital"
+  },
+  {
+   "name": "SKY GROUP",
+   "expected": "US",
+   "set": "owned-brands",
+   "owner": "Comcast"
+  },
+  {
+   "name": "LAS IGUANAS",
+   "expected": "GB",
+   "set": "owned-brands",
+   "owner": "The Big Table Group"
+  },
+  {
+   "name": "JANE SMITH",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "MR A PATEL",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "J OKONKWO",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "SARAH JONES RENT",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "D WILLIAMS",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "MUM",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "K HUSSAIN",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "TOM BROWN",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "CORNER SHOP",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "CAFE",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "CAR PARK",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "NEWSAGENT",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "TAXI",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "MARKET STALL",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "LAUNDRETTE",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "BARBERS",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "CASH WITHDRAWAL",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "TRANSFER TO SAVINGS",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "INTEREST",
+   "expected": null,
+   "set": "not-a-business"
+  },
+  {
+   "name": "STANDING ORDER",
+   "expected": null,
+   "set": "not-a-business"
+  }
+ ]
+}

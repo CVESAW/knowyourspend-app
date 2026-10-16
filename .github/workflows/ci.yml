@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Tests, types and builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Ownership data is valid
+        run: pnpm --filter @kys/ownership validate
+      - name: Unit tests
+        run: pnpm -r test
+      - name: Type check
+        run: pnpm -r typecheck
+      - name: Build Expo web app (with the server-backed extras on, so the smoke test covers them)
+        run: pnpm --filter mobile build:web
+        env:
+          EXPO_PUBLIC_ONLINE_EXTRAS: "1"
+      - name: Android bundle compiles
+        working-directory: apps/mobile
+        run: npx expo export -p android --output-dir /tmp/android-bundle
+      - name: Install Chromium for end-to-end tests
+        working-directory: apps/mobile
+        run: npx playwright install --with-deps chromium
+      - name: End-to-end smoke test (phone size, production headers, no outside requests)
+        run: pnpm --filter mobile e2e
+      - name: Keep the failure screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-failure
+          path: apps/mobile/e2e/failure.png
+          if-no-files-found: ignore

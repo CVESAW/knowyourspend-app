@@ -1,0 +1,6 @@
+TransferWise ID,Date,Amount,Currency,Description,Payment Reference,Running Balance,Exchange From,Exchange To,Exchange Rate,Payer Name,Payee Name,Payee Account Number,Merchant,Card Last Four Digits,Card Holder Full Name,Attachment,Note,Total fees
+CARD-123456789,01-03-2025,-4.50,GBP,Card transaction of 4.50 GBP issued by Pret A Manger LONDON,,95.50,,,,,,,PRET A MANGER,1234,JANE DOE,,,0.00
+TRANSFER-987654321,02-03-2025,-50.00,GBP,Sent money to John Smith,Dinner,45.50,,,,,John Smith,12345678,,,,,,0.00
+TRANSFER-555555555,03-03-2025,500.00,GBP,Received money from ACME WIDGETS LTD with reference SALARY,SALARY,545.50,,,,ACME WIDGETS LTD,,,,,,,,0.00
+BALANCE-111111111,04-03-2025,-100.00,GBP,Converted 100.00 GBP to 116.00 EUR,,445.50,GBP,EUR,1.16,,,,,,,,,0.41
+CARD-222222222,05-03-2025,-11.99,GBP,Card transaction of 11.99 GBP issued by Spotify,,433.51,,,,,,,SPOTIFY,1234,JANE DOE,,,0.00

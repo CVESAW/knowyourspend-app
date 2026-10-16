@@ -1,0 +1,12 @@
+{
+  "name": "knowyourspend",
+  "private": true,
+  "packageManager": "pnpm@10.17.1",
+  "scripts": {
+    "dev": "pnpm --filter mobile web",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "validate-data": "pnpm --filter @kys/ownership validate"
+  },
+  "license": "MIT"
+}

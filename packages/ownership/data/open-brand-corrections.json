@@ -1,0 +1,1273 @@
+{
+ "version": 1,
+ "reviewed": "2026-10-07",
+ "method": "Each UK/Ireland-trading generated brand's Wikidata owner was re-checked by an AI review against knowledge up to mid-2026; only confident disagreements are listed. Fixed entries are shown as Unverified (LLM_GUESS).",
+ "corrections": [
+  {
+   "qid": "Q407009",
+   "name": "3",
+   "action": "fix",
+   "owner": "Vodafone Group",
+   "owner_country": "GB",
+   "reason": "Three UK merged into VodafoneThree in 2025, 51% Vodafone. CK Hutchison is Hong Kong (HK), not CN; it still owns Three Ireland."
+  },
+  {
+   "qid": "Q110516413",
+   "name": "Ace & Tate",
+   "action": "fix",
+   "owner": "Ace & Tate",
+   "owner_country": "NL",
+   "reason": "Ace & Tate is an Amsterdam-based Dutch eyewear company, not British."
+  },
+  {
+   "qid": "Q81856601",
+   "name": "Allen & Harris",
+   "action": "fix",
+   "owner": "Skipton Building Society",
+   "owner_country": "GB",
+   "reason": "Sequence UK is owned by Connells, which is owned by Skipton Building Society."
+  },
+  {
+   "qid": "Q123271999",
+   "name": "Alphega Pharmacy",
+   "action": "fix",
+   "owner": "Cencora",
+   "owner_country": "US",
+   "reason": "Alphega is an Alliance Healthcare network; Alliance Healthcare was sold to US-based AmerisourceBergen (now Cencora) in 2021."
+  },
+  {
+   "qid": "Q7178908",
+   "name": "Applegreen",
+   "action": "fix",
+   "owner": "Blackstone",
+   "owner_country": "US",
+   "reason": "Applegreen was taken private in 2021; Blackstone Infrastructure Partners holds the majority stake."
+  },
+  {
+   "qid": "Q3271455",
+   "name": "Arc'teryx",
+   "action": "fix",
+   "owner": "Amer Sports",
+   "owner_country": "FI",
+   "reason": "Amer Sports is NYSE-listed (2024) and run from Helsinki; Anta is the largest shareholder but not the controlling owner."
+  },
+  {
+   "qid": "Q14516231",
+   "name": "Art’otel",
+   "action": "fix",
+   "owner": "PPHE Hotel Group",
+   "owner_country": "GB",
+   "reason": "art'otel is owned and run by London-listed PPHE Hotel Group, not Radisson or Jin Jiang."
+  },
+  {
+   "qid": "Q105221621",
+   "name": "Asda On the Move",
+   "action": "fix",
+   "owner": "TDR Capital",
+   "owner_country": "GB",
+   "reason": "Walmart sold Asda in 2021; TDR Capital became majority owner after buying Zuber Issa's stake in 2024."
+  },
+  {
+   "qid": "Q4654920",
+   "name": "ATS Euromaster",
+   "action": "fix",
+   "owner": "Michelin",
+   "owner_country": "FR",
+   "reason": "ATS Euromaster is part of Euromaster, a Michelin subsidiary."
+  },
+  {
+   "qid": "Q99640578",
+   "name": "B&M Express",
+   "action": "fix",
+   "owner": "B&M European Value Retail",
+   "owner_country": "GB",
+   "reason": "Heron Foods and B&M Express are owned by B&M European Value Retail (since 2017)."
+  },
+  {
+   "qid": "Q798298",
+   "name": "BackWerk",
+   "action": "fix",
+   "owner": "FEMSA",
+   "owner_country": "MX",
+   "reason": "Valora, BackWerk's owner, was acquired by Mexico's FEMSA in 2022."
+  },
+  {
+   "qid": "Q81859084",
+   "name": "Bagshaws Residential",
+   "action": "fix",
+   "owner": "Skipton Building Society",
+   "owner_country": "GB",
+   "reason": "Sequence UK is owned by Connells, which is owned by Skipton Building Society."
+  },
+  {
+   "qid": "Q81074787",
+   "name": "Bairstow Eves",
+   "action": "fix",
+   "owner": "Skipton Building Society",
+   "owner_country": "GB",
+   "reason": "Countrywide was bought by Connells (Skipton Building Society) in 2021."
+  },
+  {
+   "qid": "Q117599706",
+   "name": "Bar + Block",
+   "action": "fix",
+   "owner": "Whitbread",
+   "owner_country": "GB",
+   "reason": "Bar + Block steakhouses are a Whitbread brand."
+  },
+  {
+   "qid": "Q81860444",
+   "name": "Barnard Marcus",
+   "action": "fix",
+   "owner": "Skipton Building Society",
+   "owner_country": "GB",
+   "reason": "Sequence UK is owned by Connells, which is owned by Skipton Building Society."
+  },
+  {
+   "qid": "Q110016786",
+   "name": "Be At One",
+   "action": "fix",
+   "owner": "TDR Capital",
+   "owner_country": "GB",
+   "reason": "Stonegate Pub Company is owned by London private equity firm TDR Capital."
+  },
+  {
+   "qid": "Q105516156",
+   "name": "Belhaven Pubs",
+   "action": "fix",
+   "owner": "CK Asset Holdings",
+   "owner_country": "HK",
+   "reason": "Greene King's owner CK Asset Holdings is Hong Kong-based, so HK not CN."
+  },
+  {
+   "qid": "Q111463571",
+   "name": "Belvoir",
+   "action": "fix",
+   "owner": "The Property Franchise Group",
+   "owner_country": "GB",
+   "reason": "Belvoir Group merged into The Property Franchise Group in 2023."
+  },
+  {
+   "qid": "Q18169875",
+   "name": "Ben Sherman",
+   "action": "fix",
+   "owner": "Marquee Brands",
+   "owner_country": "US",
+   "reason": "Ben Sherman brand has been owned by US-based Marquee Brands since 2015."
+  },
+  {
+   "qid": "Q4890299",
+   "name": "Bensons for Beds",
+   "action": "fix",
+   "owner": "Alteri Investors",
+   "owner_country": "GB",
+   "reason": "Steinhoff sold Bensons for Beds to UK investor Alteri in 2019."
+  },
+  {
+   "qid": "Q4896532",
+   "name": "Best-one",
+   "action": "fix",
+   "owner": "Bestway",
+   "owner_country": "GB",
+   "reason": "Best-one is Bestway Wholesale's convenience symbol group."
+  },
+  {
+   "qid": "Q116211938",
+   "name": "Biba Ventures",
+   "action": "drop",
+   "reason": "Playground gamification app company, not a business consumers pay at."
+  },
+  {
+   "qid": "Q99938329",
+   "name": "Bodycare",
+   "action": "drop",
+   "reason": "Bodycare went into administration in 2024 and all stores closed."
+  },
+  {
+   "qid": "Q4957616",
+   "name": "Brantano Footwear",
+   "action": "drop",
+   "reason": "Brantano's UK stores closed after its 2019 administration; no longer trades in the UK."
+  },
+  {
+   "qid": "Q113565627",
+   "name": "Bridgfords",
+   "action": "fix",
+   "owner": "Skipton Building Society",
+   "owner_country": "GB",
+   "reason": "Bridgfords was part of Countrywide, bought by Connells (Skipton Building Society) in 2021."
+  },
+  {
+   "qid": "Q4967357",
+   "name": "BrightHouse",
+   "action": "drop",
+   "reason": "BrightHouse collapsed in 2020 and all stores closed."
+  },
+  {
+   "qid": "Q4985016",
+   "name": "Budgens",
+   "action": "fix",
+   "owner": "Tesco",
+   "owner_country": "GB",
+   "reason": "Musgrave's UK business (Budgens, Londis) was sold to Booker in 2015; Booker is owned by Tesco."
+  },
+  {
+   "qid": "Q4986416",
+   "name": "Buildbase",
+   "action": "fix",
+   "owner": "Blackstone",
+   "owner_country": "US",
+   "reason": "Grafton sold Buildbase to Huws Gray in 2021; Blackstone owns Huws Gray."
+  },
+  {
+   "qid": "Q5000795",
+   "name": "Burton",
+   "action": "fix",
+   "owner": "Debenhams Group",
+   "owner_country": "GB",
+   "reason": "Boohoo Group renamed itself Debenhams Group in 2025."
+  },
+  {
+   "qid": "Q4836838",
+   "name": "BWG Foods",
+   "action": "fix",
+   "owner": "The SPAR Group",
+   "owner_country": "ZA",
+   "reason": "BWG Foods has been owned by South Africa's SPAR Group since 2014."
+  },
+  {
+   "qid": "Q1095857",
+   "name": "C. & J. Clark International Ltd",
+   "action": "fix",
+   "owner": "LionRock Capital",
+   "owner_country": "HK",
+   "reason": "Hong Kong's LionRock Capital took control of Clarks in 2021."
+  },
+  {
+   "qid": "Q2412064",
+   "name": "Campanile",
+   "action": "fix",
+   "owner": "Jin Jiang International",
+   "owner_country": "CN",
+   "reason": "Starwood Capital sold Louvre Hotels Group to China's Jin Jiang in 2015."
+  },
+  {
+   "qid": "Q5045782",
+   "name": "Carpetright",
+   "action": "fix",
+   "owner": "Tapi Carpets & Floors",
+   "owner_country": "GB",
+   "reason": "Carpetright collapsed in 2024; Tapi bought the brand and some stores."
+  },
+  {
+   "qid": "Q118046",
+   "name": "Carphone Warehouse",
+   "action": "drop",
+   "reason": "Standalone stores closed in 2020; it survives only as a concession inside Currys."
+  },
+  {
+   "qid": "Q83948954",
+   "name": "Cazoo",
+   "action": "drop",
+   "reason": "Cazoo collapsed in 2024; the brand is now a Motors.co.uk online listings site, not a car seller."
+  },
+  {
+   "qid": "Q5089491",
+   "name": "Chef & Brewer",
+   "action": "fix",
+   "owner": "CK Asset Holdings",
+   "owner_country": "HK",
+   "reason": "Chef & Brewer is a Greene King brand; Greene King has been owned by Hong Kong's CK Asset since 2019."
+  },
+  {
+   "qid": "Q5101775",
+   "name": "Chiquito",
+   "action": "fix",
+   "owner": "The Big Table Group",
+   "owner_country": "GB",
+   "reason": "The Restaurant Group sold Chiquito and Frankie & Benny's to The Big Table Group in 2024."
+  },
+  {
+   "qid": "Q105089893",
+   "name": "City Plumbing",
+   "action": "fix",
+   "owner": "H2 Equity Partners",
+   "owner_country": "NL",
+   "reason": "Travis Perkins sold City Plumbing to Dutch private equity firm H2 Equity Partners in 2022."
+  },
+  {
+   "qid": "Q2979949",
+   "name": "Club Monaco",
+   "action": "fix",
+   "owner": "Regent LP",
+   "owner_country": "US",
+   "reason": "Ralph Lauren sold Club Monaco to Regent LP in 2021."
+  },
+  {
+   "qid": "Q5161738",
+   "name": "Connells",
+   "action": "fix",
+   "owner": "Skipton Building Society",
+   "owner_country": "GB",
+   "reason": "Connells Group is wholly owned by Skipton Building Society."
+  },
+  {
+   "qid": "Q5175072",
+   "name": "Costcutter",
+   "action": "fix",
+   "owner": "Bestway",
+   "owner_country": "GB",
+   "reason": "Bestway acquired Costcutter Supermarkets Group in 2020."
+  },
+  {
+   "qid": "Q108443521",
+   "name": "Cosy Club",
+   "action": "fix",
+   "owner": "Fortress Investment Group",
+   "owner_country": "US",
+   "reason": "Loungers, Cosy Club's owner, was taken private by Fortress Investment Group in 2025."
+  },
+  {
+   "qid": "Q16953326",
+   "name": "Curzon Cinemas",
+   "action": "fix",
+   "owner": "Cohen Media Group",
+   "owner_country": "US",
+   "reason": "Curzon was acquired by US-based Cohen Media Group in 2021."
+  },
+  {
+   "qid": "Q1636974",
+   "name": "Danske Bank",
+   "action": "fix",
+   "owner": "Danske Bank",
+   "owner_country": "DK",
+   "reason": "Cevian is only a minority shareholder; Danske Bank is a listed Danish bank with no controlling owner."
+  },
+  {
+   "qid": "Q5228057",
+   "name": "Daunt Books",
+   "action": "fix",
+   "owner": "Elliott Investment Management",
+   "owner_country": "US",
+   "reason": "Daunt Books has been owned by Elliott alongside Waterstones since 2018."
+  },
+  {
+   "qid": "Q16942585",
+   "name": "Dealz",
+   "action": "fix",
+   "owner": "Gordon Brothers",
+   "owner_country": "US",
+   "reason": "Steinhoff is gone; Pepco sold Poundland, including Dealz Ireland, to US-based Gordon Brothers in 2025."
+  },
+  {
+   "qid": "Q104535435",
+   "name": "Debra UK",
+   "action": "fix",
+   "owner": "Debra UK",
+   "owner_country": "GB",
+   "reason": "DEBRA UK is an independent UK charity, not owned by a US organisation."
+  },
+  {
+   "qid": "Q5286529",
+   "name": "Dobbies Garden Centres",
+   "action": "fix",
+   "owner": "Midlothian Capital Partners",
+   "owner_country": "GB",
+   "reason": "Tesco sold Dobbies in 2016 to Midlothian Capital Partners and Hattington Capital."
+  },
+  {
+   "qid": "Q5298588",
+   "name": "Dorothy Perkins",
+   "action": "fix",
+   "owner": "Debenhams Group",
+   "owner_country": "GB",
+   "reason": "Boohoo Group renamed itself Debenhams Group in 2025."
+  },
+  {
+   "qid": "Q5306688",
+   "name": "Dreams",
+   "action": "fix",
+   "owner": "Somnigroup International",
+   "owner_country": "US",
+   "reason": "Sun Capital sold Dreams to Tempur Sealy in 2021; Tempur Sealy renamed Somnigroup International in 2025."
+  },
+  {
+   "qid": "Q115593557",
+   "name": "Dulux Decorator Centre",
+   "action": "fix",
+   "owner": "AkzoNobel",
+   "owner_country": "NL",
+   "reason": "AkzoNobel is headquartered in Amsterdam, Netherlands, not the UK."
+  },
+  {
+   "qid": "Q5326681",
+   "name": "Early Learning Centre",
+   "action": "fix",
+   "owner": "The Entertainer (TEAL)",
+   "owner_country": "GB",
+   "reason": "Mothercare sold Early Learning Centre to The Entertainer in 2007."
+  },
+  {
+   "qid": "Q1776022",
+   "name": "Equinor ASA",
+   "action": "drop",
+   "reason": "Equinor has no UK or Irish fuel forecourts; its Irish stations became Circle K after the 2012 sale."
+  },
+  {
+   "qid": "Q23782692",
+   "name": "Euro Car Parts",
+   "action": "fix",
+   "owner": "LKQ Corporation",
+   "owner_country": "US",
+   "reason": "Owned by US-based LKQ Corporation since 2011."
+  },
+  {
+   "qid": "Q12309283",
+   "name": "Eurospar",
+   "action": "fix",
+   "owner": "SPAR International",
+   "owner_country": "NL",
+   "reason": "SPAR is a licensed brand run by SPAR International, Amsterdam; Wikidata's chain stops at a national licensee."
+  },
+  {
+   "qid": "Q64390973",
+   "name": "F45 Training",
+   "action": "fix",
+   "owner": "F45 Training Holdings",
+   "owner_country": "US",
+   "reason": "Founded in Sydney but headquartered in Austin, Texas since around 2020."
+  },
+  {
+   "qid": "Q5436342",
+   "name": "Farrow & Ball",
+   "action": "fix",
+   "owner": "Hempel",
+   "owner_country": "DK",
+   "reason": "Danish paint group Hempel bought Farrow & Ball from Ares in 2023."
+  },
+  {
+   "qid": "Q5437186",
+   "name": "Fat Face",
+   "action": "fix",
+   "owner": "Next plc",
+   "owner_country": "GB",
+   "reason": "Bridgepoint exited long ago; Next plc acquired FatFace in 2024."
+  },
+  {
+   "qid": "Q126913565",
+   "name": "Footasylum",
+   "action": "fix",
+   "owner": "Aurelius Group",
+   "owner_country": "DE",
+   "reason": "JD Sports was forced to sell Footasylum in 2022 to German-founded investor Aurelius."
+  },
+  {
+   "qid": "Q140266756",
+   "name": "Fora",
+   "action": "fix",
+   "owner": "Blackstone",
+   "owner_country": "US",
+   "reason": "The Office Group, which merged with Fora in 2021, is controlled by US firm Blackstone."
+  },
+  {
+   "qid": "Q1440267",
+   "name": "Foyles",
+   "action": "fix",
+   "owner": "Elliott Investment Management (via Waterstones)",
+   "owner_country": "US",
+   "reason": "Waterstones bought Foyles in 2018; Waterstones is owned by US fund Elliott."
+  },
+  {
+   "qid": "Q28404417",
+   "name": "Franco Manca",
+   "action": "fix",
+   "owner": "Toridoll Holdings",
+   "owner_country": "JP",
+   "reason": "Japan's Toridoll took control of The Fulham Shore in 2023."
+  },
+  {
+   "qid": "Q5490892",
+   "name": "Frankie and Benny's",
+   "action": "fix",
+   "owner": "The Big Table Group (Epiris)",
+   "owner_country": "GB",
+   "reason": "The Restaurant Group sold Frankie and Benny's to Epiris-owned Big Table Group in 2023."
+  },
+  {
+   "qid": "Q5253950",
+   "name": "Fuller's Brewery",
+   "action": "fix",
+   "owner": "Fuller, Smith & Turner",
+   "owner_country": "GB",
+   "reason": "Asahi bought only the brewery in 2019; Fuller's pubs remain with UK-listed Fuller, Smith & Turner."
+  },
+  {
+   "qid": "Q101108013",
+   "name": "George",
+   "action": "fix",
+   "owner": "TDR Capital (via Asda)",
+   "owner_country": "GB",
+   "reason": "Walmart sold Asda control in 2021; London-based TDR Capital is now the controlling owner."
+  },
+  {
+   "qid": "Q5564102",
+   "name": "Giraffe Restaurants",
+   "action": "fix",
+   "owner": "Boparan Restaurant Group",
+   "owner_country": "GB",
+   "reason": "Giraffe has been owned by Boparan Restaurant Group since 2019."
+  },
+  {
+   "qid": "Q931084",
+   "name": "Godiva Chocolatier",
+   "action": "fix",
+   "owner": "Yildiz Holding",
+   "owner_country": "TR",
+   "reason": "Godiva has been owned by Turkey's Yildiz Holding (Ulker) since 2007."
+  },
+  {
+   "qid": "Q16993095",
+   "name": "Goldsmiths",
+   "action": "fix",
+   "owner": "Apollo Global Management (via Aurum Group)",
+   "owner_country": "US",
+   "reason": "Goldsmiths belongs to Aurum Group, which US firm Apollo has owned since 2017."
+  },
+  {
+   "qid": "Q5588445",
+   "name": "Gourmet Burger Kitchen",
+   "action": "fix",
+   "owner": "Boparan Restaurant Group",
+   "owner_country": "GB",
+   "reason": "South Africa's Famous Brands sold GBK to Boparan Restaurant Group in 2020."
+  },
+  {
+   "qid": "Q85846030",
+   "name": "Graduate by Hilton",
+   "action": "fix",
+   "owner": "Hilton Worldwide",
+   "owner_country": "US",
+   "reason": "Hilton acquired the Graduate Hotels brand from AJ Capital Partners in 2024."
+  },
+  {
+   "qid": "Q3776892",
+   "name": "Grom",
+   "action": "fix",
+   "owner": "The Magnum Ice Cream Company",
+   "owner_country": "NL",
+   "reason": "Unilever spun off its ice cream arm, including Grom, as Amsterdam-based Magnum Ice Cream Company in 2025."
+  },
+  {
+   "qid": "Q105672451",
+   "name": "H&T Pawnbrokers",
+   "action": "fix",
+   "owner": "FirstCash Holdings",
+   "owner_country": "US",
+   "reason": "US pawn operator FirstCash acquired H&T Group in 2025."
+  },
+  {
+   "qid": "Q60299",
+   "name": "Hamleys",
+   "action": "fix",
+   "owner": "Reliance Retail",
+   "owner_country": "IN",
+   "reason": "India's Reliance Retail acquired Hamleys in 2019."
+  },
+  {
+   "qid": "Q5668069",
+   "name": "Harry Corry",
+   "action": "fix",
+   "owner": "Harry Corry Ltd",
+   "owner_country": "GB",
+   "reason": "Harry Corry is headquartered in Belfast, Northern Ireland, which is part of the UK, not Ireland."
+  },
+  {
+   "qid": "Q903805",
+   "name": "HEMA",
+   "action": "fix",
+   "owner": "Dutch private investors (Ramphastos/Van Eerd consortium)",
+   "owner_country": "NL",
+   "reason": "HEMA is Dutch and has been owned by Dutch investors since 2021, not by a German company."
+  },
+  {
+   "qid": "Q5743472",
+   "name": "Heron Foods",
+   "action": "fix",
+   "owner": "B&M European Value Retail",
+   "owner_country": "GB",
+   "reason": "B&M, run from Liverpool, has owned Heron Foods since 2017."
+  },
+  {
+   "qid": "Q107301478",
+   "name": "Hidden Hearing",
+   "action": "fix",
+   "owner": "Demant",
+   "owner_country": "DK",
+   "reason": "Hidden Hearing is a subsidiary of the Danish hearing group Demant."
+  },
+  {
+   "qid": "Q115594794",
+   "name": "Hive Pubs",
+   "action": "fix",
+   "owner": "CK Asset Holdings",
+   "owner_country": "HK",
+   "reason": "CK Asset, owner of Greene King since 2019, is based in Hong Kong, not mainland China."
+  },
+  {
+   "qid": "Q25108740",
+   "name": "Hobbs Ltd",
+   "action": "fix",
+   "owner": "TFG (The Foschini Group)",
+   "owner_country": "ZA",
+   "reason": "South Africa's TFG acquired Hobbs in 2021 as part of TFG London."
+  },
+  {
+   "qid": "Q16984508",
+   "name": "Hobbycraft",
+   "action": "fix",
+   "owner": "Modella Capital",
+   "owner_country": "GB",
+   "reason": "Bridgepoint sold Hobbycraft to Modella Capital in 2023."
+  },
+  {
+   "qid": "Q9293447",
+   "name": "Homebase",
+   "action": "fix",
+   "owner": "CDS Superstores (The Range)",
+   "owner_country": "GB",
+   "reason": "After administration in late 2024, The Range owner CDS Superstores bought the Homebase brand and stores."
+  },
+  {
+   "qid": "Q5911369",
+   "name": "Hotel Chocolat",
+   "action": "fix",
+   "owner": "Mars Inc",
+   "owner_country": "US",
+   "reason": "Mars acquired Hotel Chocolat in early 2024."
+  },
+  {
+   "qid": "Q16965780",
+   "name": "Huws Gray",
+   "action": "fix",
+   "owner": "Blackstone",
+   "owner_country": "US",
+   "reason": "US firm Blackstone took majority control of Huws Gray in 2021."
+  },
+  {
+   "qid": "Q5964551",
+   "name": "Hôtel Première Classe",
+   "action": "fix",
+   "owner": "Jin Jiang International",
+   "owner_country": "CN",
+   "reason": "Louvre Hotels Group has been owned by China's Jin Jiang since 2015, not Starwood Capital."
+  },
+  {
+   "qid": "Q6115814",
+   "name": "Jack Wills",
+   "action": "fix",
+   "owner": "Frasers Group",
+   "owner_country": "GB",
+   "reason": "Frasers Group bought Jack Wills out of administration in 2019."
+  },
+  {
+   "qid": "Q6206793",
+   "name": "Jobcentre Plus",
+   "action": "drop",
+   "reason": "Government employment service run by the DWP; not something consumers pay."
+  },
+  {
+   "qid": "Q25351738",
+   "name": "Joules",
+   "action": "fix",
+   "owner": "Next plc",
+   "owner_country": "GB",
+   "reason": "Next acquired Joules out of administration in 2022."
+  },
+  {
+   "qid": "Q6369889",
+   "name": "Karen Millen",
+   "action": "fix",
+   "owner": "Debenhams Group",
+   "owner_country": "GB",
+   "reason": "Boohoo Group renamed itself Debenhams Group in 2025."
+  },
+  {
+   "qid": "Q941020",
+   "name": "KBC Bank",
+   "action": "drop",
+   "reason": "KBC left Ireland in 2023, moving its loans and deposits to Bank of Ireland; no UK or Irish consumer branches remain."
+  },
+  {
+   "qid": "Q6414641",
+   "name": "Kipling",
+   "action": "fix",
+   "owner": "VF Corporation",
+   "owner_country": "US",
+   "reason": "Kipling has been owned by US-based VF Corporation since 2004."
+  },
+  {
+   "qid": "Q17063744",
+   "name": "Kurt Geiger",
+   "action": "fix",
+   "owner": "Steve Madden",
+   "owner_country": "US",
+   "reason": "US firm Steve Madden bought Kurt Geiger from Cinven in 2025."
+  },
+  {
+   "qid": "Q6457180",
+   "name": "LA Fitness",
+   "action": "drop",
+   "reason": "The UK LA Fitness chain was bought by PureGym in 2015 and rebranded; the US chain does not trade in the UK."
+  },
+  {
+   "qid": "Q3212802",
+   "name": "La Senza",
+   "action": "drop",
+   "reason": "La Senza's UK stores closed after administrations ending around 2019; the brand no longer trades in the UK or Ireland."
+  },
+  {
+   "qid": "Q1523089",
+   "name": "Laura Ashley plc",
+   "action": "fix",
+   "owner": "Gordon Brothers",
+   "owner_country": "US",
+   "reason": "Laura Ashley plc collapsed in 2020; brand bought by US firm Gordon Brothers, sold in UK under licence via Next."
+  },
+  {
+   "qid": "Q253302",
+   "name": "Legoland",
+   "action": "fix",
+   "owner": "Merlin Entertainments (controlled by Kirkbi)",
+   "owner_country": "DK",
+   "reason": "Kirkbi (Lego family, Denmark) holds about half of Merlin since 2019; Blackstone is a minority co-investor."
+  },
+  {
+   "qid": "Q303439",
+   "name": "Legoland Discovery Centre",
+   "action": "fix",
+   "owner": "Merlin Entertainments (controlled by Kirkbi)",
+   "owner_country": "DK",
+   "reason": "Run by Merlin Entertainments, not a Canadian entity; Merlin's largest owner since 2019 take-private is Lego family's Kirkbi."
+  },
+  {
+   "qid": "Q6662870",
+   "name": "Lloyds Pharmacy",
+   "action": "drop",
+   "reason": "McKesson sold it to Aurelius in 2022; all high-street and Sainsbury's branches closed or sold off by 2024."
+  },
+  {
+   "qid": "Q6668484",
+   "name": "Lok'nStore",
+   "action": "fix",
+   "owner": "Shurgard Self Storage",
+   "owner_country": "LU",
+   "reason": "Acquired by European self-storage group Shurgard in 2024."
+  },
+  {
+   "qid": "Q21015800",
+   "name": "Londis",
+   "action": "fix",
+   "owner": "SPAR Group (via BWG Foods)",
+   "owner_country": "ZA",
+   "reason": "BWG Foods has been owned by South Africa's SPAR Group since 2014."
+  },
+  {
+   "qid": "Q114313933",
+   "name": "Lounges",
+   "action": "fix",
+   "owner": "Fortress Investment Group",
+   "owner_country": "US",
+   "reason": "Loungers was taken private by US investor Fortress in 2025."
+  },
+  {
+   "qid": "Q6711808",
+   "name": "M&Co.",
+   "action": "fix",
+   "owner": "Yours Clothing",
+   "owner_country": "GB",
+   "reason": "M&Co collapsed in 2022; brand bought by Yours Clothing, which reopened stores in 2023."
+  },
+  {
+   "qid": "Q75236910",
+   "name": "Mace (Republic of Ireland)",
+   "action": "fix",
+   "owner": "SPAR Group (via BWG Foods)",
+   "owner_country": "ZA",
+   "reason": "BWG Foods has been owned by South Africa's SPAR Group since 2014."
+  },
+  {
+   "qid": "Q111913312",
+   "name": "Mackage",
+   "action": "fix",
+   "owner": "Mackage",
+   "owner_country": "CA",
+   "reason": "Mackage is a Montreal-based Canadian company, not American."
+  },
+  {
+   "qid": "Q92922921",
+   "name": "Mail Boxes Etc. (UK)",
+   "action": "fix",
+   "owner": "MBE Worldwide",
+   "owner_country": "IT",
+   "reason": "Outside the US, Mail Boxes Etc. is run by Milan-based MBE Worldwide; UPS only operates the US network."
+  },
+  {
+   "qid": "Q3280364",
+   "name": "Maisons du Monde",
+   "action": "fix",
+   "owner": "Maisons du Monde SA (listed)",
+   "owner_country": "FR",
+   "reason": "Bain Capital exited after the 2016 Paris IPO (fully by 2017); now a listed French company."
+  },
+  {
+   "qid": "Q6737725",
+   "name": "Majestic Wine",
+   "action": "fix",
+   "owner": "Fortress Investment Group",
+   "owner_country": "US",
+   "reason": "Bought by US investor Fortress in 2019."
+  },
+  {
+   "qid": "Q6744343",
+   "name": "Malmaison",
+   "action": "fix",
+   "owner": "Frasers Property",
+   "owner_country": "SG",
+   "reason": "Malmaison has been owned by Singapore's Frasers Hospitality (Frasers Property) since 2015."
+  },
+  {
+   "qid": "Q39738082",
+   "name": "Mecca Bingo",
+   "action": "fix",
+   "owner": "Guoco Group (Hong Leong / Quek family)",
+   "owner_country": "MY",
+   "reason": "Rank Group is majority-owned (about 56%) by Guoco, controlled by Malaysia's Quek family Hong Leong group."
+  },
+  {
+   "qid": "Q6824499",
+   "name": "Metro Bank",
+   "action": "fix",
+   "owner": "Spaldy Investments (Jaime Gilinski)",
+   "owner_country": "CO",
+   "reason": "Colombian billionaire Jaime Gilinski's Spaldy took a majority stake in the 2023 rescue."
+  },
+  {
+   "qid": "Q123415563",
+   "name": "Mobile Mini UK",
+   "action": "fix",
+   "owner": "TDR Capital",
+   "owner_country": "GB",
+   "reason": "Algeco, which bought Mobile Mini UK in 2017, is owned by London private-equity firm TDR Capital."
+  },
+  {
+   "qid": "Q17100584",
+   "name": "Molton Brown",
+   "action": "fix",
+   "owner": "Kao Corporation",
+   "owner_country": "JP",
+   "reason": "Owned by Japan's Kao Corporation since 2005."
+  },
+  {
+   "qid": "Q3866987",
+   "name": "Mulberry",
+   "action": "fix",
+   "owner": "Challice (Ong family)",
+   "owner_country": "SG",
+   "reason": "Majority owned by Challice, the Singapore Ong family vehicle; Frasers Group is a minority shareholder."
+  },
+  {
+   "qid": "Q7069061",
+   "name": "Numark",
+   "action": "fix",
+   "owner": "PHOENIX group",
+   "owner_country": "DE",
+   "reason": "Numark is owned by Phoenix Healthcare UK, part of Germany's PHOENIX group (Merckle family)."
+  },
+  {
+   "qid": "Q89403503",
+   "name": "Office Angels",
+   "action": "fix",
+   "owner": "Adecco Group",
+   "owner_country": "CH",
+   "reason": "Office Angels is a brand of Swiss staffing group Adecco."
+  },
+  {
+   "qid": "Q12323572",
+   "name": "Ole & Steen",
+   "action": "fix",
+   "owner": "Nordic Capital",
+   "owner_country": "SE",
+   "reason": "Nordic Capital is a Stockholm-run private-equity firm, not Danish."
+  },
+  {
+   "qid": "Q7112061",
+   "name": "Outfit",
+   "action": "drop",
+   "reason": "Arcadia collapsed in 2020 and Outfit stores closed by 2021; the brand no longer trades."
+  },
+  {
+   "qid": "Q7138226",
+   "name": "Parkdean Resorts",
+   "action": "fix",
+   "owner": "Onex Corporation",
+   "owner_country": "CA",
+   "reason": "Owned by Canadian private-equity firm Onex since 2017."
+  },
+  {
+   "qid": "Q1476369",
+   "name": "Perodua",
+   "action": "drop",
+   "reason": "Perodua stopped selling cars in the UK in the mid-2010s."
+  },
+  {
+   "qid": "Q3377090",
+   "name": "Petit Bateau",
+   "action": "fix",
+   "owner": "Groupe Rocher",
+   "owner_country": "FR",
+   "reason": "Petit Bateau belongs to France's Groupe Rocher (Yves Rocher family), not a US fund."
+  },
+  {
+   "qid": "Q17020730",
+   "name": "Phase Eight",
+   "action": "fix",
+   "owner": "TFG (The Foschini Group)",
+   "owner_country": "ZA",
+   "reason": "Bought by South Africa's TFG in 2017."
+  },
+  {
+   "qid": "Q3388303",
+   "name": "Piggly Wiggly",
+   "action": "drop",
+   "reason": "US-only supermarket chain with no UK or Irish stores."
+  },
+  {
+   "qid": "Q65930663",
+   "name": "Pitcher & Piano",
+   "action": "fix",
+   "owner": "Marston's",
+   "owner_country": "GB",
+   "reason": "Pitcher & Piano bars are operated by pub group Marston's."
+  },
+  {
+   "qid": "Q662845",
+   "name": "PizzaExpress",
+   "action": "fix",
+   "owner": "Former bondholders (led by US funds)",
+   "owner_country": "US",
+   "reason": "Hony Capital lost control in 2020 restructuring; ownership passed to bondholders, largely US investment funds."
+  },
+  {
+   "qid": "Q97180096",
+   "name": "Pop Mart",
+   "action": "fix",
+   "owner": "Pop Mart International",
+   "owner_country": "CN",
+   "reason": "Cayman-registered but run from Beijing; founder Wang Ning controls it."
+  },
+  {
+   "qid": "Q7240340",
+   "name": "Premier Stores",
+   "action": "fix",
+   "owner": "Tesco (via Booker)",
+   "owner_country": "GB",
+   "reason": "Premier is a Booker symbol group; Booker owned by Tesco since 2018."
+  },
+  {
+   "qid": "Q7252209",
+   "name": "Protyre",
+   "action": "fix",
+   "owner": "Sumitomo Rubber Industries",
+   "owner_country": "JP",
+   "reason": "Protyre belongs to Micheldever Group, bought by Japan's Sumitomo Rubber in 2017."
+  },
+  {
+   "qid": "Q7310479",
+   "name": "Reiss",
+   "action": "fix",
+   "owner": "Next plc",
+   "owner_country": "GB",
+   "reason": "Next took majority control of Reiss in 2024."
+  },
+  {
+   "qid": "Q62663235",
+   "name": "Rowlands Pharmacy",
+   "action": "fix",
+   "owner": "PHOENIX group",
+   "owner_country": "DE",
+   "reason": "Rowlands is the UK pharmacy chain of Germany's PHOENIX group (Merckle family)."
+  },
+  {
+   "qid": "Q453731",
+   "name": "Royal Rangers",
+   "action": "drop",
+   "reason": "A church youth scouting movement, not a business consumers pay."
+  },
+  {
+   "qid": "Q7420065",
+   "name": "Santander UK",
+   "action": "fix",
+   "owner": "Banco Santander",
+   "owner_country": "ES",
+   "reason": "Santander UK is a subsidiary of Spain's Banco Santander."
+  },
+  {
+   "qid": "Q7428189",
+   "name": "Savers Health & Beauty",
+   "action": "fix",
+   "owner": "CK Hutchison Holdings",
+   "owner_country": "HK",
+   "reason": "A.S. Watson and parent CK Hutchison are Hong Kong companies, not mainland China."
+  },
+  {
+   "qid": "Q7432952",
+   "name": "Schuh",
+   "action": "fix",
+   "owner": "Genesco",
+   "owner_country": "US",
+   "reason": "Schuh has been owned by US footwear group Genesco since 2011."
+  },
+  {
+   "qid": "Q19654399",
+   "name": "ScS",
+   "action": "fix",
+   "owner": "Poltronesofà",
+   "owner_country": "IT",
+   "reason": "Poltronesofà, which bought ScS in 2023, is an Italian company, not British."
+  },
+  {
+   "qid": "Q113556466",
+   "name": "Snow+Rock",
+   "action": "fix",
+   "owner": "A.S. Adventure Group",
+   "owner_country": "BE",
+   "reason": "Snow+Rock belongs to Belgian outdoor retailer A.S. Adventure, sister to Cotswold Outdoor (acquired 2017)."
+  },
+  {
+   "qid": "Q5014159",
+   "name": "Sofology",
+   "action": "fix",
+   "owner": "DFS Furniture",
+   "owner_country": "GB",
+   "reason": "Sofology was bought by DFS Furniture in 2017."
+  },
+  {
+   "qid": "Q610492",
+   "name": "Spar",
+   "action": "fix",
+   "owner": "SPAR International",
+   "owner_country": "NL",
+   "reason": "SPAR is a licensed brand run by SPAR International, Amsterdam; Wikidata's chain stops at a national licensee."
+  },
+  {
+   "qid": "Q111510518",
+   "name": "Street Pizza",
+   "action": "fix",
+   "owner": "Gordon Ramsay Restaurants",
+   "owner_country": "GB",
+   "reason": "Street Pizza is a Gordon Ramsay Restaurants brand based in London, not a US company."
+  },
+  {
+   "qid": "Q75244763",
+   "name": "Stuart Weitzman",
+   "action": "fix",
+   "owner": "Caleres",
+   "owner_country": "US",
+   "reason": "Tapestry sold Stuart Weitzman to US shoe group Caleres in 2025."
+  },
+  {
+   "qid": "Q7654224",
+   "name": "Sweaty Betty",
+   "action": "fix",
+   "owner": "Wolverine World Wide",
+   "owner_country": "US",
+   "reason": "Sweaty Betty was bought by US group Wolverine World Wide in 2021."
+  },
+  {
+   "qid": "Q6808144",
+   "name": "Tenpin Ltd",
+   "action": "fix",
+   "owner": "Trive Capital",
+   "owner_country": "US",
+   "reason": "Parent Ten Entertainment Group was taken private by US private equity firm Trive Capital in 2024."
+  },
+  {
+   "qid": "Q3520318",
+   "name": "The Co-operative Bank",
+   "action": "fix",
+   "owner": "Coventry Building Society",
+   "owner_country": "GB",
+   "reason": "Co-op Group lost control in 2013-17; Coventry Building Society bought the bank in 2025."
+  },
+  {
+   "qid": "Q108197462",
+   "name": "The Ivy Collection",
+   "action": "fix",
+   "owner": "Caprice Holdings (Richard Caring)",
+   "owner_country": "GB",
+   "reason": "The Ivy belongs to Richard Caring's London-based Caprice group, not an Irish owner."
+  },
+  {
+   "qid": "Q7756719",
+   "name": "The Perfume Shop",
+   "action": "fix",
+   "owner": "CK Hutchison Holdings",
+   "owner_country": "HK",
+   "reason": "A.S. Watson's parent, CK Hutchison, is run from Hong Kong, not mainland China."
+  },
+  {
+   "qid": "Q110465528",
+   "name": "The Real Greek",
+   "action": "fix",
+   "owner": "Toridoll Holdings",
+   "owner_country": "JP",
+   "reason": "Fulham Shore was bought by Japan's Toridoll Holdings in 2023."
+  },
+  {
+   "qid": "Q160126",
+   "name": "The Royal Bank of Scotland",
+   "action": "fix",
+   "owner": "NatWest Group",
+   "owner_country": "GB",
+   "reason": "The UK government sold its last NatWest shares in 2025, so NatWest Group is now the ultimate owner."
+  },
+  {
+   "qid": "Q849740",
+   "name": "The Scout Association",
+   "action": "drop",
+   "reason": "Youth organisation, not a shop or service consumers pay at."
+  },
+  {
+   "qid": "Q19840921",
+   "name": "Three Ireland",
+   "action": "fix",
+   "owner": "CK Hutchison Holdings",
+   "owner_country": "HK",
+   "reason": "CK Hutchison is run from Hong Kong, not mainland China."
+  },
+  {
+   "qid": "Q7824379",
+   "name": "Topgolf",
+   "action": "fix",
+   "owner": "Leonard Green & Partners",
+   "owner_country": "US",
+   "reason": "Topgolf Callaway Brands sold a majority stake in Topgolf to US firm Leonard Green in 2025."
+  },
+  {
+   "qid": "Q688452",
+   "name": "Triodos Bank",
+   "action": "fix",
+   "owner": "Triodos Bank",
+   "owner_country": "NL",
+   "reason": "Triodos Bank has its headquarters in Zeist, Netherlands, not Germany."
+  },
+  {
+   "qid": "Q7671560",
+   "name": "TSB",
+   "action": "fix",
+   "owner": "Banco Santander",
+   "owner_country": "ES",
+   "reason": "Sabadell agreed in 2025 to sell TSB to Santander, and the deal completed in 2026."
+  },
+  {
+   "qid": "Q110875697",
+   "name": "Turning Point",
+   "action": "drop",
+   "reason": "Social care and addiction charity, not a business consumers pay at."
+  },
+  {
+   "qid": "Q2613366",
+   "name": "Ulster Bank",
+   "action": "fix",
+   "owner": "NatWest Group",
+   "owner_country": "GB",
+   "reason": "The UK government fully exited NatWest in 2025, so the government is no longer the ultimate owner."
+  },
+  {
+   "qid": "Q16963550",
+   "name": "Village Hotels",
+   "action": "fix",
+   "owner": "KSL Capital Partners",
+   "owner_country": "US",
+   "reason": "Village Hotels is owned by US private equity firm KSL Capital Partners (acquired 2014)."
+  },
+  {
+   "qid": "Q2533008",
+   "name": "vomFASS",
+   "action": "fix",
+   "owner": "vomFASS AG",
+   "owner_country": "DE",
+   "reason": "vomFASS is a German company based in Waldsee, not Italian."
+  },
+  {
+   "qid": "Q2535134",
+   "name": "Vue International",
+   "action": "fix",
+   "owner": "Vue International (lender-owned)",
+   "owner_country": "GB",
+   "reason": "A 2023 debt-for-equity restructuring passed control from OMERS to lenders; the business is run from London."
+  },
+  {
+   "qid": "Q104215014",
+   "name": "Wacky Warehouse",
+   "action": "fix",
+   "owner": "CK Asset Holdings",
+   "owner_country": "HK",
+   "reason": "Greene King's owner, CK Asset Holdings, is run from Hong Kong, not mainland China."
+  },
+  {
+   "qid": "Q7994069",
+   "name": "Whistles",
+   "action": "fix",
+   "owner": "The Foschini Group (TFG)",
+   "owner_country": "ZA",
+   "reason": "Whistles has been owned by South Africa's TFG since 2016."
+  },
+  {
+   "qid": "Q7995442",
+   "name": "White Stuff",
+   "action": "fix",
+   "owner": "The Foschini Group (TFG)",
+   "owner_country": "ZA",
+   "reason": "TFG London is a subsidiary of South Africa's Foschini Group, which bought White Stuff in 2022."
+  },
+  {
+   "qid": "Q431607",
+   "name": "Wolford",
+   "action": "fix",
+   "owner": "Lanvin Group (Fosun)",
+   "owner_country": "CN",
+   "reason": "Wolford is majority-owned by Shanghai-based Lanvin Group, controlled by Fosun, since 2018."
+  },
+  {
+   "qid": "Q8030423",
+   "name": "Wolseley UK",
+   "action": "fix",
+   "owner": "Clayton, Dubilier & Rice",
+   "owner_country": "US",
+   "reason": "Ferguson sold Wolseley UK to US private equity firm CD&R in 2021."
+  },
+  {
+   "qid": "Q3105441",
+   "name": "YO! Sushi",
+   "action": "fix",
+   "owner": "Snowfox Group",
+   "owner_country": "KR",
+   "reason": "YO! was bought in 2019 by Bento Box, part of South Korea's Snowfox Group."
+  },
+  {
+   "qid": "Q8055678",
+   "name": "Yorkshire Bank",
+   "action": "drop",
+   "reason": "Brand retired; branches became Virgin Money around 2021-22, and Virgin Money itself is now owned by Nationwide (2024)."
+  },
+  {
+   "qid": "Q8046002",
+   "name": "Yotel",
+   "action": "fix",
+   "owner": "Starwood Capital Group",
+   "owner_country": "US",
+   "reason": "Yotel is majority-owned by US firm Starwood Capital; it is no longer part of the YO! Company."
+  }
+ ]
+}

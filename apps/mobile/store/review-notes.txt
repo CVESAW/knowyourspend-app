@@ -1,0 +1,7 @@
+KnowYourSpend reads bank statements (PDF or CSV files the user chooses) and receipt photos on the device, and shows which countries own the shops the user paid. It moves no money, gives no financial or investment advice, has no accounts or sign-in, and does not connect to any bank.
+
+To try it without a statement: open the app and tap "Try the demo" on the home screen.
+
+To try a statement: download https://knowyourspend.org/sample-statement.csv (made-up data) to Files, then tap + > Bank statement > Monzo > Choose file, and pick it.
+
+Network use: the app's only request is an optional look-up that sends the names of unfamiliar shops (filtered to exclude people's names; never amounts or dates) to our look-up service. It can be turned off in Settings > Shops we don't know > Look up their owners online > Never. Receipt text recognition runs on the device with Google ML Kit, which sends Google its own basic diagnostics.

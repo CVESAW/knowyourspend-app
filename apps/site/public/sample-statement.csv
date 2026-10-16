@@ -1,0 +1,15 @@
+Transaction ID,Date,Time,Type,Name,Emoji,Category,Amount,Currency,Local amount,Local currency,Notes and #tags,Address,Receipt,Description,Category split,Money Out,Money In
+tx_0001,01/03/2025,08:01:12,Card payment,Costa Coffee,☕,Eating out,-3.40,GBP,-3.40,GBP,,1 High Street,,COSTA COFFEE 43012        LONDON        GBR,,-3.40,
+tx_0002,01/03/2025,08:05:40,Card payment,Costa Coffee,☕,Eating out,-3.40,GBP,-3.40,GBP,,1 High Street,,COSTA COFFEE 43012        LONDON        GBR,,-3.40,
+tx_0003,01/03/2025,12:30:00,Card payment,Pret A Manger,🥪,Eating out,-6.85,GBP,-6.85,GBP,,,,PRET A MANGER    LONDON        GBR,,-6.85,
+tx_0004,02/03/2025,19:00:00,Faster payment,Jane Smith,,Transfers,-25.00,GBP,-25.00,GBP,Dinner,,,JANE SMITH  DINNER,,-25.00,
+tx_0005,03/03/2025,09:00:00,Pot transfer,Holiday,🏖️,Savings,-100.00,GBP,-100.00,GBP,,,,pot_0000AbCdEf,,-100.00,
+tx_0006,04/03/2025,03:00:00,Card payment,Netflix,,Entertainment,-10.99,GBP,-10.99,GBP,,,,NETFLIX.COM               AMSTERDAM     NLD,,-10.99,
+tx_0007,05/03/2025,06:00:00,Bacs (Direct Credit),Acme Widgets Ltd,,Income,2500.00,GBP,2500.00,GBP,,,,ACME WIDGETS LTD SALARY,,,2500.00
+tx_0008,06/03/2025,14:22:10,Card payment,Amazon,,Shopping,-23.99,GBP,-23.99,GBP,,,,AMAZON.CO.UK*AB12CD34E,,-23.99,
+tx_0009,09/03/2025,10:00:00,Card payment,Amazon,,Shopping,23.99,GBP,23.99,GBP,Refund,,,AMAZON.CO.UK*AB12CD34E,,,23.99
+tx_0010,10/03/2025,18:40:00,Card payment,Uber Eats,,Eating out,-21.40,GBP,-21.40,GBP,,,,UBER *EATS               HELP.UBER.COM NLD,,-21.40,
+tx_0011,11/03/2025,11:00:00,Card payment,LloydsPharmacy,,Personal care,-8.49,GBP,-8.49,GBP,,,,LLOYDS PHARMACY 1234     LONDON        GBR,,-8.49,
+tx_0012,12/03/2025,16:00:00,Card payment,Cash withdrawal,,Cash,-40.00,GBP,-40.00,GBP,,,,LINK ATM                 LONDON        GBR,,-40.00,
+tx_0013,13/03/2025,20:15:00,Card payment,Monoprix,,Groceries,-15.20,GBP,-17.50,EUR,,,,MONOPRIX                 PARIS         FRA,,-15.20,
+tx_0014,14/03/2025,08:00:00,Direct Debit,Octopus Energy,,Bills,-85.00,GBP,-85.00,GBP,,,,OCTOPUS ENERGY,,-85.00,
