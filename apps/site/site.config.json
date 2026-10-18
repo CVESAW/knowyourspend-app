@@ -3,7 +3,7 @@
   "webAppUrl": "https://app.knowyourspend.org",
   "contactEmail": "hello@knowyourspend.org",
   "sourceUrl": "https://github.com/CVESAW/knowyourspend-app",
-  "company": "KnowYourSpend Ltd",
+  "company": "KnowYourSpend",
   "playPackage": "uk.knowyourspend.app",
   "playLive": false,
   "appStoreId": null,

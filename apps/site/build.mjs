@@ -202,8 +202,17 @@ const write = (path, html) => {
   writeFileSync(join(out, file), html);
 };
 
+// The Meta Pixel is off while we don't advertise (18 Oct 2026), and the privacy notice says the website has no
+// trackers: it must be updated before a pixel id goes in.
+if (cfg.metaPixelId && /uses no cookies or trackers/.test(readFileSync(join(repo, "legal", "privacy-notice.md"), "utf8")))
+  throw new Error("privacy notice section 8 says the website has no trackers: update it before switching on the Meta Pixel");
+const visitWho = `Our web host (Vercel) sees your IP address, as for any website, and so does Supabase when the app looks up a shop or uses your account.${cfg.metaPixelId ? " On this website only, Meta's pixel loads if you accept cookies" : " No cookies or trackers"}`;
+const visitKeep = cfg.metaPixelId ? "Say no to cookies. The app has no ads or trackers" : "Nothing to do: there are no ads or trackers";
+
 // Landing page
 const landing = readFileSync(join(here, "src", "index.html"), "utf8")
+  .replaceAll("{{VISIT_WHO}}", visitWho)
+  .replaceAll("{{VISIT_KEEP}}", visitKeep)
   .replaceAll("{{CTAS}}", ctas)
   .replaceAll("{{BRANDS}}", BRANDS)
   .replaceAll("{{EMAIL}}", cfg.contactEmail)

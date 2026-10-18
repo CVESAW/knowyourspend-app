@@ -1,7 +1,7 @@
 ---
 title: Privacy notice
 updated: 18 October 2026
-status: Draft for legal review — not yet published
+status: Current
 ---
 
 # Privacy notice
@@ -13,9 +13,8 @@ to 6 send nothing unless you choose them.
 
 ## Who we are
 
-KnowYourSpend is run by KnowYourSpend Ltd, a company registered in England and Wales
-([company number to follow]), registered office [address to follow]. We are the controller for the
-personal data described here. ICO registration number: [to follow].
+KnowYourSpend is run by Samuel Hamill-Stewart, a sole trader based in England ("we" in this notice).
+We are the controller for the personal data described here.
 
 Contact: hello@knowyourspend.org
 
@@ -63,8 +62,8 @@ miss some, which is why you can check the list and stop it being sent.
   Mistral keeps what it is sent for up to 30 days to watch for abuse, and we have switched off its use of
   our requests to improve its models.
 - **Your IP address:** like any web request, the request reaches our hosting provider with your
-  device's IP address. We don't store it in our database. Our provider's logs may hold it for a short
-  period for security and fault-finding [retention period to confirm with Supabase].
+  device's IP address. We don't store it in our database. Our provider's request logs keep it for 7
+  days, for security and fault-finding.
 - **Lawful basis:** legitimate interests — giving you the ownership answer you asked the app for, in a
   way that doesn't identify you.
 
@@ -91,8 +90,8 @@ recognise. The app shows you exactly what will be sent first.
   provider, Brevo (Sendinblue SAS, France), which processes your address and the email on our behalf.
   Brevo keeps a delivery log (your address, the subject and whether it arrived) for one month, and
   doesn't keep a copy of the email. Brevo also counts whether emails are opened and links clicked;
-  we've set this to anonymous totals that aren't linked to you. [Lawyer to confirm: Brevo can't switch
-  this counting off for one-off emails.]
+  Brevo can't switch this counting off for one-off emails, so we've set it to anonymous totals that
+  aren't linked to you.
 - **Lawful basis:** performing the service you asked for (contract).
 
 ### 4. An account to keep your data (optional)
@@ -105,8 +104,7 @@ if you forget your passphrase we can't recover it.
 
 - **What we keep:** your email address, the dates your account was created and last used, and the
   encrypted copy, until you delete your account (Settings → Delete my account), which removes all of
-  them straight away. [Accounts that stop being used: retention to decide — suggested deletion after 2
-  years without use, with an email first.]
+  them straight away.
 - **Who helps us:** Supabase stores the account and encrypted copy (database in Ireland) and sends
   sign-in codes through our email provider (section 3).
 - **Lawful basis:** performing the service you asked for (contract).
@@ -128,18 +126,17 @@ choice to switch it on.
 ### 7. The web version
 
 The web version of the app is served by Vercel. Vercel receives your IP address and browser details
-when it delivers the app's files, as any web host does, and keeps them in its logs for a short period.
+when it delivers the app's files, as any web host does, and keeps them in its request logs for an hour.
 Nothing you add to the app is sent to Vercel.
 
 ### 8. Our website (knowyourspend.org)
 
-The website uses no cookies unless you accept them. If you click "Accept", it loads the Meta Pixel.
-It sends Meta (Facebook and Instagram) the page you visited, including any ad campaign tags in its web
-address, the page you came from, which store button you pressed, your IP address and browser details,
-and sets a Meta cookie, so we can see which of our ads work. Meta can link this to your Meta account under its own privacy policy;
-for this collection, Meta and we are joint controllers. Lawful basis: your consent, which you can
-withdraw at any time with the "Cookie settings" link at the bottom of every page. The app itself
-contains no Meta Pixel or other advertising tracker.
+The website uses no cookies or trackers, as we don't advertise. Like the app, it's served by Vercel
+(section 7). If we start advertising, we'll update this notice first: the website would then ask
+before loading the Meta Pixel, and only if you click "Accept" would it send Meta (Facebook and
+Instagram) the page you visited, the page you came from, which store button you pressed, your IP
+address and browser details, and set a Meta cookie, so we could see which of our ads work. The app
+itself contains no Meta Pixel or other advertising tracker.
 
 ### 9. If you email us
 
@@ -154,8 +151,9 @@ you under their own privacy policies; they give us only aggregated, anonymous st
 
 ## Transfers outside the UK
 
-Wikidata is in the USA, and Vercel and Meta may process data there. Mistral AI is in France; its web
-search may use search providers outside the UK and EU [to confirm from Mistral's list of sub-processors].
+Wikidata is in the USA, and Vercel may process data there. Mistral AI is in France; its web
+search may use search providers outside the UK and EU (Mistral lists its sub-processors at
+trust.mistral.ai/subprocessors).
 Where personal data
 is involved we rely on the UK–US data bridge for certified companies, or on the UK International Data
 Transfer Addendum. Shop names on their own are not usually personal data.
@@ -168,10 +166,10 @@ Transfer Addendum. Shop names on their own are not usually personal data.
 | Shop names and answers in the look-up cache | Used for 3 days to a year, then deleted within a day |
 | How many look-ups asked about each shop name (not names it decides aren't a business) | Until a year after the latest one |
 | Daily look-up counts | Kept, but they contain no personal data |
-| Hosting logs (IP addresses) | As set by Supabase and Vercel [to confirm] |
+| Hosting logs (IP addresses) | 7 days at Supabase, an hour at Vercel |
 | Emails to us | Up to 2 years after the last message |
 | Website consent choice | 12 months in your browser |
-| Account, email address and encrypted copy | Until you delete your account [unused accounts: to decide] |
+| Account, email address and encrypted copy | Until you delete your account |
 | Salted codes used to limit emails | 30 days |
 | Email address for updates | Until you unsubscribe |
 | Anonymous daily counts | Kept, but they contain no personal data |

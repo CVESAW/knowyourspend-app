@@ -1,7 +1,7 @@
 ---
 title: Terms of use
-updated: 11 October 2026
-status: Draft for legal review — not yet published
+updated: 18 October 2026
+status: Current
 ---
 
 # Terms of use
@@ -9,8 +9,8 @@ status: Draft for legal review — not yet published
 These terms apply when you use the KnowYourSpend app or website. By using them you agree to these
 terms. If you don't agree, please don't use KnowYourSpend.
 
-KnowYourSpend is provided by KnowYourSpend Ltd, registered in England and Wales ([company number to
-follow]), [registered office to follow] ("we"). Contact: hello@knowyourspend.org
+KnowYourSpend is provided by Samuel Hamill-Stewart, a sole trader based in England ("we"). Contact:
+hello@knowyourspend.org
 
 ## 1. Who can use KnowYourSpend
 
