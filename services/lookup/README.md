@@ -106,8 +106,9 @@ search found no owner either.
 Since 18 Oct times are saved to the day (UTC): `created_at` (so it's the day an answer was last saved),
 `updated_at`, `expires_at` (rounded down, so no answer is used past its time) and each answer's `looked_up_at`, so
 a shared time doesn't group the names one request sent (the database's own row metadata still can, for someone
-with direct access). Rows saved before keep their exact times until they're saved again. Expired rows aren't
-deleted: they're skipped, and replaced when the name is next looked up (automatic deletion needs Sam's OK).
+with direct access). Rows saved before were rounded the same day (`20261018_kys_lookup_cache_day_times.sql`).
+Expired rows are deleted every night at 03:17 UTC by Supabase Cron (`kys_expire_lookups()`, in
+`20261018_kys_expire_lookups.sql`), which also deletes request counts a year after a name was last asked about.
 
 Request counts (17 Oct 2026): a running count per name of the requests that asked about it (`kys_lookup_names`:
 name, count, first and last date; nothing about who asked). The handler reads the counts first (this request

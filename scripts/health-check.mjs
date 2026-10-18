@@ -45,7 +45,8 @@ const checks = [
     const r = await fetch(`${SUPABASE}/functions/v1/kys-lookup`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: ANON, Authorization: `Bearer ${ANON}`, Origin: APP },
-      body: JSON.stringify({ merchants: ["Tesco"] }),
+      // "again": the check isn't someone paying Tesco, so it isn't added to the per-name request count (18 Oct 2026)
+      body: JSON.stringify({ merchants: ["Tesco"], again: ["Tesco"] }),
     });
     const j = r.ok ? await r.json() : null;
     if (!Array.isArray(j?.results) || j.results.length !== 1) throw new Error(`HTTP ${r.status}`);

@@ -48,8 +48,7 @@ miss some, which is why you can check the list and stop it being sent.
   that would be sent and has a tick box to stop them being sent for that statement. You can change the
   setting to "Ask me" or "Never" in Settings → Shops we don't know.
 - **What we keep:** the shop name and the answer, in a cache shared by all users, used for 3 days to a year
-  so the next person gets an answer faster. An answer past its time isn't used, but stays until the name is
-  next looked up, when it's replaced [deleting expired answers automatically: to switch on before launch].
+  so the next person gets an answer faster. An answer past its time is deleted automatically within a day.
   For each shop name the look-up answers, except names it decides aren't a business (which may be someone's
   name), we also keep a running count of how many look-ups have asked about it, with the dates of the first
   and the latest, until a year after the latest: it shows which shops many people pay, so we can check those
@@ -62,7 +61,7 @@ miss some, which is why you can check the list and stop it being sent.
   (Wikimedia Foundation, USA) and GLEIF, and — if those don't know — to Mistral AI's AI service (France),
   which may also search the web for the shop name to check its answer. Only the shop name is passed on.
   Mistral keeps what it is sent for up to 30 days to watch for abuse, and we have switched off its use of
-  our requests to improve its models [to confirm before launch].
+  our requests to improve its models.
 - **Your IP address:** like any web request, the request reaches our hosting provider with your
   device's IP address. We don't store it in our database. Our provider's logs may hold it for a short
   period for security and fault-finding [retention period to confirm with Supabase].
@@ -166,7 +165,7 @@ Transfer Addendum. Shop names on their own are not usually personal data.
 | What | How long |
 | --- | --- |
 | Your statements, transactions, settings, fixes | On your device until you delete them |
-| Shop names and answers in the look-up cache | Used for 3 days to a year, then replaced when the name is next looked up [automatic deletion of expired answers: to switch on] |
+| Shop names and answers in the look-up cache | Used for 3 days to a year, then deleted within a day |
 | How many look-ups asked about each shop name (not names it decides aren't a business) | Until a year after the latest one |
 | Daily look-up counts | Kept, but they contain no personal data |
 | Hosting logs (IP addresses) | As set by Supabase and Vercel [to confirm] |
