@@ -7,7 +7,7 @@ import { serif, useTheme } from "@/lib/theme";
 const EXPLAIN = {
   uk: "Share of the spending we could identify that went to companies whose ultimate owner is run from the UK.",
   countries: "How many different countries the owners of the companies you paid are run from.",
-  identified: "How much of your spending is linked to a country. Named owners come from our list or an online lookup; the rest is estimated from where you paid (small independent shops, mostly) or set by you.",
+  identified: "How much of your spending is linked to a country. Named owners come from our list or an online lookup; the rest is counted where you paid (local independents and estimates) or set by you.",
 } as const;
 
 /** Descriptive numbers about the user's own spending — never a moral score or a grade for brands. */

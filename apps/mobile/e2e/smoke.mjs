@@ -75,6 +75,13 @@ try {
   await tid("score-tiles").waitFor({ timeout: 30000 });
   for (const v of ["bars", "map", "time", "pie"]) await tid(`chart-tab-${v}`).click();
   step("demo + all four charts");
+  // "Who you pay most": tapping a shop says why it counts where it does
+  await vis('[data-testid^="top-"]').first().click();
+  await tid("why-sheet").waitFor();
+  if (!(await tid("why-headline").textContent())?.trim()) throw new Error("why sheet without a headline");
+  await tid("why-close").click();
+  await tid("why-sheet").waitFor({ state: "hidden" });
+  step("tap a top shop → why it counts there");
   await tid("exit-demo").click();
   await tid("empty-home").waitFor();
   // the website's "Try a sample statement" button
@@ -97,17 +104,23 @@ try {
   await tid("report-summary").waitFor();
   if (lookupBodies.length !== (willLookUp ? 1 : 0)) throw new Error(`expected ${willLookUp ? 1 : 0} lookup request(s), got ${lookupBodies.length}`);
   for (const b of lookupBodies) {
-    if (Object.keys(b).join() !== "merchants" || !b.merchants.every((n) => typeof n === "string" && !/\d+\.\d{2}/.test(n))) throw new Error(`lookup body carried more than names: ${JSON.stringify(b)}`);
+    // names only: "merchants", and optionally "again" (a subset of them the app asked about before)
+    const keys = Object.keys(b).join();
+    if ((keys !== "merchants" && keys !== "merchants,again") || !b.merchants.every((n) => typeof n === "string" && !/\d+\.\d{2}/.test(n)) || (b.again ?? []).some((n) => !b.merchants.includes(n))) throw new Error(`lookup body carried more than names: ${JSON.stringify(b)}`);
   }
   step(`CSV statement → report (${willLookUp ? `looked up ${lookupBodies[0].merchants.length} unknown shop names, names only` : "every shop recognised, nothing sent"})`);
-  // "Which country is this?" — fix one shop's country by hand
+  // Tap a shop: "Why this country?" explains the answer, and the country can be set by hand from there
   const shopRow = page.locator('[data-testid^="shop-"]').filter({ visible: true }).first();
   await shopRow.click();
+  await tid("why-sheet").waitFor();
+  const whyLabel = (await tid("why-label").textContent())?.trim();
+  if (!whyLabel || !(await tid("why-headline").textContent())?.trim()) throw new Error("why sheet without a label or headline");
+  await tid("why-set-country").click();
   await tid("country-picker").waitFor();
   await tid("country-search").fill("Ice");
   await tid("pick-IS").click();
   await page.getByText("your choice").first().waitFor();
-  step("set a shop's country by hand");
+  step(`tap a shop → why it counts there ("${whyLabel}") → set its country by hand`);
 
   // web only: once there's real data, suggest the home screen and a backup; "Not now" hides it
   await page.goto(BASE);
@@ -115,6 +128,13 @@ try {
   await tid("keep-safe-dismiss").click();
   await tid("keep-safe-card").waitFor({ state: "detached" });
   step("home-screen / backup card shows, and 'Not now' hides it");
+  // the shop just set by hand: its row in "Who you pay most" opens "Why this country?" too (it opened nothing before 18 Oct)
+  await vis('[data-testid^="top-you:"]').first().click();
+  await tid("why-sheet").waitFor();
+  if ((await tid("why-label").textContent())?.trim() !== "You set this") throw new Error("a row you set opened the wrong explanation");
+  await tid("why-close").click();
+  await tid("why-sheet").waitFor({ state: "hidden" });
+  step("a row you set yourself opens why it counts there");
 
   // PDF statement
   await page.goto(`${BASE}/add-statement`);

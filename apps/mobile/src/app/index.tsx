@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -9,7 +9,12 @@ import { countryName, flag } from "@/lib/countries";
 import { seedDemo } from "@/lib/demo";
 import { pct } from "@/lib/format";
 import { entryById } from "@/lib/ownership";
-import { store } from "@/lib/store";
+import { store, useStore } from "@/lib/store";
+import { whyFor } from "@/lib/why";
+import { readableName } from "@kys/core/explain";
+import { setCountry } from "@/lib/fixes";
+import { WhySheet } from "@/components/WhySheet";
+import { CountryPicker } from "@/components/CountryPicker";
 import { track } from "@/lib/usage";
 import { ONLINE_EXTRAS } from "@/lib/features";
 import { serif, useTheme } from "@/lib/theme";
@@ -40,6 +45,17 @@ export default function Home() {
   const [sharing, setSharing] = useState(false);
   const [emailing, setEmailing] = useState(false);
   const listReady = useBrandListReady();
+  const { prefs } = useStore();
+  // "Why this country?" for a row of "Who you pay most": by a payment to it when the row has one (18 Oct 2026: rows
+  // you'd set a country for, and receipts, opened nothing), else the brand, else a receipt from a shop we don't know.
+  const [whyRow, setWhyRow] = useState<{ entryId: string; name: string; basis: string; payee?: string; iso: string } | null>(null);
+  const [picking, setPicking] = useState<{ payee: string; name: string; country?: string } | null>(null);
+  const why = useMemo(() => {
+    if (!whyRow) return null;
+    if (whyRow.payee) return whyFor(data, prefs, { payee: whyRow.payee });
+    if (whyRow.basis === "owner") return whyFor(data, prefs, { entryId: whyRow.entryId });
+    return whyFor(data, prefs, { receipt: { name: whyRow.name, country: whyRow.iso } });
+  }, [whyRow, data, prefs]);
   // The website's "Try a sample statement" button opens /?demo=1: go straight into the demo.
   const { demo: demoParam } = useLocalSearchParams<{ demo?: string }>();
   const demoStarted = useRef(false);
@@ -122,7 +138,7 @@ export default function Home() {
             )}
             <P small muted={3}>
               Named owners for {pct(b.scores.identified)} of your spending
-              {b.estimatedSpend > 0 && ` · ${pct(b.estimatedSpend / Math.max(b.totalSpend, 0.01))} estimated from where you paid`}
+              {b.estimatedSpend > 0 && ` · ${pct(b.estimatedSpend / Math.max(b.totalSpend, 0.01))} counted where you paid or set by you`}
               {b.unmatched.length > 0 && ` · ${b.unmatched.length} shops not counted`}
               {data.otherCurrency > 0 && ` · ${data.otherCurrency} non-GBP payments not included`}
             </P>
@@ -132,11 +148,11 @@ export default function Home() {
                 <Card style={{ overflow: "hidden" }}>
                   {topCompanies.map((c, i) => {
                     const e = c.basis === "owner" ? entryById(c.entryId) : undefined;
-                    const parent = e?.chain[e.chain.length - 1]?.name ?? c.name;
+                    const parent = readableName(e?.chain[e.chain.length - 1]?.name ?? c.name);
                     return (
                       <View key={c.entryId}>
                         {i > 0 && <Divider />}
-                        <Row>
+                        <Row onPress={() => setWhyRow(c)} testID={`top-${c.entryId}`}>
                           <Text style={{ fontSize: 20 }}>{flag(c.iso)}</Text>
                           <View style={{ flex: 1, minWidth: 0 }}>
                             <P bold numberOfLines={1}>{e?.display_name ?? c.name}</P>
@@ -148,6 +164,26 @@ export default function Home() {
                     );
                   })}
                 </Card>
+                <P small muted={3} style={{ marginTop: 6 }}>Tap one to see why it counts where it does.</P>
+                <WhySheet
+                  why={why}
+                  open={!!whyRow && !!why}
+                  onClose={() => setWhyRow(null)}
+                  onSetCountry={why?.payee ? () => {
+                    if (why?.payee) setPicking({ payee: why.payee, name: why.name, country: why.country });
+                    setWhyRow(null);
+                  } : undefined}
+                />
+                <CountryPicker
+                  open={!!picking}
+                  name={picking?.name ?? ""}
+                  current={picking?.country}
+                  onClose={() => setPicking(null)}
+                  onPick={async (iso) => {
+                    if (picking) await setCountry(picking.payee, iso);
+                    setPicking(null);
+                  }}
+                />
               </View>
             )}
           </>

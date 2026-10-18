@@ -161,7 +161,7 @@ async function mergeIn(data: Payload): Promise<void> {
     const ln = new Set(d.lines.map((l) => l.id));
     const p = data.prefs as Partial<typeof d.prefs> | undefined;
     return {
-      ...(p ? { prefs: { ...d.prefs, overrides: { ...(p.overrides ?? {}), ...d.prefs.overrides }, lookups: { ...(p.lookups ?? {}), ...d.prefs.lookups } } } : {}),
+      ...(p ? { prefs: { ...d.prefs, overrides: { ...(p.overrides ?? {}), ...d.prefs.overrides }, lookups: { ...(p.lookups ?? {}), ...d.prefs.lookups }, lookupLocal: { ...(p.lookupLocal ?? {}), ...d.prefs.lookupLocal }, lookupChecks: { ...(p.lookupChecks ?? {}), ...d.prefs.lookupChecks } } } : {}),
       items: [...data.items.filter((i) => !ids.has(i.id)), ...d.items].filter((i) => !gone.has(i.id)),
       txns: [...d.txns, ...data.transactions.filter((t) => !tx.has(t.id))].filter((t) => !gone.has(t.itemId)),
       lines: [...d.lines, ...data.receiptLines.filter((l) => !ln.has(l.id))].filter((l) => !gone.has(l.itemId)),

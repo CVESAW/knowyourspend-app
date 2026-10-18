@@ -48,4 +48,12 @@ describe("normalisePayee invariants", () => {
   it("maps store-number variants of one chain to one key (the cache-miss problem)", () => {
     expect(normalisePayee("TESCO STORES 3456 LONDON")).toBe(normalisePayee("TESCO STORES 8901 MANCHESTER GB"));
   });
+
+  it("looks through pay-later services to the shop, like PayPal (18 Oct 2026)", () => {
+    expect(normalisePayee("KLARNA*ASOS")).toBe("ASOS");
+    expect(normalisePayee("Klarna*ASOS.com")).toBe(normalisePayee("KLARNA *ASOS"));
+    expect(normalisePayee("CLEARPAY*ASOS")).toBe("ASOS");
+    expect(normalisePayee("KLARNA")).toBe("KLARNA");
+    expect(normalisePayee("CLEARPAY UK")).toBe("CLEARPAY");
+  });
 });

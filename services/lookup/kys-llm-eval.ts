@@ -2,14 +2,15 @@
 // KnowYourSpend — test bench for the look-up's AI step (Supabase Edge Function "kys-llm-eval", verify_jwt off).
 // Runs the AI step the live look-up uses (ai.ts) on test names and returns every detail. Stores nothing.
 // Deploy this file as index.ts with registries.ts and ai.ts. Called with an x-eval-token header whose SHA-256 is
-// below (the token itself is not in the repo); to rotate it, make a new random token, put its hash here, redeploy.
+// below (the tokens themselves are not in the repo); to rotate one, make a new random token, put its hash here, redeploy.
 // Secrets used: MISTRAL_API_KEY, COMPANIES_HOUSE_API_KEY.
 import { CompaniesHouse, Gleif, Wikidata, normaliseName, stripLegalSuffix } from "./registries.ts";
 import {
   AI_DEFAULTS, ANSWER_SCHEMA, PROMPT_VERSION, aiEstimate, askWithWebSearch, coreName, mistralModels, mistralProbe, parseAnswer, systemPrompt, userPrompt,
 } from "./ai.ts";
 
-const TOKEN_SHA256 = "35fc4d7805533ea035cec08a3446b62c83bd0bc373359c3e5d6671d782f53596";
+// The first token (14 Oct 2026), and a second one made on 17 Oct 2026 for a session that didn't have the first.
+const TOKEN_SHA256 = ["35fc4d7805533ea035cec08a3446b62c83bd0bc373359c3e5d6671d782f53596", "0dbadba907c531346a688ab599e1691347e9ab06a6d8ba91898423d7b06b4b8d"];
 
 async function sha256(s) {
   const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
@@ -64,8 +65,9 @@ function brief(r) {
     resolved: r.resolved ?? null,
     checked: r.checked ?? null,
     webMissed: !!r.webMissed,
+    scale: r.scale ?? null,
     reason: r.reason ?? null,
-    samples: r.samples.map((s) => ({ b: s.is_business, o: s.owner, c: s.country, k: s.confidence, m: s.match, t: s.owner_type, br: s.brand })),
+    samples: r.samples.map((s) => ({ b: s.is_business, o: s.owner, c: s.country, k: s.confidence, m: s.match, t: s.owner_type, br: s.brand, s: s.scale })),
     evidence: r.evidence.map((e) => `${e.id} ${e.text}`),
     web: r.web ?? null,
     usage: r.usage,
@@ -93,7 +95,7 @@ export async function fingerprint() {
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("POST only", { status: 405 });
-  if ((await sha256(req.headers.get("x-eval-token") ?? "")) !== TOKEN_SHA256) return new Response("forbidden", { status: 403 });
+  if (!TOKEN_SHA256.includes(await sha256(req.headers.get("x-eval-token") ?? ""))) return new Response("forbidden", { status: 403 });
   const body = await req.json().catch(() => ({}));
   const key = Deno.env.get("MISTRAL_API_KEY") ?? "";
   const chKey = Deno.env.get("COMPANIES_HOUSE_API_KEY") ?? "";
@@ -107,7 +109,9 @@ Deno.serve(async (req) => {
   const opts = { ...AI_DEFAULTS, ...(body.options ?? {}) };
   const today = body.today ?? new Date().toISOString().slice(0, 10);
   const country = typeof body.country === "string" ? body.country.toUpperCase() : "GB";
-  const ctx = { fetch, apiKey: key, wikidata: new Wikidata(fetch, { retries: 2 }), gleif: new Gleif(fetch), ch: chKey && country === "GB" ? new CompaniesHouse(fetch, chKey) : undefined, today, country, webQueue: limiter(2) };
+  // seen: as if this many requests had asked about each name (1 = the first request), as the live look-up counts them
+  const seen = Number.isInteger(body.seen) && body.seen > 0 ? body.seen : undefined;
+  const ctx = { fetch, apiKey: key, wikidata: new Wikidata(fetch, { retries: 2 }), gleif: new Gleif(fetch), ch: chKey && country === "GB" ? new CompaniesHouse(fetch, chKey) : undefined, today, country, webQueue: limiter(2), seen };
   if (body.action === "web") {
     const out = [];
     for (const name of (body.names ?? []).slice(0, 5)) {

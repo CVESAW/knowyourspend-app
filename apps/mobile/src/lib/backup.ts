@@ -51,7 +51,7 @@ export async function restoreBackup(passphrase: string): Promise<{ items: number
     const ln = new Set(d.lines.map((l) => l.id));
     const p = data.prefs as Partial<typeof d.prefs> | undefined;
     return {
-      ...(p ? { prefs: { ...d.prefs, overrides: { ...(p.overrides ?? {}), ...d.prefs.overrides }, lookups: { ...(p.lookups ?? {}), ...d.prefs.lookups } } } : {}),
+      ...(p ? { prefs: { ...d.prefs, overrides: { ...(p.overrides ?? {}), ...d.prefs.overrides }, lookups: { ...(p.lookups ?? {}), ...d.prefs.lookups }, lookupLocal: { ...(p.lookupLocal ?? {}), ...d.prefs.lookupLocal }, lookupChecks: { ...(p.lookupChecks ?? {}), ...d.prefs.lookupChecks } } } : {}),
       items: [...newItems, ...d.items],
       txns: [...d.txns, ...data.transactions.filter((t) => !tx.has(t.id))],
       lines: [...d.lines, ...data.receiptLines.filter((l) => !ln.has(l.id))],

@@ -48,7 +48,7 @@ const inline = (s) =>
   esc(s)
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/`([^`]+)`/g, "<code>$1</code>")
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+|\/[^)\s]*|mailto:[^)\s]+)\)/g, '<a href="$2">$1</a>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+|\/[^)\s]*|#[^)\s]+|mailto:[^)\s]+)\)/g, '<a href="$2">$1</a>')
     .replace(/(^|[\s(])(https:\/\/[^\s<)]+[^\s<).,;:])/g, '$1<a href="$2">$2</a>')
     .replace(/(^|[\s(])([a-z0-9.]+@knowyourspend\.org)/g, '$1<a href="mailto:$2">$2</a>')
     .replace(/(^|[\s(])(ico\.org\.uk\/make-a-complaint)/g, '$1<a href="https://$2">$2</a>');
@@ -70,14 +70,22 @@ function markdown(src) {
     const l = lines[i];
     if (!l.trim()) { i++; continue; }
     const h = l.match(/^(#{1,3}) (.*)$/);
-    if (h) { html.push(`<h${h[1].length}>${inline(h[2])}</h${h[1].length}>`); i++; continue; }
+    if (h) {
+      // h2 and h3 get an id from their text, so a page can link to a section (/how-it-works#the-rules-we-follow)
+      const id = h[1].length > 1 ? ` id="${h[2].toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}"` : "";
+      html.push(`<h${h[1].length}${id}>${inline(h[2])}</h${h[1].length}>`);
+      i++;
+      continue;
+    }
     if (/^\|/.test(l)) {
       const rows = [];
       while (i < lines.length && /^\|/.test(lines[i])) rows.push(lines[i++]);
       const cells = (r) => r.replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
       const [head, , ...bodyRows] = rows;
-      html.push(`<table><thead><tr>${cells(head).map((c) => `<th>${inline(c)}</th>`).join("")}</tr></thead><tbody>${bodyRows
-        .map((r) => `<tr>${cells(r).map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`)
+      const heads = cells(head);
+      // data-label: the column's heading, shown before each cell where narrow screens stack a row's cells
+      html.push(`<table><thead><tr>${heads.map((c) => `<th>${inline(c)}</th>`).join("")}</tr></thead><tbody>${bodyRows
+        .map((r) => `<tr>${cells(r).map((c, k) => `<td data-label="${esc(heads[k] ?? "")}">${inline(c)}</td>`).join("")}</tr>`)
         .join("")}</tbody></table>`);
       continue;
     }
@@ -103,10 +111,24 @@ function markdown(src) {
 
 // ── Facts shown on the page, read from the data the app ships with ────────────────────────────
 const ownData = join(repo, "packages", "ownership", "data");
-const brandCount =
-  JSON.parse(readFileSync(join(ownData, "merchants.json"), "utf8")).length +
-  JSON.parse(readFileSync(join(ownData, "open-brands.json"), "utf8")).brands.length;
+const ownJson = (file) => JSON.parse(readFileSync(join(ownData, file), "utf8"));
+const merchants = ownJson("merchants.json"), openBrands = ownJson("open-brands.json").brands;
+const brandCount = merchants.length + openBrands.length;
 const BRANDS = (Math.floor(brandCount / 500) * 500).toLocaleString("en-GB"); // "over 6,500"
+// For the how-it-works page: the hand-researched list, the open-data list, and the AI review's changes to it
+const handList = [...merchants, ...ownJson("product-brands.json")];
+const HAND = String(handList.length);
+const corrections = ownJson("open-brand-corrections.json").corrections;
+// The open-data brands the app ships: not on the hand-researched list (by Wikidata id or name) and not dropped by the
+// review, as in packages/ownership (openBrandEntries).
+const normName = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/['‘’`]/g, "").replace(/[^A-Z0-9&]+/g, " ").replace(/\s+/g, " ").trim();
+const handIds = new Set(handList.flatMap((e) => [...e.chain.filter((h) => h.source === "wikidata" && h.source_id).map((h) => h.source_id), ...(e.qid ? [e.qid] : [])]));
+const handNames = new Set(handList.flatMap((e) => e.aliases.map(normName)));
+const dropped = new Set(corrections.filter((c) => c.action === "drop").map((c) => c.qid));
+const openShipped = openBrands.filter((r) => !handIds.has(r.qid) && !r.aliases.some((a) => handNames.has(normName(a))) && !dropped.has(r.qid)).length;
+const OPEN = (Math.round(openShipped / 100) * 100).toLocaleString("en-GB");
+const FIXES = String(corrections.filter((c) => c.action === "fix").length);
+const DROPS = String(corrections.filter((c) => c.action === "drop").length);
 
 // ── Calls to action ───────────────────────────────────────────────────────────────────────────
 const ios = cfg.appStoreId
@@ -150,12 +172,13 @@ const page = ({ title, description, path, main, bodyClass = "" }) => `<!doctype 
 <script src="${JS}" defer></script>
 </head>
 <body class="${bodyClass}"${cfg.metaPixelId ? ` data-pixel="${cfg.metaPixelId}"` : ""}>
-<header class="top"><div class="wrap"><a class="wordmark" href="/">KnowYourSpend</a><a class="open" data-store="web" data-cta="header" href="${cfg.webAppUrl}/">Open the app</a></div></header>
+<header class="top"><div class="wrap"><a class="wordmark" href="/">KnowYourSpend</a><nav class="topnav" aria-label="Main"><a href="/how-it-works"${path === "/how-it-works" ? ' aria-current="page"' : ""}>How it works</a><a class="open" data-store="web" data-cta="header" href="${cfg.webAppUrl}/">Open the app</a></nav></div></header>
 <main class="wrap">
 ${main}
 </main>
 <footer><div class="wrap">
 <nav aria-label="Site">
+  <a href="/how-it-works">How we work out who owns what</a>
   <a href="/privacy">Privacy notice</a>
   <a href="/terms">Terms of use</a>
   <a href="/support">Help and contact</a>
@@ -190,7 +213,7 @@ const landing = readFileSync(join(here, "src", "index.html"), "utf8")
 if (/\{\{\w+\}\}/.test(landing)) throw new Error("landing page has an unfilled {{placeholder}}");
 write("/", page({
   title: "KnowYourSpend: see which countries own the shops you pay",
-  description: "Add a bank statement and see your spending by the country that owns each business. Free, no account, read on your phone: amounts, dates and balances never leave it.",
+  description: "Add a bank statement and see your spending by the country that owns each business. Free, no account, read on your phone: we never see your amounts, dates or balances.",
   path: "/",
   main: landing,
   bodyClass: "home",
@@ -207,13 +230,33 @@ for (const [path, file, description] of [
   write(path, page({ title: `${meta.title} | KnowYourSpend`, description, path, main: `<article class="doc">${body}</article>` }));
 }
 
+// How we work out where your money goes (from src/how-it-works.md; the numbers come from the data the app ships with)
+const howSrc = readFileSync(join(here, "src", "how-it-works.md"), "utf8")
+  .replaceAll("{{BRANDS}}", BRANDS)
+  .replaceAll("{{HAND}}", HAND)
+  .replaceAll("{{OPEN}}", OPEN)
+  .replaceAll("{{FIXES}}", FIXES)
+  .replaceAll("{{DROPS}}", DROPS)
+  .replaceAll("{{EMAIL}}", cfg.contactEmail)
+  .replaceAll("{{SOURCE}}", cfg.sourceUrl)
+  .replaceAll("{{SOURCE_LABEL}}", cfg.sourceUrl.replace(/^https:\/\//, ""));
+if (/\{\{\w+\}\}/.test(howSrc)) throw new Error("how-it-works.md has an unfilled {{placeholder}}");
+const how = markdown(howSrc);
+write("/how-it-works", page({
+  title: `${how.meta.title} | KnowYourSpend`,
+  description: "How KnowYourSpend decides which country owns each shop you pay: the built-in list, local independents, the online look-up, the rules we follow and how sure we are.",
+  path: "/how-it-works",
+  main: `<article class="doc how">${how.html.replace(/<h1>(.*?)<\/h1>/, `<h1>$1</h1>\n<p class="updated">Last updated ${esc(how.meta.updated ?? "")}</p>`)}</article>`,
+}));
+
 // Help page
 const help = markdown(`# Help and contact
 
 ## Does my statement get uploaded?
 
 No. KnowYourSpend reads it on your phone, or in your browser if you use the web version. Amounts, dates,
-balances and account numbers stay on your device. What can leave is the name of a shop the app doesn't
+balances and account numbers stay on your device, and in any encrypted backup or account copy you make, which
+only you can open. What can leave is the name of a shop the app doesn't
 know, so it can look up the owner; filters hold back names that look like a person or something
 sensitive. You can switch look-ups off in Settings → Shops we don't know.
 
@@ -225,15 +268,28 @@ Monzo, Starling, Revolut, Barclays, Lloyds, NatWest, Nationwide and Santander.
 
 ## A shop has the wrong country. What can I do?
 
-Tap the shop in the report and choose "Which country is this?" to set it yourself; your choice stays on
-your phone. Please also tell us at hello@knowyourspend.org so we can look into it and fix it for
-everyone.
+Tap the shop in the report to see why it counts where it does, then choose "Set the country myself";
+your choice is kept with the rest of your data, which only you can read. Please also tell us at hello@knowyourspend.org so we can look into it
+and fix it for everyone.
+
+## How do you know who owns a shop?
+
+From our own list of who owns over ${BRANDS} shops and brands, built from company registers and open
+data, and, if you allow it, an online look-up for the rest. Tap any shop in the app to see the reasons
+for that shop. The whole method is on [How we work out where your money goes](/how-it-works).
+
+## What does "Local independent" mean?
+
+A small business we can't name an owner for, like a café, a market stall or a barber, that looks local:
+paid with a card reader small businesses use (Square, SumUp or Zettle), or with a name like CAFE or
+BAKERY, or found to be local by our look-up. It's counted in the country where you paid, because almost
+all of them are owned there.
 
 ## What does "Estimated" mean?
 
-For a shop we can't link to an owner, the app counts it under the country where you paid, read from the
-country code, town or web address your bank prints. A small café in Lewisham is almost always UK-owned.
-You can switch estimates off in Settings.
+For any other shop we can't link to an owner, the app counts it under the country where you paid, read
+from the country code, town or web address your bank prints. An unknown shop in Lewisham is almost
+always UK-owned. You can switch estimates off in Settings.
 
 ## What do "Checked", "Matched" and "Unverified" mean?
 
@@ -277,6 +333,6 @@ write("/support", page({ title: "Help and contact | KnowYourSpend", description:
 write("/404", page({ title: "Page not found | KnowYourSpend", description: "This page doesn't exist.", path: "/404", main: `<article class="doc"><h1>This page doesn't exist</h1><p><a href="/">Go to the home page</a></p></article>` }));
 
 writeFileSync(join(out, "robots.txt"), `User-agent: *\nAllow: /\nSitemap: ${cfg.origin}/sitemap.xml\n`);
-writeFileSync(join(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${["/", "/privacy", "/terms", "/support"].map((p) => `<url><loc>${cfg.origin}${p}</loc></url>`).join("")}</urlset>\n`);
+writeFileSync(join(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${["/", "/how-it-works", "/privacy", "/terms", "/support"].map((p) => `<url><loc>${cfg.origin}${p}</loc></url>`).join("")}</urlset>\n`);
 
 console.log(`Built ${readdirSync(out).length} entries in dist/ (pixel: ${cfg.metaPixelId ? "on, behind consent" : "off"}; iPhone: ${ios ? "live" : "not yet"}; Android: ${android ? "live" : "not yet"})`);

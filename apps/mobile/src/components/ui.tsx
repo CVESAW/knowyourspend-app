@@ -158,14 +158,20 @@ export function TierBadge({ tier }: { tier: OwnershipEntry["tier"] }) {
   );
 }
 
-/** For rows without a named owner: "Estimated" (from where it was paid) or "You set this" (the user's own fix). */
-export function BasisBadge({ basis }: { basis: "estimated" | "you" }) {
+const BASIS: Record<"estimated" | "you" | "independent", [string, string]> = {
+  you: ["You set this", "You chose this country."],
+  independent: ["Local independent", "A small local business, not a company we can name, so it's counted where you paid."],
+  estimated: ["Estimated", "We don't know the owner, so this is counted under the country it was paid in."],
+};
+
+/** For rows without a named owner: "Estimated" (from where it was paid), "Local independent" or "You set this" (the user's own fix). */
+export function BasisBadge({ basis }: { basis: "estimated" | "you" | "independent" }) {
   const t = useTheme();
-  const label = basis === "you" ? "You set this" : "Estimated";
-  const description = basis === "you" ? "You chose this country." : "We don't know the owner, so this is counted under the country it was paid in.";
+  const [label, description] = BASIS[basis];
+  const color = basis === "you" ? t.teal : basis === "independent" ? t.ink2 : t.ink3;
   return (
-    <View accessibilityLabel={`${label}: ${description}`} style={{ alignSelf: "flex-start", borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2, borderWidth: 1, borderStyle: "dotted", borderColor: basis === "you" ? t.teal : t.ink3 }}>
-      <Text style={{ fontSize: 11, fontWeight: "600", color: basis === "you" ? t.teal : t.ink3 }}>{label}</Text>
+    <View accessibilityLabel={`${label}: ${description}`} style={{ alignSelf: "flex-start", borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2, borderWidth: 1, borderStyle: basis === "independent" ? "solid" : "dotted", borderColor: color }}>
+      <Text style={{ fontSize: 11, fontWeight: "600", color }}>{label}</Text>
     </View>
   );
 }

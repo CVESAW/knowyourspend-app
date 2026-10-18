@@ -15,4 +15,5 @@ export * from "./ocr-lines";
 export * from "./prepare";
 export * from "./backup";
 export * from "./attribute";
+export * from "./explain";
 export * from "./locate";

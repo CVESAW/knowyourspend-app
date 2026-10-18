@@ -32,7 +32,9 @@ export function summarise(b: Breakdown, period: string): ResultsSummary {
     .sort((a, z) => z.amount - a.amount)
     .slice(0, 8)
     .map(({ entry, iso }) => {
-      const owner = entry!.chain[entry!.chain.length - 1]?.name;
+      // an owner known only by its Wikidata id is left out of the email, rather than sent as "Q…"
+      const top = entry!.chain[entry!.chain.length - 1]?.name;
+      const owner = top && !/^Q\d+$/.test(top) ? top : undefined;
       return { name: entry!.display_name, owner: owner && owner !== entry!.display_name ? owner : undefined, country: countryName(iso) };
     });
   const outside = 1 - b.scores.ukShare;

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { breakdown, contributions } from "../src/aggregate";
+import { DEFAULT_CONTEXT } from "../src/attribute";
 import { entryById } from "../src/ownership";
 import type { Disclosure, Item, ReceiptLine, StoredTransaction } from "../src/types";
 
@@ -59,5 +60,24 @@ describe("breakdown", () => {
     expect(b.countries.reduce((s, c) => s + c.share, 0)).toBeCloseTo(1);
     expect(b.unmatchedSpend).toBeCloseTo(25);
     expect(b.scores.identified).toBeCloseTo(100 / 125);
+  });
+
+  it("each row keeps a payee behind it, so 'Why this country?' can open for rows you set yourself (18 Oct 2026)", () => {
+    const tesco = { ...tx("t1", -40, "tesco"), normPayee: "TESCO STORES", rawPayee: "TESCO STORES 3142" };
+    const ctx = { ...DEFAULT_CONTEXT, overrides: { "TESCO STORES": "IE" } };
+    const { list } = contributions([statement], [tesco, tx("t2", -10, undefined)], [], ctx);
+    const rows = breakdown(list).countries.flatMap((c) => c.entries);
+    // the row is keyed by the brand's name ("you:Tesco"), but carries the payee to explain it with
+    expect(rows.find((r) => r.basis === "you")).toMatchObject({ entryId: "you:Tesco", payee: "TESCO STORES" });
+    expect(rows.find((r) => r.name === "LOCAL CAFE")).toMatchObject({ basis: "independent", payee: "LOCAL CAFE" });
+  });
+
+  it("a receipt matched to a payment carries that payment's payee for the shop part", () => {
+    const unknown: Item = { ...receipt(10), receipt: { storeText: "ZZQ DELI", date: "2026-09-11", total: 10 } };
+    const { list } = contributions([statement, unknown], [tx("t1", -10, undefined)], [line("COKE", 2, "coca-cola")], DEFAULT_CONTEXT);
+    // not matched (no known store), so it's counted on its own, with no payee
+    expect(list.filter((c) => c.source === "receipt" && !c.entryId?.startsWith("coca")).every((c) => !c.payee)).toBe(true);
+    const { list: matched } = contributions([statement, receipt(10)], [tx("t1", -10, "tesco")], [line("COKE", 2, "coca-cola")], DEFAULT_CONTEXT);
+    expect(matched.find((c) => c.entryId === "tesco")?.payee).toBe("tesco");
   });
 });

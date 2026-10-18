@@ -132,10 +132,14 @@ SELECT ?item ?prop ?val ?rank ?share ?end WHERE {
   OPTIONAL { ?st pq:P1107 ?share }
   OPTIONAL { ?st pq:P582 ?end }
 }"""
+# 18 Oct 2026: English first, then "mul" (one name for every language) and other languages written in Latin letters,
+# as newer companies often have no English label (the list had 242 owners named only by their id).
+LABEL_ORDER = ["en", "en-gb", "mul", "fr", "de", "es", "it", "nl", "pt", "sv", "da", "nb", "fi", "pl"]
 LABEL_Q = """
-SELECT ?item ?label WHERE {
+SELECT ?item ?label ?lang WHERE {
   VALUES ?item { %s }
-  ?item rdfs:label ?label . FILTER(LANG(?label) = "en")
+  ?item rdfs:label ?label . BIND(LANG(?label) AS ?lang)
+  FILTER(?lang IN ("en", "en-gb", "mul", "fr", "de", "es", "it", "nl", "pt", "sv", "da", "nb", "fi", "pl"))
 }"""
 
 
@@ -152,7 +156,7 @@ class Wd:
         CACHE.write_text(json.dumps(self.ent))
 
     def load(self, ids: set[str], batch: int = 250) -> None:
-        need = sorted(i for i in ids if re.fullmatch(r"Q\d+", i) and i not in self.ent)
+        need = sorted(i for i in ids if re.fullmatch(r"Q\d+", i) and (i not in self.ent or not self.ent[i].get("label")))
         for i in range(0, len(need), batch):
             chunk = need[i:i + batch]
             values = " ".join(f"wd:{x}" for x in chunk)
@@ -169,8 +173,13 @@ class Wd:
                     "share": _num(r["share"]["value"]) if "share" in r else None,
                     "end": r["end"]["value"] if "end" in r else None,
                 })
+            rank: dict[str, int] = {}
             for r in labels:
-                ents[qid(r["item"]["value"])]["label"] = r["label"]["value"]
+                k, v, lang = qid(r["item"]["value"]), r["label"]["value"], r["lang"]["value"]
+                at = LABEL_ORDER.index(lang) if lang in LABEL_ORDER else len(LABEL_ORDER)
+                if latin_only(v) and at < rank.get(k, len(LABEL_ORDER) + 1):
+                    rank[k] = at
+                    ents[k]["label"] = v
             for k, e in ents.items():
                 e["claims"] = dict(e["claims"])
                 self.ent[k] = e
@@ -350,7 +359,7 @@ def main() -> None:
             d = domain_of(u) if u else None
             if d and d not in SHARED_HOSTS and d not in doms:
                 doms.append(d)
-        chain = [[(wd.ent.get(h) or {}).get("label") or h, h, c] for h, c in zip(hops, filled)]
+        chain = [[(wd.ent.get(h) or {}).get("label") or (label if h == q else h), h, c] for h, c in zip(hops, filled)]
         prio = min((PRIORITY.get(l, 3) for l in b["locs"]), default=3)
         out.append({
             "id": f"osm-{slug(label)}-{q.lower()}",

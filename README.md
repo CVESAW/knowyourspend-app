@@ -17,7 +17,7 @@ that does it.
 | --- | --- | --- | --- |
 | Your statement file, amounts, dates, balances, account and card numbers, and the people you pay | Nowhere. It's read and stored on your device (IndexedDB in the browser) | Until you delete it | Nothing to do |
 | Receipt photos | Nowhere. Read on the device, then discarded | Not kept | Nothing to do |
-| Names of shops the app doesn't recognise | Our look-up service, which may ask Wikidata, GLEIF, Companies House and Mistral AI about the name | The name and its answer, 3 days to a year, with no record of who asked | Settings → Shops we don't know → Never |
+| Names of shops the app doesn't recognise | Our look-up service, which may ask Wikidata, GLEIF, Companies House and Mistral AI about the name | The name and its answer, used for 3 days to a year (an expired answer stays until the name is looked up again); and a count of the look-ups that asked about each name (not names it decides aren't a business, nor a phone asking again), until a year after the latest. No record of who asked; since 18 Oct 2026, times only to the day | Settings → Shops we don't know → Never |
 | Your email address and a summary (percentages and well-known shop names, never amounts), if you ask us to email your results | Sent through Brevo; the address isn't kept unless you also ask for updates | Brevo's delivery log, 1 month; salted hashes that stop misuse, 30 days | Don't use "Email me my results" |
 | An encrypted copy of your data, if you make an account | Supabase, after it's encrypted on your device with a key from a passphrase only you know (PBKDF2-SHA256, AES-256-GCM) | Until you delete the account | Don't make an account; you don't need one |
 | Anonymous counts (one total per action per day) | Supabase | Kept as totals | Off unless you switch them on |
@@ -58,8 +58,10 @@ Every answer in the app shows which step gave it and how sure it is.
 
 ## How accurate it is
 
-On 164 hand-checked shop names, the look-up's AI step gives 157 right, 3 wrong and 4 with no answer. The test
-set, the hand checks with their sources, the scoring and the known weak spots are in
+On 179 test names (144 shops and brands graded against the built-in list, or for 17 of them a hand check; 20
+names that aren't a business; 15 made-up local businesses), the look-up's AI step gives 177 right and 2 wrong
+with its full check, and 173 right, 5 wrong and 1 with no answer the first time a name is asked about (17 Oct
+2026). The test set, the hand checks with their sources, the scoring and the known weak spots are in
 [`services/lookup/README.md`](services/lookup/README.md) and `services/lookup/eval`. Ownership changes, so
 answers can be out of date. If you spot a mistake, email hello@knowyourspend.org or open an issue.
 

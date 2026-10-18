@@ -65,3 +65,36 @@ for (const [label, answer, want] of [["the AI's answer", say({ ultimate_owner: "
 const m2 = mistral(say({}));
 const y2 = await lookupName("ZZQ", { fetch: m2.fetch, wikidata: { ...wdLu, countryOf: async () => "SE" }, gleif: { ...gleifLu, record: async () => ({ lei: "ZZQ0000000000000000Z", name: "Zzq AB", legalCountry: "SE", hqCountry: "SE" }) }, today: "2026-10-16", llm: { apiKey: "x", options: { web: "off" } } });
 ok(y2.via === "wikidata_gleif" && y2.entry.owner_country === "SE" && m2.calls.chat === 0, `Wikidata + GLEIF top company elsewhere: taken, no AI (${y2.via} ${y2.entry?.owner_country})`);
+
+// 17 Oct 2026: the AI says it's a small local business → LOCAL_BUSINESS (no owner), even when a UK company shares the name.
+let lx = await run(ukCo, say({ scale: "local" }));
+ok(lx.status === "LOCAL_BUSINESS" && !lx.entry && lx.trace.some((s) => s.step === "llm" && s.status === "found"), `local business, a UK company has the name: LOCAL_BUSINESS (${lx.status}) | ${lx.steps}`);
+// …and a cached LOCAL_BUSINESS is served without asking the AI again
+const m3 = mistral(say({}));
+const cachedLocal = { query: "ZZQ", status: "LOCAL_BUSINESS", trace: [{ step: "llm", status: "found", detail: "AI: looks like a small local business." }], looked_up_at: "2026-10-17T10:00:00Z" };
+lx = await lookupName("ZZQ", { fetch: m3.fetch, wikidata, gleif, today: "2026-10-17", cache: { get: async () => cachedLocal }, llm: { apiKey: "x", options: { web: "off" } } });
+ok(lx.status === "LOCAL_BUSINESS" && m3.calls.chat === 0 && lx.trace[0].detail.includes("small local business"), `cached LOCAL_BUSINESS served from the cache (${lx.status}, ${m3.calls.chat} AI calls)`);
+
+// 17 Oct 2026: a Wikidata match on only part of the name ("WARREN EVANS" found Warren, a city in Ohio) is used only
+// through the AI step, after Companies House has had the whole name, and never stands on its own.
+const wdPart = {
+  ...wikidata,
+  searchBusiness: async (v) => (v === "WARRENS" ? [{ id: "Q9", label: "Warrens" }] : []),
+  entity: async () => ({ id: "Q9", label: "Warrens", instanceOf: [], parents: [], ignoredOwners: 0 }),
+  countryOf: async () => "US",
+};
+const part = async (answer, extra = {}) => {
+  const m = mistral(answer);
+  const y = await lookupName("WARRENS EVANS", { fetch: m.fetch, wikidata: wdPart, gleif, today: "2026-10-17", companiesHouseKey: "x", ch: { findActive: async () => undefined, chainFrom: async () => undefined, searchAll: async () => [] }, llm: answer === undefined ? undefined : { apiKey: "x", options: { web: "off" } }, ...extra });
+  return { ...y, chat: m.calls.chat, steps: y.trace.map((s) => `${s.step}:${s.status}`).join(" ") };
+};
+let px = await part(say({ brand: "Warrens Evans", ultimate_owner: "Warrens Evans Ltd", owner_type: "private_company", owner_country: "GB", confidence: "high", scale: "chain" }));
+ok(px.via === "llm" && px.entry.owner_country === "GB" && px.chat === 1, `part of the name on Wikidata: the AI step decides (${px.via} ${px.entry?.owner_country}) | ${px.steps}`);
+px = await part(say({}));
+ok(px.status === "UNRESOLVED" && !px.entry && px.trace.some((s) => s.step === "wikidata" && s.status === "rejected"), `part of the name, AI not sure: not used (${px.status}) | ${px.steps}`);
+px = await part(undefined);
+ok(px.status === "UNRESOLVED" && !px.entry && px.chat === 0, `part of the name, no AI step: not used (${px.status}) | ${px.steps}`);
+px = await part("down");
+ok(px.status === "UNRESOLVED" && !px.entry && px.trace.some((s) => s.step === "llm" && s.status === "error"), `part of the name, AI down: not used, tried again later (${px.status}) | ${px.steps}`);
+px = await part(say({}), { ch: ch(usCo) });
+ok(px.via === "companies_house" && px.entry.owner_country === "US", `part of the name on Wikidata, but Companies House has the whole name: Companies House (${px.via} ${px.entry?.owner_country}) | ${px.steps}`);

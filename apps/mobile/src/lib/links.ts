@@ -7,6 +7,8 @@ export const CONTACT_EMAIL = "hello@knowyourspend.org";
 export const PRIVACY_URL = `${SITE}/privacy`;
 export const TERMS_URL = `${SITE}/terms`;
 export const SUPPORT_URL = `${SITE}/support`;
+/** How we work out which country each payment counts towards (the method, in full). */
+export const METHOD_URL = `${SITE}/how-it-works`;
 
 export function openUrl(url: string): void {
   Linking.openURL(url).catch(() => {});

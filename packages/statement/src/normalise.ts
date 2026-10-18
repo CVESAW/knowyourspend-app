@@ -36,9 +36,10 @@ export const BANK_PREFIXES: readonly string[] = [
  * Payment facilitators that prefix the real merchant: `SQ *THE COFFEE HOUSE` → `THE COFFEE HOUSE`.
  * Widely seen conventions, UNCONFIRMED from fetched samples (see research notes KQ2 gaps).
  * SQ = Square, SUMUP, ZETTLE_/IZ = Zettle (iZettle), PAYPAL/PP = PayPal, GOOGLE = Google Play,
- * CRV = Curve, SP = Shopify Payments, TST = Toast.
+ * CRV = Curve, SP = Shopify Payments, TST = Toast, KLARNA and CLEARPAY (pay later; since 18 Oct 2026, so
+ * "KLARNA*ASOS" is ASOS, as the method page says, not Klarna).
  */
-const FACILITATOR_RE = /^(SQ|SUMUP|ZETTLE_?|IZETTLE|IZ|PAYPAL|PP|GOOGLE|CRV|SP|TST)\s*\*\s*/;
+const FACILITATOR_RE = /^(SQ|SUMUP|ZETTLE_?|IZETTLE|IZ|PAYPAL|PP|GOOGLE|CRV|SP|TST|KLARNA|CLEARPAY)\s*\*\s*/;
 const FACILITATOR_NAME: Record<string, string> = { PP: "PAYPAL", IZ: "ZETTLE", IZETTLE: "ZETTLE", ZETTLE_: "ZETTLE" };
 
 /**

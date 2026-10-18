@@ -13,6 +13,11 @@
  *     answer wins, with its owner looked up in Wikidata/GLEIF for the ownership chain and sources. Without a web
  *     search (the daily limit, the request's time for it, or a failure) the vote stands, unless the register puts
  *     the owner in another country. Names any answer took for a person or not a business aren't searched.
+ * Since 17 Oct 2026 each answer also says what kind of business it is (`scale`). A small local business (most answers
+ * say so, and it isn't owned from abroad) is the decision "local", which the app counts where it was paid. On the first
+ * request for a name (`ctx.seen`), a local business, or a name the answers can't place, gets no web search: the answer
+ * is kept for a few days, and a later request gets the full check, since a name more than one person pays may be a
+ * small chain. A local business is also "local" when the full check finds no owner.
  * Only the shop name (and the bank's country, when the app sends it) goes to Mistral — never anything about the
  * person who paid.
  */
@@ -21,7 +26,7 @@ import {
 } from "./registries.ts";
 
 export const MISTRAL_API = "https://api.mistral.ai/v1";
-export const PROMPT_VERSION = "2026-10-14b";
+export const PROMPT_VERSION = "2026-10-17";
 
 /** The configuration the live look-up uses (kys-lookup); the bench can override any of it. */
 export const AI_DEFAULTS = {
@@ -46,6 +51,7 @@ export const AI_DEFAULTS = {
   timeoutMs: 25000,
   system: null, // bench only: a different system prompt
   hideExact: false, // bench only: drop Wikidata matches with exactly this name (as if the shop weren't on Wikidata)
+  local: true, // a small local business (most answers say so) is the decision "local": no register check or web search
 };
 const webMode = (opts) => (["unsure", "check", "always", "fallback"].includes(opts.web) ? opts.web : opts.webSearch === true ? "fallback" : "off");
 // Whether a vote wants the web check, by mode (see webStep).
@@ -80,6 +86,13 @@ owner_country: the ISO 3166-1 alpha-2 code of the country the ultimate owner is 
 
 Not a business (is_business false): a person's name, a transfer, a cash or banking term, or a generic word that could be any business ("CAFE", "TAXI", "CORNER SHOP").
 
+scale — what kind of business it is:
+- "local": a single independent shop, café, pub, restaurant, salon, trader or other small business with one or a few sites in one area, that you wouldn't find in other towns;
+- "chain": a brand with branches in many towns (shops, restaurants, hotels, petrol stations, gyms), including franchises;
+- "online": a business people mostly pay online or by subscription (apps, streaming, web shops, utilities, phone and broadband, insurers, banks, travel);
+- "unknown": you can't tell, or it isn't a business.
+A small local business you don't know is "local" with confidence "low".
+
 confidence:
 - "high": you know which business this is and who owns it today;
 - "medium": you are fairly sure of both;
@@ -93,11 +106,11 @@ reason: one short sentence, at most 20 words.
 Reply with the JSON object only.
 
 Examples:
-MCDONALDS → {"is_business":true,"brand":"McDonald's","ultimate_owner":"McDonald's Corporation","owner_type":"listed_company","owner_country":"US","confidence":"high","match":null,"reason":"Franchised restaurants; the brand owner is McDonald's Corporation, run from Chicago."}
-SUBWAY 12345 → {"is_business":true,"brand":"Subway","ultimate_owner":"Roark Capital","owner_type":"private_equity","owner_country":"US","confidence":"high","match":null,"reason":"Franchise brand; Subway was bought by the US private-equity firm Roark Capital in 2024."}
-HAMLEYS → {"is_business":true,"brand":"Hamleys","ultimate_owner":"Reliance Industries","owner_type":"listed_company","owner_country":"IN","confidence":"high","match":null,"reason":"Owned by Reliance Retail, part of India's Reliance Industries, since 2019."}
-SQ *THE BEAN HOUSE → {"is_business":true,"brand":"The Bean House","ultimate_owner":null,"owner_type":"unknown","owner_country":null,"confidence":"low","match":null,"reason":"A small business paid through Square; can't tell which one or who owns it."}
-R PATEL → {"is_business":false,"brand":null,"ultimate_owner":null,"owner_type":"unknown","owner_country":null,"confidence":"high","match":null,"reason":"A person's name."}`;
+MCDONALDS → {"is_business":true,"brand":"McDonald's","ultimate_owner":"McDonald's Corporation","owner_type":"listed_company","owner_country":"US","confidence":"high","scale":"chain","match":null,"reason":"Franchised restaurants; the brand owner is McDonald's Corporation, run from Chicago."}
+SUBWAY 12345 → {"is_business":true,"brand":"Subway","ultimate_owner":"Roark Capital","owner_type":"private_equity","owner_country":"US","confidence":"high","scale":"chain","match":null,"reason":"Franchise brand; Subway was bought by the US private-equity firm Roark Capital in 2024."}
+HAMLEYS → {"is_business":true,"brand":"Hamleys","ultimate_owner":"Reliance Industries","owner_type":"listed_company","owner_country":"IN","confidence":"high","scale":"chain","match":null,"reason":"Owned by Reliance Retail, part of India's Reliance Industries, since 2019."}
+SQ *THE BEAN HOUSE → {"is_business":true,"brand":"The Bean House","ultimate_owner":null,"owner_type":"unknown","owner_country":null,"confidence":"low","scale":"local","match":null,"reason":"A small business paid through Square; can't tell which one or who owns it."}
+R PATEL → {"is_business":false,"brand":null,"ultimate_owner":null,"owner_type":"unknown","owner_country":null,"confidence":"high","scale":"unknown","match":null,"reason":"A person's name."}`;
 }
 
 export function userPrompt(name, evidence = []) {
@@ -110,6 +123,7 @@ export function userPrompt(name, evidence = []) {
 }
 
 const nullable = (t) => ({ type: [t, "null"] });
+export const SCALES = ["local", "chain", "online", "unknown"];
 export const ANSWER_SCHEMA = {
   type: "object",
   properties: {
@@ -119,10 +133,11 @@ export const ANSWER_SCHEMA = {
     owner_type: { type: "string", enum: OWNER_TYPES },
     owner_country: nullable("string"),
     confidence: { type: "string", enum: ["high", "medium", "low"] },
+    scale: { type: "string", enum: SCALES },
     match: nullable("string"),
     reason: { type: "string" },
   },
-  required: ["is_business", "brand", "ultimate_owner", "owner_type", "owner_country", "confidence", "match", "reason"],
+  required: ["is_business", "brand", "ultimate_owner", "owner_type", "owner_country", "confidence", "scale", "match", "reason"],
   additionalProperties: false,
 };
 
@@ -237,6 +252,7 @@ export function parseAnswer(text) {
     owner_type: OWNER_TYPES.includes(o.owner_type) ? o.owner_type : "unknown",
     country: cc && COUNTRIES.has(cc) ? cc : null,
     confidence: ["high", "medium", "low"].includes(o.confidence) ? o.confidence : "low",
+    scale: SCALES.includes(o.scale) ? o.scale : "unknown",
     match: str(o.match, 8),
     reason: str(o.reason, 240) ?? "",
   };
@@ -253,20 +269,28 @@ function groupBy(xs, key) {
 const confRank = (g) => g.filter((s) => s.confidence === "high").length;
 export const sameName = (a, b) => !!a && !!b && normaliseName(stripLegalSuffix(a, true)) === normaliseName(stripLegalSuffix(b, true));
 
+/** The kind of business most answers say it is ("local", "chain", "online"), or "unknown" when fewer than minAgree agree. */
+export function scaleOf(samples, n, minAgree) {
+  const total = Math.max(n || 0, samples.length, 1);
+  const top = [...groupBy(samples.filter((s) => s.is_business), (s) => s.scale ?? "unknown").entries()].sort((a, b) => b[1].length - a[1].length)[0];
+  return top && top[0] !== "unknown" && top[1].length / total >= minAgree ? top[0] : "unknown";
+}
+
 /** Combine the samples: not a business, a country most of them agree on, or no answer. */
 export function vote(samples, n, minAgree) {
   const total = Math.max(n || 0, samples.length, 1);
   const notBiz = samples.filter((s) => !s.is_business);
-  if (notBiz.length / total > 0.5) return { kind: "not_business", agree: notBiz.length / total, total, reason: notBiz[0].reason };
+  if (notBiz.length / total > 0.5) return { kind: "not_business", agree: notBiz.length / total, total, reason: notBiz[0].reason, scale: "unknown" };
+  const scale = scaleOf(samples, n, minAgree);
   const usable = samples.filter((s) => s.is_business && s.country && s.owner && s.confidence !== "low");
   const ranked = [...groupBy(usable, (s) => s.country).entries()].sort((a, b) => b[1].length - a[1].length || confRank(b[1]) - confRank(a[1]));
   const split = ranked.map(([c, g]) => `${c} ${g.length}`).join(", ");
   const unsure = total - usable.length;
-  if (!ranked.length) return { kind: "declined", agree: 0, total, split, reason: samples.find((s) => s.reason)?.reason || "no confident answer" };
+  if (!ranked.length) return { kind: "declined", agree: 0, total, split, scale, reason: samples.find((s) => s.reason)?.reason || "no confident answer" };
   const [country, group] = ranked[0];
   const agree = group.length / total;
   if (agree < minAgree) {
-    return { kind: "declined", agree, total, split, reason: `the answers didn't agree (${split}${unsure ? `, ${unsure} unsure` : ""})` };
+    return { kind: "declined", agree, total, split, scale, reason: `the answers didn't agree (${split}${unsure ? `, ${unsure} unsure` : ""})` };
   }
   const owners = [...groupBy(group, (s) => normaliseName(stripLegalSuffix(s.owner, true))).values()].sort((a, b) => b.length - a.length || confRank(b) - confRank(a))[0];
   const rep = owners.find((s) => s.confidence === "high") ?? owners[0];
@@ -277,6 +301,7 @@ export function vote(samples, n, minAgree) {
     agree,
     total,
     split,
+    scale,
     country,
     owner: rep.owner,
     owner_type: rep.owner_type,
@@ -458,10 +483,12 @@ export async function askWithWebSearch(name, ctx, opts, today) {
 
 // --- The step itself ----------------------------------------------------------------------------------------
 /**
- * ctx: { fetch, apiKey, wikidata, gleif, ch?, today?, country? (the bank's, default GB), webOk?(), webQueue?(f), deadline? }.
- * Returns { decision: "found" | "not_business" | "declined", ... } with everything the bench needs; for
+ * ctx: { fetch, apiKey, wikidata, gleif, ch?, today?, country? (the bank's, default GB), webOk?(), webQueue?(f), deadline?,
+ *        seen? (how many requests have asked about this name, this one included) }.
+ * Returns { decision: "found" | "not_business" | "local" | "declined", ... } with everything the bench needs; for
  * "found" also chain, country, owner, brand, technique and sources for the app. `checked` ("web" or "register") and
- * `webMissed` (a web check was wanted but couldn't be had) set how long the look-up keeps the answer.
+ * `webMissed` (a web check was wanted but couldn't be had, or waits for a later request) set how long the look-up keeps
+ * the answer.
  */
 export async function aiEstimate(name, ctx, options = {}) {
   const opts = { ...AI_DEFAULTS, ...options };
@@ -485,21 +512,55 @@ export async function aiEstimate(name, ctx, options = {}) {
   r.usage.out += j.usage?.completion_tokens ?? 0;
   r.samples = (j.choices ?? []).map((c) => parseAnswer(textOf(c.message?.content))).filter(Boolean);
   let v = vote(r.samples, n, opts.minAgree);
-  r.vote = { kind: v.kind, agree: v.agree, split: v.split };
+  r.vote = { kind: v.kind, agree: v.agree, split: v.split, scale: v.scale };
   r.reason = v.reason;
+  r.scale = v.scale;
   if (v.kind === "not_business") return done("not_business");
   const mode = webMode(opts);
+  // The first request for a name (ctx.seen counts the requests that have asked about it, this one included; unknown
+  // counts as a later request): no paid web search yet for a small local business or a name the answers can't place,
+  // as most such names are one person's local shop. The answer is kept for only a few days (webMissed), so if someone
+  // else asks about the name later, it gets the full check: a name more than one person pays may be a small chain.
+  const firstAsk = ctx.seen != null && ctx.seen < 2;
+  // Most answers say it's a small local business, and none of them confidently puts its owner abroad (18 Oct 2026: also
+  // when the answers don't agree on an owner, as two sure answers naming a chain abroad were ignored).
+  const abroad = r.samples.some((s) => s.is_business && s.owner && s.country && s.country !== bank && s.confidence !== "low");
+  const localVote = opts.local && v.scale === "local" && !abroad && (v.kind !== "found" || v.country === bank);
+  if (localVote && firstAsk) {
+    r.country = bank;
+    if (mode !== "off") {
+      r.webMissed = true;
+      r.notes.push("no web search yet: first request for this name, and the answers say it's a small local business");
+    }
+    return done("local");
+  }
   // If any answer took the name for a person or not a business, it isn't searched on the web (it may be someone's name).
   const doubt = r.samples.some((s) => !s.is_business);
   if (doubt && mode !== "off") r.notes.push("no web search: an answer took this for a person or not a business");
-  let webAvailable = mode !== "off" && !doubt && (!ctx.webOk || ctx.webOk());
+  const waitForWeb = firstAsk && v.scale === "unknown";
+  if (waitForWeb && mode !== "off" && !doubt) r.notes.push("no web search yet: first request for this name, and the answers couldn't tell what kind of business it is");
+  let webAvailable = mode !== "off" && !doubt && !waitForWeb && (!ctx.webOk || ctx.webOk());
+  // The web search's owner isn't used when it still calls the business small and local, or, for a name the five answers
+  // called local, when it doesn't say it's a chain or an online business: on a made-up local name it once named an
+  // unrelated company. The name is then counted as a local business (below), or, when the answers named an owner abroad,
+  // not answered, as the web search and the answers disagree.
+  let webRejected = false;
+  const webUsable = (w) => {
+    const s = r.web?.answer?.scale;
+    if (s === "local" || (localVote && s !== "chain" && s !== "online")) {
+      r.notes.push(`web search named ${w.owner} (${w.country}) but didn't find a chain or online business; not used`);
+      webRejected = true;
+      return false;
+    }
+    return true;
+  };
   if (mode === "always" && webAvailable) {
     const w = await webStep(name, r, v, { always: true }, ctx, opts, today);
     if (w?.kind === "not_business") {
       r.reason = w.reason;
       return done("not_business");
     }
-    if (w) return finishWithWeb(r, w, ctx, opts, t0);
+    if (w && webUsable(w)) return finishWithWeb(r, w, ctx, opts, t0);
     // the web couldn't answer: fall back to the AI's own answer, checked against the registers below as if
     // there were no web search
     webAvailable = false;
@@ -553,11 +614,26 @@ export async function aiEstimate(name, ctx, options = {}) {
       r.reason = w.reason;
       return done("not_business");
     }
-    if (w) return finishWithWeb(r, w, ctx, opts, t0);
+    if (w && webUsable(w)) return finishWithWeb(r, w, ctx, opts, t0);
   }
   // The web check was wanted but no answer came back (today's limit, the request's time for it, or a failure): the
   // look-up keeps this answer only a few days, so the name gets its check soon.
   if (mode !== "off" && !doubt && !r.web && wantsWeb(mode, v, confirmed, disagrees)) r.webMissed = true;
+  // No owner from the web search either (or none could be had), and the answers, or the web search, say it's a small
+  // local business: counted where it was paid, rather than naming an owner nothing confirmed.
+  // (18 Oct 2026: not when an answer is sure the owner is abroad, unless the web search also found a local business.)
+  const localWeb = r.web?.answer?.is_business && r.web.answer.scale === "local";
+  if (opts.local && ((v.scale === "local" && !abroad) || localWeb) && !disagrees && (v.kind !== "found" || (v.country === bank && !r.verified))) {
+    r.country = bank;
+    if (r.web) r.checked = "web";
+    return done("local");
+  }
+  // The answers named an owner abroad, and the web search found a small local business instead, with or without an
+  // owner (18 Oct 2026: the answers' owner was kept, with no word of the web search).
+  if ((webRejected || localWeb) && v.kind === "found" && v.country !== bank) {
+    r.reason = `a web search found a small local business, not ${v.owner} (${v.country})`;
+    return done("declined");
+  }
   if (v.kind !== "found" || disagrees) return done("declined");
   return finish(r, v, { country, owner, ownerHops, sources }, opts, t0);
 }
@@ -620,6 +696,8 @@ function finish(r, v, found, opts, t0) {
   if (matched) sources = [{ label: `${matched.kind === "companies_house" ? "Companies House" : "Wikidata"} ${matched.ref} (${matched.label})`, url: matched.url }, ...sources];
   if (v.web && r.web?.refs?.length) sources = [...sources, ...r.web.refs.slice(0, 3).map((x) => ({ label: x.title, url: x.url }))];
   const parts = [v.web ? `AI estimate by Mistral (${opts.webModel}), checked with a web search` : `AI estimate by Mistral (${opts.model}): ${Math.round(v.agree * v.total)} of ${v.total} answers agree`];
+  // A web search ran but didn't settle it, so the answers' owner stands (18 Oct 2026: the app said no web search ran).
+  if (!v.web && r.web) parts.push("a web search couldn't confirm it");
   if (r.resolved === "model") parts.push("kept after weighing it against Wikidata/GLEIF, which may be out of date");
   else if (r.verified) parts.push(r.conflict && r.resolved !== "web" ? "the owner's country is taken from Wikidata/GLEIF" : "the owner's country matches Wikidata/GLEIF");
   if (matched) parts.push(`matched to ${matched.kind === "companies_house" ? "Companies House" : "Wikidata"} ${matched.ref}`);

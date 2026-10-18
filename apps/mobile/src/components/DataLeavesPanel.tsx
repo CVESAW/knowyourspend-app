@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Platform, Text, View } from "react-native";
+import { askedBefore } from "@kys/core/lookup-plan";
 import { LOOKUP_HOST, requestBody } from "@/lib/lookup";
+import { useStore } from "@/lib/store";
 import type { Disclosure, ItemKind } from "@/lib/types";
 import { useTheme } from "@/lib/theme";
 import { Disclosure as Collapsible, Divider, LinkText, P } from "./ui";
@@ -40,26 +42,30 @@ function FateTag({ fate }: { fate: Fate }) {
  * `willSend` (before saving): the names that will be looked up online when the user goes ahead.
  * `record` (after saving): what actually happened.
  */
-export function DataLeavesPanel({ kind, plan, record, willSend, defaultOpen }: { kind: ItemKind; plan?: PanelPlan; record?: Disclosure; willSend?: string[]; defaultOpen?: boolean }) {
+export function DataLeavesPanel({ kind, plan, record, willSend, defaultOpen, itemId }: { kind: ItemKind; plan?: PanelPlan; record?: Disclosure; willSend?: string[]; defaultOpen?: boolean; itemId?: string }) {
   const t = useTheme();
+  const { prefs } = useStore();
   const [showRequest, setShowRequest] = useState(false);
   const candidates = record ? [...record.sent, ...record.notSent] : plan?.candidates ?? [];
   const sensitive = record ? record.sensitiveHeld : plan?.sensitive ?? [];
   const recognised = record ? record.recognisedLocally : plan?.recognisedLocally ?? 0;
   const transfers = record ? record.transfersExcluded : plan?.transfersExcluded ?? 0;
   const sentNames = record ? record.sent : willSend ?? [];
+  // The exact request: as the request log kept it, once sent; before, as it will go (with names asked about before).
+  const logged = record && itemId ? prefs.requestLog.filter((l) => l.itemId === itemId).map((l) => l.payload) : [];
+  const exact = logged.length ? logged.join("\n\n") : requestBody(sentNames, record ? [] : askedBefore(sentNames, prefs));
 
   const rows: RowData[] =
     kind === "statement"
       ? [
           { what: "Your statement file", fate: "stays", where: "Read here, on this device", why: "There is no upload — the file is opened and read on this phone, then only the results are kept here." },
-          { what: "Amounts, dates, balances, account number and sort code", fate: "stays", where: "This phone only", why: "Only needed to draw your charts, which happens on this phone." },
-          ...(transfers ? [{ what: "Payments to people", count: transfers, fate: "stays" as Fate, where: "This phone only", why: "People's names are never looked up or sent anywhere." }] : []),
+          { what: "Amounts, dates, balances, account number and sort code", fate: "stays", where: "On this phone", why: "Only needed to draw your charts, which happens on this phone. A backup or account copy you make is encrypted with your passphrase first." },
+          ...(transfers ? [{ what: "Payments to people", count: transfers, fate: "stays" as Fate, where: "On this phone", why: "People's names are never looked up, and leave this phone only inside an encrypted copy you choose to make." }] : []),
           { what: "Shop names we already know", count: recognised, fate: "stays", where: "Matched on this phone", why: "The app carries its own list of who owns common shops, so these need no lookup." },
         ]
       : [
           { what: "The photo of your receipt", fate: "stays", where: "Read here, then discarded", why: "The text is read on this phone. The photo is not saved or sent." },
-          { what: "Prices, total, date and card details", fate: "stays", where: "This phone only", why: "Only needed to draw your charts, which happens on this phone." },
+          { what: "Prices, total, date and card details", fate: "stays", where: "On this phone", why: "Only needed to draw your charts, which happens on this phone. A backup or account copy you make is encrypted with your passphrase first." },
           { what: "Shop and brand names we already know", count: recognised, fate: "stays", where: "Matched on this phone", why: "The app carries its own list of who owns common shops and brands." },
         ];
   // Phone builds read receipts with Google ML Kit: the photo and its text stay on the device, but the library reports usage metrics to Google.
@@ -71,7 +77,7 @@ export function DataLeavesPanel({ kind, plan, record, willSend, defaultOpen }: {
       where: "Sent to Google by ML Kit",
       why: "Receipts are read by Google's ML Kit, on this phone. It never sends the photo or the words on it, but it does report how often and how fast it runs.",
     });
-  if (sensitive.length) rows.push({ what: "Names that might be sensitive", count: sensitive.length, fate: "held", where: "This phone only", why: "Things like health, gambling, dating, religion, politics or debt are held back by default." });
+  if (sensitive.length) rows.push({ what: "Names that might be sensitive", count: sensitive.length, fate: "held", where: "On this phone", why: "Things like health, gambling, dating, religion, politics or debt are held back by default." });
   if (sentNames.length)
     rows.push({
       what: record ? "Shop names looked up online" : "Shop names we'll look up online",
@@ -86,7 +92,7 @@ export function DataLeavesPanel({ kind, plan, record, willSend, defaultOpen }: {
       what: "Shop names we don't know yet",
       count: kept.length,
       fate: "stays",
-      where: "This phone only",
+      where: "On this phone",
       why: "Not sent. They're counted under the country you paid in, marked “Estimated”, and you can set the right country yourself on the report.",
     });
 
@@ -151,7 +157,7 @@ export function DataLeavesPanel({ kind, plan, record, willSend, defaultOpen }: {
           {showRequest && (
             <View style={{ borderRadius: 12, backgroundColor: t.sunk, padding: 12 }} testID="exact-request">
               {sentNames.length ? (
-                <Text style={{ fontFamily: "monospace", fontSize: 12, color: t.ink }}>{requestBody(sentNames)}</Text>
+                <Text style={{ fontFamily: "monospace", fontSize: 12, color: t.ink }}>{exact}</Text>
               ) : (
                 <P small muted>
                   {record ? "We made no request for this submission." : "We make no request for this submission."}

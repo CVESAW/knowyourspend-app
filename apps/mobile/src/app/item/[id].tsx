@@ -12,6 +12,9 @@ import { lookUp, recordSent, sendable } from "@/lib/lookup";
 import { useStore } from "@/lib/store";
 import { EVIDENCE_LABEL } from "@kys/core/locate";
 import { CountryPicker } from "@/components/CountryPicker";
+import { WhySheet } from "@/components/WhySheet";
+import { whyFor } from "@/lib/why";
+import { readableName } from "@kys/core/explain";
 import { useTheme } from "@/lib/theme";
 import { ChartCarousel } from "@/components/Charts";
 import { ShareSheet } from "@/components/ShareSheet";
@@ -23,7 +26,7 @@ import { useBrandListReady } from "@/lib/brand-data";
 import { BackLink, BasisBadge, Button, Card, Divider, Eyebrow, H1, H2, LinkText, Notice, P, Page, Row, Spinner, TierBadge } from "@/components/ui";
 import type { Contribution } from "@/lib/aggregate";
 
-interface Shop { payee: string; label: string; amount: number; country?: string; basis?: Contribution["basis"]; entryId?: string; evidence?: Contribution["evidence"] }
+interface Shop { payee: string; label: string; amount: number; country?: string; basis?: Contribution["basis"]; entryId?: string; evidence?: Contribution["evidence"]; independent?: Contribution["independent"] }
 
 export default function Report() {
   const t = useTheme();
@@ -34,6 +37,9 @@ export default function Report() {
   const [sharing, setSharing] = useState(false);
   const [emailing, setEmailing] = useState(false);
   const [picking, setPicking] = useState<Shop | null>(null);
+  const [whyPayee, setWhyPayee] = useState<string | null>(null);
+  const [whyBusy, setWhyBusy] = useState(false);
+  const [whyNote, setWhyNote] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [looking, setLooking] = useState<string | null>(null);
   const { prefs } = useStore();
@@ -43,13 +49,15 @@ export default function Report() {
     const m = new Map<string, Shop>();
     for (const c of data.contribs) {
       if (c.itemId !== id || c.source !== "statement" || !c.payee) continue;
-      const cur = m.get(c.payee) ?? { payee: c.payee, label: c.label, amount: 0, country: c.country, basis: c.basis, entryId: c.entryId, evidence: c.evidence };
+      const cur = m.get(c.payee) ?? { payee: c.payee, label: c.label, amount: 0, country: c.country, basis: c.basis, entryId: c.entryId, evidence: c.evidence, independent: c.independent };
       cur.amount += c.amount;
       m.set(c.payee, cur);
     }
     return [...m.values()].filter((x) => x.amount > 0.005).sort((a, b) => b.amount - a.amount);
   }, [data, id]);
   const b = useMemo(() => breakdown(data.contribs.filter((c) => c.itemId === id)), [data, id]);
+  // "Why this country?" for the shop the user tapped; recomputed when an answer or their own fix changes it.
+  const why = useMemo(() => (whyPayee ? whyFor(data, prefs, { payee: whyPayee }) : null), [whyPayee, data, prefs]);
   const receiptLines = data.lines.filter((l) => l.itemId === id && l.included);
   const home = () => (router.canGoBack() ? router.back() : router.replace("/"));
 
@@ -66,7 +74,18 @@ export default function Report() {
     .flatMap((c) => c.entries.filter((e) => e.basis === "owner" && entryById(e.entryId)).map((e) => ({ ...e, iso: c.iso })))
     .sort((a, c) => c.amount - a.amount)
     .slice(0, 3);
-  const pending = prefs.lookup === "off" ? [] : sendable(shops.filter((x) => x.basis !== "owner" && x.basis !== "you" && !item.disclosure.sensitiveHeld.includes(x.payee)).map((x) => x.payee));
+  // Local independents are never sent, even with estimates off (when they have no basis).
+  const pending = prefs.lookup === "off" ? [] : sendable(shops.filter((x) => x.basis !== "owner" && x.basis !== "you" && x.basis !== "independent" && !x.independent && !item.disclosure.sensitiveHeld.includes(x.payee)).map((x) => x.payee));
+  const canLookUpWhy = !!(whyPayee && why?.canLookUp && prefs.lookup !== "off" && !item.disclosure.sensitiveHeld.includes(whyPayee) && sendable([whyPayee]).length);
+  const lookUpWhy = async () => {
+    if (!whyPayee) return;
+    setWhyBusy(true);
+    setWhyNote(null);
+    const r = await lookUp([whyPayee], item.id);
+    await recordSent(item.id, r.sent);
+    setWhyBusy(false);
+    setWhyNote(r.error ? `Couldn't finish: ${r.error}. Try again later.` : r.found ? "Found it. The answer above has been updated." : "Our look-up couldn't name an owner for this one.");
+  };
   const findOwners = async () => {
     setLooking(null);
     const r = await lookUp(pending, item.id);
@@ -110,7 +129,7 @@ export default function Report() {
           )}
         </>
       )}
-      <DataLeavesPanel kind={item.kind} record={item.disclosure} />
+      <DataLeavesPanel kind={item.kind} record={item.disclosure} itemId={item.id} />
 
       {b.countries.length > 0 && (
         <View>
@@ -146,7 +165,7 @@ export default function Report() {
                   <Text style={{ fontSize: 20 }}>{flag(f.iso)}</Text>
                   <View style={{ flex: 1, gap: 6 }}>
                     <P small>
-                      <Text style={{ fontWeight: "700" }}>{e.display_name}</Text> is owned by <Text style={{ fontWeight: "700" }}>{top?.name}</Text>, run from {countryName(e.owner_country)}.
+                      <Text style={{ fontWeight: "700" }}>{e.display_name}</Text> is owned by <Text style={{ fontWeight: "700" }}>{readableName(top?.name ?? e.display_name)}</Text>, run from {countryName(e.owner_country)}.
                     </P>
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                       <P small muted={3}>Checked {shortDate(e.as_of)}</P>
@@ -173,7 +192,7 @@ export default function Report() {
                     <Text style={{ width: 24, textAlign: "center" }}>{e ? flag(e.owner_country) : "·"}</Text>
                     <View style={{ flex: 1, minWidth: 0 }}>
                       <Text numberOfLines={1} style={{ fontFamily: "monospace", fontSize: 12, color: t.ink }}>{l.text}</Text>
-                      <P small muted numberOfLines={1}>{e ? `${e.display_name} · ${e.chain[e.chain.length - 1]?.name}` : `Counted under ${item.receipt?.storeText ?? "the shop"}`}</P>
+                      <P small muted numberOfLines={1}>{e ? `${e.display_name} · ${readableName(e.chain[e.chain.length - 1]?.name ?? e.display_name)}` : `Counted under ${item.receipt?.storeText ?? "the shop"}`}</P>
                     </View>
                     <P small>{l.price != null ? money(l.price) : ""}</P>
                   </Row>
@@ -189,7 +208,7 @@ export default function Report() {
           <H2>Shops in this statement</H2>
           <P small muted style={{ marginBottom: 8 }}>
             {pct(b.scores.identified)} of spending has a named owner
-            {b.estimatedSpend > 0 ? `; ${pct(b.estimatedSpend / Math.max(b.totalSpend, 0.01))} is estimated from where you paid` : ""}. Tap a shop to set its country yourself.
+            {b.estimatedSpend > 0 ? `; ${pct(b.estimatedSpend / Math.max(b.totalSpend, 0.01))} is counted where you paid (local independents and estimates) or set by you` : ""}. Tap a shop to see why it counts where it does, or to set its country yourself.
           </P>
           {pending.length > 0 && (
             <Card style={{ padding: 14, gap: 8, marginBottom: 8 }}>
@@ -202,18 +221,20 @@ export default function Report() {
           <Card style={{ overflow: "hidden" }}>
             {visibleShops.map((x, i) => {
               const e = x.basis === "owner" ? entryById(x.entryId) : undefined;
-              const top = e?.chain[e.chain.length - 1]?.name;
+              const top = e ? readableName(e.chain[e.chain.length - 1]?.name ?? e.display_name) : undefined;
               const sub = e
                 ? `${top && top !== e.display_name ? `${top} · ` : ""}${countryName(x.country!)}`
                 : x.basis === "you"
                   ? `${countryName(x.country!)} · your choice`
+                  : x.basis === "independent" && x.country
+                    ? `${countryName(x.country)} · local independent${x.independent?.kind === "card_reader" ? ` · paid with ${x.independent.provider}` : ""}`
                   : x.country
                     ? `${countryName(x.country)} · ${EVIDENCE_LABEL[x.evidence ?? "home"]}`
                     : "Not matched";
               return (
                 <View key={x.payee}>
                   {i > 0 && <Divider />}
-                  <Row onPress={() => setPicking(x)} testID={`shop-${x.payee}`}>
+                  <Row onPress={() => { setWhyNote(null); setWhyPayee(x.payee); }} testID={`shop-${x.payee}`}>
                     <Text style={{ width: 24, textAlign: "center", fontSize: 18 }}>{x.country ? flag(x.country) : "·"}</Text>
                     <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
                       <P bold numberOfLines={1}>{e?.display_name ?? x.label}</P>
@@ -221,7 +242,7 @@ export default function Report() {
                     </View>
                     <View style={{ alignItems: "flex-end", gap: 4 }}>
                       <P small>{money(x.amount)}</P>
-                      {e ? <TierBadge tier={e.tier} /> : x.basis === "you" || x.basis === "estimated" ? <BasisBadge basis={x.basis} /> : null}
+                      {e ? <TierBadge tier={e.tier} /> : x.basis === "you" || x.basis === "estimated" || x.basis === "independent" ? <BasisBadge basis={x.basis} /> : null}
                     </View>
                   </Row>
                 </View>
@@ -233,6 +254,19 @@ export default function Report() {
               <LinkText onPress={() => setShowAll((v) => !v)} testID="shops-all">{showAll ? "Show fewer" : `Show all ${shops.length} shops`}</LinkText>
             </View>
           )}
+          <WhySheet
+            why={why}
+            open={!!whyPayee}
+            onClose={() => setWhyPayee(null)}
+            onSetCountry={() => {
+              const shop = shops.find((x) => x.payee === whyPayee) ?? null;
+              setWhyPayee(null);
+              setPicking(shop);
+            }}
+            onLookUp={canLookUpWhy ? lookUpWhy : undefined}
+            lookingUp={whyBusy}
+            note={whyNote}
+          />
           <CountryPicker
             open={!!picking}
             name={picking?.label ?? ""}

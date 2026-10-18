@@ -17,7 +17,9 @@ was recovered from its deployed bundle on 12 Oct.
 1. **Cache** — answers found before, kept per name (and per bank country, for banks outside the UK).
 2. **Our list** (`kys_reference_entries`).
 3. **Wikidata + GLEIF** — the exact name on Wikidata, its owner chain followed, and the top company confirmed
-   by the global LEI register.
+   by the global LEI register. If only a shorter version of the name matches (since 17 Oct 2026, after "WARREN
+   EVANS" matched Warren, a city in Ohio), Companies House still gets the whole name, and the match is used only
+   through the AI step, never on its own. Places (towns, cities, counties) aren't taken for businesses.
 4. **Companies House** — UK banks only: one active company with exactly that name, with its owners from its
    "persons with significant control" filings.
 5. **Wikidata alone** — an owner chain GLEIF can't confirm.
@@ -44,6 +46,24 @@ was recovered from its deployed bundle on 12 Oct.
      unless the register put the owner in another country.
    - Every AI answer is labelled "AI estimate … Not checked by a person", with the model, the check it passed
      and its sources.
+   - Since 17 Oct 2026 each of the five answers also says what kind of business it is (`scale`: local, chain,
+     online or unknown). When most say a small local business, and none confidently puts its owner abroad (since
+     18 Oct checked on every answer, not only the countries the answers agree on), the answer is "a small local
+     business" (status `LOCAL_BUSINESS`, no owner), which the app counts where it was paid, as a local
+     independent. The result says `checked: "web"` when a web search found no owner either.
+   - The first request for a name (the service counts requests per name, `kys_lookup_names`) gets no web search
+     when the answers call it a small local business or can't tell what kind of business it is: most such names
+     are one person's local shop. The answer is kept for 3 days, so a later request gets the full check, web
+     search included, as a name more than one person pays may be a small chain. The full check still answers
+     "a small local business" when it finds no owner.
+   - A web search's owner isn't used when the web answer itself calls the business small and local, or, for a
+     name the five answers called local, when it doesn't say it's a chain or an online business (on a made-up
+     café name it once named an unrelated company). The name is then a small local business, unless the five
+     answers named an owner abroad (since 18 Oct 2026 no answer, rather than that owner with no word of the web
+     search; the same when the web search calls it local with no owner) or a UK owner a register confirms
+     (kept). An answer sure the owner is abroad also stops the five answers' "local" from standing when there's no
+     web search. When a web search runs but isn't sure, the five answers' owner stands, and its technique says "a
+     web search couldn't confirm it".
 
 What leaves at each step: only the shop name, cleaned up (capitals, no punctuation), and — if the app sends it —
 the bank's country. Never amounts, dates, account details or anything about the person. The web search gets the
@@ -76,7 +96,31 @@ limit, the request's time, or a failure) 3 days, so the check comes soon; other 
 business" or "not sure", 30 days (served from the cache until then, so the same name isn't sent to Mistral again;
 the app also waits 30 days before asking again about a name with no answer); other unknown names 7 days. Answers
 saved before 15 Oct keep the expiry they were saved with. An answer is only looked up again after it expires,
-when someone whose phone doesn't have it yet brings that name.
+when someone whose phone doesn't have it yet brings that name, or (since 18 Oct 2026) a phone that was told to ask
+again: an answer kept only 3 days for its web check, or one that a failed step kept out of the cache, comes with
+`recheck_after` (a date), and the app sends the name again on or after it, listed in the request's `again` (unless
+the earlier try failed). A name in `again` isn't counted as another request, so a name only that phone has asked
+about stays a first request; while nobody else has asked, the app then waits 30 days before asking again. "A
+small local business" follows the same rules: 3 days on a first request (no web search yet), a year once a web
+search found no owner either.
+Since 18 Oct times are saved to the day (UTC): `created_at` (so it's the day an answer was last saved),
+`updated_at`, `expires_at` (rounded down, so no answer is used past its time) and each answer's `looked_up_at`, so
+a shared time doesn't group the names one request sent (the database's own row metadata still can, for someone
+with direct access). Rows saved before keep their exact times until they're saved again. Expired rows aren't
+deleted: they're skipped, and replaced when the name is next looked up (automatic deletion needs Sam's OK).
+
+Request counts (17 Oct 2026): a running count per name of the requests that asked about it (`kys_lookup_names`:
+name, count, first and last date; nothing about who asked). The handler reads the counts first (this request
+counts as one more, unless the app lists the name in `again`), and once the answers are in, `kys_count_names` adds
+one for each name answered, leaving out names that failed part-way, names the look-up decided aren't a business,
+which may be someone's name, and names in `again` (since 18 Oct 2026; before, every name sent was counted up front
+and kept a year). It also deletes names nobody has asked
+about for a year. The count holds back the web search on a first request (above) and shows which shops most
+people pay, to check by hand first.
+
+Company names from Wikidata: English, then `mul` (one name for every language), then another language written in
+Latin letters, with one more call for those (since 18 Oct 2026; newer companies often have no English label, and
+their names showed as a bare id such as Q2836957).
 
 Cost: about $0.02 for each name that reaches the AI step, on the test set: about $0.0015 for the five answers,
 and about $0.06 for each web check, most of it web searches at about $0.03 each (check Mistral's price list),
@@ -91,9 +135,25 @@ with them. Set a monthly spending limit.
 
 ## How accurate it is
 
-Test set: 170 names in `eval/cases.json` (60 known chains, 90 owned brands, 20 non-businesses). An answer is
-graded against our list's country unless a hand check in `eval/truth.json` (with its sources) says otherwise.
-Six names whose owner is genuinely unclear are skipped, leaving 164.
+Test set: 185 names in `eval/cases.json` (60 known chains, 90 owned brands, 20 non-businesses, and since 17 Oct
+15 made-up local independents). An answer is graded against our list's country unless a hand check in
+`eval/truth.json` (with its sources) says otherwise; "a small local business" counts as the bank's country (GB).
+Six names whose owner is genuinely unclear are skipped, leaving 179 (164 before 17 Oct).
+
+| Live rule (17 Oct 2026, 179 names) | Right | Wrong | Declined | Web checks |
+| --- | --- | --- | --- | --- |
+| A later request for each name: the full check (`live`) | 177 | 2 | 0 | 67 of 185, about $29 per 1,000 names |
+| The first request for each name (`live-first`) | 173 | 5 | 1 | 42 of 185 |
+
+The two wrong answers with the full check: OVO (E.ON completed its takeover on 8 Oct 2026; all five answers named
+Octopus Energy and Wikidata confirmed its country, so there was no web check) and Welcome Break (the web search
+stopped at Applegreen, Ireland, rather than its owner Blackstone, US). On a first request three regional chains
+the answers took for local businesses (FABB Furniture, Denmans, O'Briens) counted as GB without a web search; all
+three got their owners on the full check. All 15 made-up local independents came back as local businesses either
+way. The `live-first` row merges a run of the 46 names whose answers could differ on a first request with the
+`live` run for the rest. The 18 Oct changes to the AI step (an answer sure of an owner abroad stops the first-request
+shortcut; a web search that finds a local business stops the answers' owner abroad) change none of these answers,
+checked on the saved runs. The table below is the 14 Oct comparison of web-search rules, on the first 170 names:
 
 | Setup (14 Oct 2026) | Right | Wrong | Declined |
 | --- | --- | --- | --- |
@@ -114,7 +174,7 @@ Mistral) is in this file's history.
 Live check of the earlier setting, the web for every business (now `node run.mjs always`; 14 Oct): it stopped
 after 79 names, when the Mistral account ran out of credit, with 75 right, 2 wrong and 2 declined — against 76, 1
 and 2 for the same names in the table above. It took a median of 14 seconds a name (90th percentile 23 seconds).
-The live rule hasn't had its own live check yet; that needs Mistral credit (`node run.mjs live`, about $3).
+The live rule's own runs are in the 17 Oct table above.
 
 Known weak spots:
 
@@ -133,7 +193,9 @@ Known weak spots:
 
 From `services/lookup/eval`, with the bench token in `EVAL_TOKEN` or `~/.kys-eval-token` (never in the repo):
 
-    CHUNK=8 node run.mjs live          # the deployed settings on all 170 names (about $3)
+    CHUNK=8 node run.mjs live          # the deployed settings, as a later request for each name (about $5)
+    CHUNK=8 node run.mjs live-first    # the same, as the first request for each name (cheaper)
+    ONLY="OVO,DENMANS" node run.mjs live   # only some names
     CHUNK=8 node run.mjs always        # the web for every business, the setting until 14 Oct (about $9)
     node run.mjs --report live         # grade saved results again, no API calls
     node run.mjs ask-large4            # other setups: see SETUPS in run.mjs

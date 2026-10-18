@@ -9,11 +9,13 @@ import { fileURLToPath } from "node:url";
 
 const dist = join(dirname(fileURLToPath(import.meta.url)), "dist");
 const cfg = JSON.parse(readFileSync(join(dist, "..", "site.config.json"), "utf8"));
-const LINK_OK = [cfg.webAppUrl, cfg.sourceUrl, "https://apps.apple.com/", "https://play.google.com/", "https://developers.google.com/ml-kit/", "https://ico.org.uk/", `mailto:${cfg.contactEmail}`];
+const LINK_OK = [cfg.webAppUrl, cfg.sourceUrl, "https://apps.apple.com/", "https://play.google.com/", "https://developers.google.com/ml-kit/", "https://ico.org.uk/", `mailto:${cfg.contactEmail}`,
+  // the sources the how-it-works page credits
+  "https://nsi.guide", "https://www.wikidata.org", "https://www.gleif.org", "https://find-and-update.company-information.service.gov.uk", "https://www.geonames.org", "https://mistral.ai"];
 let bad = 0;
 const fail = (m) => { console.error("✗", m); bad++; };
 
-for (const p of ["index", "privacy", "terms", "support", "404"]) {
+for (const p of ["index", "how-it-works", "privacy", "terms", "support", "404"]) {
   let html;
   try { html = readFileSync(join(dist, `${p}.html`), "utf8"); } catch { fail(`${p}.html missing`); continue; }
   if (!/<title>[^<]{10,}<\/title>/.test(html)) fail(`${p}: no title`);
@@ -28,5 +30,15 @@ for (const p of ["index", "privacy", "terms", "support", "404"]) {
   if (/\[to (follow|confirm)\]|\[company number/.test(html)) console.log(`• ${p}: has placeholders to fill before launch`);
 }
 if (!readdirSync(dist).includes("sample-statement.csv")) fail("sample statement missing");
+// every page links to how-it-works, and its in-page links point at headings that exist
+for (const p of ["index", "privacy", "terms", "support"]) if (!readFileSync(join(dist, `${p}.html`), "utf8").includes('href="/how-it-works"')) fail(`${p}: no link to /how-it-works`);
+for (const p of ["how-it-works", "support", "index"]) {
+  const html = readFileSync(join(dist, `${p}.html`), "utf8");
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const [, page, id] of html.matchAll(/\shref="(\/[a-z-]*)?#([^"]+)"/g)) {
+    const target = page && page !== `/${p}` ? readFileSync(join(dist, `${page === "/" ? "index" : page.slice(1)}.html`), "utf8") : html;
+    if (page && page !== `/${p}` ? !target.includes(` id="${id}"`) : !ids.has(id)) fail(`${p}: link to missing section ${page ?? ""}#${id}`);
+  }
+}
 if (bad) process.exit(1);
 console.log("✓ site checks passed");

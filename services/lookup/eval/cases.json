@@ -1001,6 +1001,83 @@
    "name": "STANDING ORDER",
    "expected": null,
    "set": "not-a-business"
+  },
+  {
+   "name": "THE BEAN HOUSE",
+   "expected": "GB",
+   "set": "local-independents"
+  },
+  {
+   "name": "ROSIES KITCHEN",
+   "expected": "GB",
+   "set": "local-independents"
+  },
+  {
+   "name": "HIGH STREET HARDWARE",
+   "expected": "GB",
+   "set": "local-independents"
+  },
+  {
+   "name": "MARIOS TRATTORIA",
+   "expected": "GB",
+   "set": "local-independents"
+  },
+  {
+   "name": "ELM TREE GARAGE",
+   "expected": "GB",
+   "set": "local-independents"
+  },
+  {
+   "name": "SUNRISE NAILS",
+   "expected": "GB",
+   "set": "local-independents"
+  },
+  {
+   "name": "JAYS HAIR STUDIO",
+   "expected": "GB",
+   "set": "local-independents"
+  },
+  {
+   "name": "BLUE DOOR BAKERY",
+   "expected": "GB",
+   "set": "local-independents"
+  },
+  {
+   "name": "RIVERSIDE FISH AND CHIPS",
+   "expected": "GB",
+   "set": "local-independents"
+  },
+  {
+   "name": "OLD MILL TEA ROOMS",
+   "expected": "GB",
+   "set": "local-independents"
+  },
+  {
+   "name": "BRIGHT SPARK ELECTRICAL",
+   "expected": "GB",
+   "set": "local-independents"
+  },
+  {
+   "name": "THE BOOK NOOK",
+   "expected": "GB",
+   "set": "local-independents"
+  },
+  {
+   "name": "HOLLY LANE FLORIST",
+   "expected": "GB",
+   "set": "local-independents"
+  },
+  {
+   "name": "GREEN LEAF GROCERS",
+   "expected": "GB",
+   "set": "local-independents"
+  },
+  {
+   "name": "PARK VIEW DRY CLEANERS",
+   "expected": "GB",
+   "set": "local-independents"
   }
- ]
+ ],
+ "notes": null,
+ "local_independents_note": "17 Oct 2026: 15 made-up names of small local businesses (set local-independents). Right = counted in GB (a 'local' answer, or no answer, which the app estimates from where it was paid)."
 }

@@ -49,10 +49,19 @@ export const OPEN_BRANDS_TECHNIQUE =
   "Name and web address from OpenStreetMap's brand list (name-suggestion-index), linked to Wikidata; owner from Wikidata's " +
   "'parent organisation' / 'owned by' statements (current, controlling stakes only). Not checked by a person or a company register.";
 
+/**
+ * A company the list knows only by its Wikidata id (it had no English name when the list was built): the brand's own
+ * name for the brand, otherwise words, not a bare id like "Q2836957" (18 Oct 2026).
+ */
+function hopName(name: string, q: string, r: OpenBrandRecord): string {
+  if (!/^Q\d+$/.test(name)) return name;
+  return q === r.qid ? r.name : `a company Wikidata lists without an English name (${q})`;
+}
+
 export function expandOpenBrand(r: OpenBrandRecord, asOf: string): OwnershipEntry {
   const n = r.chain.length;
   const chain: Hop[] = r.chain.map(([name, q, country], i) => ({
-    name,
+    name: hopName(name, q, r),
     relation: n === 1 ? "ultimate_parent" : i === 0 ? "brand_of" : i === n - 1 ? "ultimate_parent" : "owned_by",
     country,
     source: "wikidata",
@@ -70,7 +79,7 @@ export function expandOpenBrand(r: OpenBrandRecord, asOf: string): OwnershipEntr
     tier: "NAME_MATCH",
     technique: OPEN_BRANDS_TECHNIQUE,
     sources: [
-      ...r.chain.map(([name, q]) => ({ label: `Wikidata ${q} (${name})`, url: wd(q) })),
+      ...r.chain.map(([name, q]) => ({ label: /^Q\d+$/.test(name) ? `Wikidata ${q}` : `Wikidata ${q} (${name})`, url: wd(q) })),
       { label: "OpenStreetMap name-suggestion-index", url: "https://nsi.guide/" },
     ],
     as_of: asOf,

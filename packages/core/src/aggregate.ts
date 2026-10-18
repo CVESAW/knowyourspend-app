@@ -1,6 +1,6 @@
 import type { Item, ReceiptLine, StoredTransaction } from "./types";
 import { entryById } from "./ownership";
-import { attribute, type Attribution, type AttributionContext, type Basis } from "./attribute";
+import { attribute, type Attribution, type AttributionContext, type Basis, type IndependentReason } from "./attribute";
 import type { LocationEvidence } from "./locate";
 
 /**
@@ -21,9 +21,11 @@ export interface Contribution {
   date: string; // yyyy-mm-dd
   itemId: string;
   source: "statement" | "receipt";
-  /** why this counts towards `country`: a known owner, the user's own fix, or where it was paid (estimated) */
+  /** why this counts towards `country`: a known owner, the user's own fix, a local independent, or where it was paid (estimated) */
   basis?: Basis;
   evidence?: LocationEvidence;
+  /** why it counts as a local independent business (basis "independent") */
+  independent?: IndependentReason;
   /** normalised payee (statement rows), so the user can fix the country for every payment to it */
   payee?: string;
 }
@@ -34,8 +36,9 @@ export interface CountrySlice {
   share: number; // of spend with a country (named owners + estimates)
   /** part of `amount` that is estimated from where it was paid, or set by the user */
   estimated: number;
-  /** entryId is the ownership entry, or "est:<label>" / "you:<label>" for estimated / user-set rows */
-  entries: { entryId: string; name: string; amount: number; basis: Basis }[];
+  /** entryId is the ownership entry, or "est:<label>" / "you:<label>" for estimated / user-set rows; payee is a
+   *  normalised payee behind the row, when it has one (statement payments), for "Why this country?" */
+  entries: { entryId: string; name: string; amount: number; basis: Basis; payee?: string }[];
 }
 
 export interface Breakdown {
@@ -104,7 +107,7 @@ export function contributions(items: Item[], txns: StoredTransaction[], lines: R
     linesByItem.set(l.itemId, arr);
   }
 
-  function receiptContributions(r: Item, total: number, date: string, paid?: Attribution): Contribution[] {
+  function receiptContributions(r: Item, total: number, date: string, paid?: Attribution, payee?: string): Contribution[] {
     const out: Contribution[] = [];
     const rl = linesByItem.get(r.id) ?? [];
     const storeEntry = entryById(r.receipt?.storeEntryId) ?? paid?.entry;
@@ -143,8 +146,10 @@ export function contributions(items: Item[], txns: StoredTransaction[], lines: R
         date,
         itemId: r.id,
         source: "receipt",
-        basis: storeEntry ? "owner" : est ? (paid?.basis === "you" ? "you" : "estimated") : undefined,
+        basis: storeEntry ? "owner" : est ? (paid?.basis === "you" || paid?.basis === "independent" ? paid.basis : "estimated") : undefined,
         ...(est ? { evidence: paid?.evidence ?? "home" } : {}),
+        // the statement payment this receipt splits, so the app can explain the shop part
+        ...(payee ? { payee } : {}),
       });
     }
     return out;
@@ -167,7 +172,7 @@ export function contributions(items: Item[], txns: StoredTransaction[], lines: R
     const amount = Math.abs(t.amount) * sign;
     const r = receiptsByTxn.get(t.id);
     if (r && sign > 0) {
-      list.push(...receiptContributions(r, amount, t.date, a));
+      list.push(...receiptContributions(r, amount, t.date, a, t.normPayee || undefined));
       continue;
     }
     list.push({
@@ -180,6 +185,7 @@ export function contributions(items: Item[], txns: StoredTransaction[], lines: R
       source: "statement",
       basis: a.basis,
       ...(a.evidence ? { evidence: a.evidence } : {}),
+      ...(a.independent ? { independent: a.independent } : {}),
       payee: t.normPayee,
     });
   }
@@ -206,7 +212,7 @@ export function breakdown(list: Contribution[], otherCurrency = 0, period: Perio
   const start = periodStart(period, latest);
   const rows = start ? list.filter((c) => c.date > start) : list;
 
-  const byCountry = new Map<string, Map<string, { name: string; amount: number; basis: Basis }>>();
+  const byCountry = new Map<string, Map<string, { name: string; amount: number; basis: Basis; payee?: string }>>();
   const unmatched = new Map<string, { amount: number; count: number }>();
   const months = new Map<string, { byCountry: Record<string, number>; total: number }>();
   let unmatchedSum = 0;
@@ -222,6 +228,7 @@ export function breakdown(list: Contribution[], otherCurrency = 0, period: Perio
       const m = byCountry.get(c.country) ?? new Map();
       const cur = m.get(key) ?? { name: c.label, amount: 0, basis };
       cur.amount += c.amount;
+      if (!cur.payee && c.payee) cur.payee = c.payee;
       m.set(key, cur);
       byCountry.set(c.country, m);
       const mk = c.date.slice(0, 7);
@@ -241,7 +248,7 @@ export function breakdown(list: Contribution[], otherCurrency = 0, period: Perio
   const countries: CountrySlice[] = [...byCountry.entries()]
     .map(([iso, m]) => {
       const entries = [...m.entries()]
-        .map(([entryId, v]) => ({ entryId, name: v.name, amount: v.amount, basis: v.basis }))
+        .map(([entryId, v]) => ({ entryId, name: v.name, amount: v.amount, basis: v.basis, ...(v.payee ? { payee: v.payee } : {}) }))
         .filter((e) => e.amount > 0.005)
         .sort((a, b) => b.amount - a.amount);
       const amount = entries.reduce((s, e) => s + e.amount, 0);

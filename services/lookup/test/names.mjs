@@ -1,7 +1,7 @@
 // Shop and company names: letters such as Ø and Æ, legal forms written with dots or slashes ("S.A.", "A/S",
 // "Sp. z o.o.") for banks outside the UK, and UK names that must not change. No network.
 // Run: node services/lookup/test/names.mjs
-import { normaliseName, stripLegalSuffix } from "../registries.ts";
+import { countryFromText, normaliseName, stripLegalSuffix } from "../registries.ts";
 import { coreName } from "../ai.ts";
 import { cacheKey, nameVariants } from "../lookup.ts";
 const ok = (c, m) => { if (!c) process.exitCode = 1; console.log(c ? "ok  " : "FAIL", m); };
@@ -26,3 +26,16 @@ for (const [inp, n, uk, abroad] of cases) ok(normaliseName(inp) === n && stripLe
 ok(coreName("Carlsberg A/S") === "CARLSBERG" && coreName("Inditex S.A.") === "INDITEX" && coreName("Marks & Spencer Group plc") === "MARKS & SPENCER GROUP", `coreName (company names): ${coreName("Carlsberg A/S")}, ${coreName("Inditex S.A.")}, ${coreName("Marks & Spencer Group plc")}`);
 ok(cacheKey("NETTO A/S", "DK") === "DK:NETTO" && cacheKey("TESCO STORES LTD") === "TESCO STORES" && cacheKey("SMITH A S") === "SMITH A S" && cacheKey("SELFRIDGES & CO") === "SELFRIDGES &", `cacheKey: ${cacheKey("NETTO A/S", "DK")}, ${cacheKey("TESCO STORES LTD")}, ${cacheKey("SMITH A S")}, ${cacheKey("SELFRIDGES & CO")}`);
 ok(JSON.stringify(nameVariants("EVANS S L")) === JSON.stringify(["EVANS S L", "EVANS S"]), `UK name variants keep the initials: ${JSON.stringify(nameVariants("EVANS S L"))}`);
+
+// Countries named in Companies House filings of who controls a company (17 Oct 2026: every country, whole words, longest first).
+for (const [text, iso] of [["Nigeria", "NG"], ["Federal Republic of Nigeria", "NG"], ["Niger", "NE"], ["Georgia, USA", "US"], ["Delaware, United States", "US"], ["New Jersey", "US"], ["Jersey", "JE"],
+  ["Republic of Korea", "KR"], ["Korea, Republic Of", "KR"], ["Cayman Islands", "KY"], ["British Virgin Islands", "VG"], ["England And Wales", "GB"], ["Northern Ireland", "GB"], ["Ireland", "IE"],
+  ["The Netherlands", "NL"], ["Luxembourg Business Registers", "LU"], ["Hong Kong Sar", "HK"], ["Bermuda", "BM"], ["Romania", "RO"], ["Oman", "OM"], ["Guinea", "GN"], ["Papua New Guinea", "PG"],
+  // 18 Oct 2026: official forms that held a shorter name for another country
+  ["Democratic People's Republic of Korea", "KP"], ["Korea, Democratic People's Republic of", "KP"], ["Macao, China", "MO"], ["Macau", "MO"], ["China", "CN"],
+  ["Congo, The Democratic Republic of the", "CD"], ["Republic of the Congo", "CG"], ["Lao People's Democratic Republic", "LA"],
+  ["Macau SAR, China", "MO"], ["Macao Special Administrative Region of China", "MO"], ["Congo (Democratic Republic)", "CD"], ["Hong Kong, China", "HK"],
+  ["Taiwan, Province of China", "TW"], ["Northern Ireland, United Kingdom", "GB"], ["Jersey, Channel Islands", "JE"]]) {
+  ok(countryFromText(text) === iso, `countryFromText("${text}") → ${countryFromText(text)} (want ${iso})`);
+}
+ok(countryFromText("Registrar of Companies") === undefined, `no country named: ${countryFromText("Registrar of Companies")}`);

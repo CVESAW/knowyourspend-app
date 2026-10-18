@@ -19,12 +19,22 @@ const q = (table) => {
   const api = {
     select() { return api; }, eq(c, v) { filters.push([c, v]); return api; }, in(c, v) { filters.push([c, v]); return api; },
     async maybeSingle() { return { data: table === "kys_usage_counts" ? { count: state.webCount } : state.usage }; },
-    then(res) { return Promise.resolve({ data: table === "kys_lookup_cache" ? state.cache : [] }).then(res); },
-    async upsert(rows) { log.push(["upsert", table, rows.map((r) => [r.key, r.via, r.tier, Math.round((Date.parse(r.expires_at) - Date.now()) / 864e5)])]); return {}; },
+    then(res) {
+      // the request counts: unknown unless a test sets state.seen (1 = a name nobody has asked about yet)
+      if (table === "kys_lookup_names") {
+        const names = filters.find(([c]) => c === "name")?.[1] ?? [];
+        return Promise.resolve(state.seen == null ? { data: null, error: { message: "stand-in: no count" } } : { data: state.seen === 1 ? [] : names.map((name) => ({ name, requests: state.seen - 1 })) }).then(res);
+      }
+      return Promise.resolve({ data: table === "kys_lookup_cache" ? state.cache : [] }).then(res);
+    },
+    async upsert(rows) { log.push(["upsert", table, rows.map((r) => [r.key, r.via, r.tier, Math.ceil((Date.parse(r.expires_at) - Date.now()) / 864e5 - 1e-6), r.updated_at, r.expires_at])]); return {}; },
   };
   return api;
 };
-export const createClient = () => ({ from: q, rpc: async (fn, args) => { log.push(["rpc", fn, args]); return {}; } });
+export const createClient = () => ({ from: q, rpc: async (fn, args) => {
+  log.push(["rpc", fn, args]);
+  return {};
+} });
 `);
 
 const ok = (c, m) => { if (!c) process.exitCode = 1; console.log(c ? "ok  " : "FAIL", m); };
@@ -33,6 +43,7 @@ globalThis.Deno = { env: { get: (k) => env[k] }, serve: (h) => { globalThis.__ha
 const realFetch = globalThis.fetch;
 let mode = "ok", chat = 0, web = 0;
 const answer = (o, c) => JSON.stringify({ is_business: true, brand: "Zzq Shop", ultimate_owner: o, owner_type: "private_company", owner_country: c, confidence: "high", match: null, reason: "r" });
+const localAnswer = JSON.stringify({ is_business: true, brand: "Zzq Cafe", ultimate_owner: null, owner_type: "unknown", owner_country: null, confidence: "low", scale: "local", match: null, reason: "A small café." });
 globalThis.fetch = async (url, init) => {
   const u = String(url);
   if (!u.includes("api.mistral.ai")) return realFetch(url, init);
@@ -40,16 +51,16 @@ globalThis.fetch = async (url, init) => {
   if (u.endsWith("/chat/completions")) {
     chat++;
     const b = JSON.parse(init.body);
-    const said = mode === "person" ? JSON.stringify({ is_business: false, brand: null, ultimate_owner: null, owner_type: "unknown", owner_country: null, confidence: "high", match: null, reason: "A person's name." }) : mode === "frasers" ? answer("Frasers Group", "GB") : answer("Zzq Holdings Made Up", "IE");
+    const said = mode === "person" ? JSON.stringify({ is_business: false, brand: null, ultimate_owner: null, owner_type: "unknown", owner_country: null, confidence: "high", match: null, reason: "A person's name." }) : mode === "frasers" ? answer("Frasers Group", "GB") : mode === "local" ? localAnswer : answer("Zzq Holdings Made Up", "IE");
     return new Response(JSON.stringify({ choices: Array.from({ length: b.n }, () => ({ message: { content: said } })), usage: {} }), { status: 200 });
   }
   web++;
-  const said = mode === "low" ? JSON.stringify({ is_business: true, brand: "Zzq Shop", ultimate_owner: null, owner_type: "unknown", owner_country: null, confidence: "low", match: null, reason: "r" }) : answer("Frasers Group", "GB");
+  const said = mode === "low" ? JSON.stringify({ is_business: true, brand: "Zzq Shop", ultimate_owner: null, owner_type: "unknown", owner_country: null, confidence: "low", match: null, reason: "r" }) : mode === "local" ? localAnswer : answer("Frasers Group", "GB");
   return new Response(JSON.stringify({ outputs: [{ type: "tool.execution", name: "web_search" }, { type: "message.output", content: [{ type: "text", text: said }] }], usage: {} }), { status: 200 });
 };
 const { log, state } = await import(pathToFileURL(join(dir, "fake-db.mjs")).href);
 await import(pathToFileURL(join(dir, "kys-lookup.ts")).href);
-const ask = async (merchants, country) => (await globalThis.__handler(new Request("https://x/", { method: "POST", headers: { "content-type": "application/json", origin: "https://knowyourspend-app.vercel.app" }, body: JSON.stringify({ merchants, country }) }))).json();
+const ask = async (merchants, country, again) => (await globalThis.__handler(new Request("https://x/", { method: "POST", headers: { "content-type": "application/json", origin: "https://knowyourspend-app.vercel.app" }, body: JSON.stringify({ merchants, country, ...(again ? { again } : {}) }) }))).json();
 
 // 1. An Irish bank, names no register knows: the web-checked AI answer is kept for a year under "IE:".
 let j = await ask(["ZZQ SHOP ONE", "ZZQ SHOP TWO"], "IE");
@@ -65,6 +76,7 @@ j = await ask(["ZZQ SHOP 1", "ZZQ SHOP 2", "ZZQ SHOP 3", "ZZQ SHOP 4", "ZZQ SHOP
 ok(chat <= 4 && j.results.every((r) => r.status === "UNRESOLVED" && r.trace.some((s) => s.step === "llm" && s.status === "error")), `out of credit: ${chat} Mistral calls for 8 names; "${j.results[7].trace.find((s) => s.step === "llm").detail}"`);
 ok(!log.some((l) => l[0] === "upsert") && j.sources.ai === false, "out of credit: nothing kept, sources.ai false");
 ok(log.find((l) => l[1] === "kys_bump_usage")?.[2].p_llm === chat, "out of credit: AI calls counted");
+ok(!log.some((l) => l[1] === "kys_count_names"), "out of credit: no name counted (none was answered)");
 
 // 3. Today's AI limit reached: no Mistral calls at all, nothing kept.
 log.length = 0; mode = "ok"; chat = 0; state.usage = { llm_calls: 100, ch_calls: 0 };
@@ -97,9 +109,38 @@ log.length = 0; mode = "person"; chat = 0; web = 0;
 j = await ask(["ZZQ SHOP 13"]);
 const up7 = log.find((l) => l[0] === "upsert");
 ok(web === 0 && j.results[0].status === "NOT_A_BUSINESS" && up7?.[2][0][3] === 30, `not a business → kept ${up7?.[2][0][3]} days`);
+ok(!log.some((l) => l[1] === "kys_count_names"), "not a business → not counted (it may be someone's name)");
 
 // 8. All five answers agree and the register confirms the owner: no web search, kept a year.
 log.length = 0; mode = "frasers"; chat = 0; web = 0;
 j = await ask(["ZZQ SHOP 14"]);
 const up8 = log.find((l) => l[0] === "upsert");
 ok(web === 0 && j.results[0].status === "RESOLVED" && j.results[0].entry.owner_country === "GB" && up8?.[2][0][3] === 365, `unanimous and confirmed → no web, ${j.results[0].entry?.owner_country}, kept ${up8?.[2][0][3]} days`);
+
+// 9. A small local business, the first request for the name: no web search, kept 3 days so a later request checks it.
+log.length = 0; mode = "local"; chat = 0; web = 0; state.seen = 1;
+j = await ask(["ZZQ CORNER CAFE"]);
+const up9 = log.find((l) => l[0] === "upsert");
+ok(web === 0 && j.results[0].status === "LOCAL_BUSINESS" && up9?.[2][0][1] === "llm" && up9?.[2][0][3] === 3, `local, first request → no web, ${j.results[0].status}, kept ${up9?.[2][0][3]} days`);
+ok(log.some((l) => l[1] === "kys_count_names" && l[2].p_names.includes("ZZQ CORNER CAFE")), "the name is counted once answered");
+const days9 = up9?.[2][0][5]?.slice(0, 10);
+ok(j.results[0].recheck_after && j.results[0].recheck_after === days9 && up9?.[2][0][4]?.endsWith("T00:00:00.000Z") && up9?.[2][0][5]?.endsWith("T00:00:00.000Z"), `first-request answer: the app is told to ask again on ${j.results[0].recheck_after} (kept until ${days9}); times kept to the day (${up9?.[2][0][4]})`);
+ok(/^\d{4}-\d{2}-\d{2}$/.test(j.results[0].looked_up_at) && !j.results[0].checked, `looked_up_at is the day only (${j.results[0].looked_up_at}); not web-checked`);
+
+// 10. …and a later request: the web search finds no owner either, so it's a local business, kept a year.
+log.length = 0; chat = 0; web = 0; state.seen = 2;
+j = await ask(["ZZQ CORNER CAFE"]);
+const up10 = log.find((l) => l[0] === "upsert");
+ok(web === 1 && j.results[0].status === "LOCAL_BUSINESS" && up10?.[2][0][3] === 365 && /web search found no owner/.test(j.results[0].trace.find((s) => s.step === "llm").detail), `local, later request → web, ${j.results[0].status}, kept ${up10?.[2][0][3]} days`);
+ok(j.results[0].checked === "web" && !j.results[0].recheck_after, `…marked web-checked for the app, nothing to ask again (${j.results[0].checked})`);
+
+// 11. The app sends a name again (its answer came before the full check): the same phone asking isn't another
+// request, so a name only that phone has asked about stays a first request (no web search), and isn't counted again.
+log.length = 0; chat = 0; web = 0; state.seen = 2;
+j = await ask(["ZZQ CORNER CAFE"], undefined, ["ZZQ CORNER CAFE"]);
+ok(web === 0 && j.results[0].status === "LOCAL_BUSINESS" && !log.some((l) => l[1] === "kys_count_names"), `asked again by the same phone → still a first request, not counted (web ${web}, ${j.results[0].status})`);
+// …but once someone else has asked too, asking again gets the full check
+log.length = 0; chat = 0; web = 0; state.seen = 3;
+j = await ask(["ZZQ CORNER CAFE"], undefined, ["ZZQ CORNER CAFE"]);
+ok(web === 1 && j.results[0].checked === "web", `asked again after someone else asked → full check (web ${web})`);
+state.seen = undefined;

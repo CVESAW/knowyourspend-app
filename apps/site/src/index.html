@@ -4,7 +4,7 @@
     <p class="lede">Add a bank statement and see your spending by the country that owns each business.</p>
     {{CTAS}}
     <ul class="points">
-      <li><b>Read on your phone.</b> Amounts, dates and balances never leave it.</li>
+      <li><b>Read on your phone.</b> We never see your amounts, dates or balances.</li>
       <li><b>Only shop names it doesn't know are looked up</b>, and you see the list first.</li>
       <li><b>Free.</b> No account, no ads, nothing to install.</li>
     </ul>
@@ -52,7 +52,7 @@
         <li data-c="DE"><span class="d">13 Oct</span><span class="p">LIDL GB LONDON</span><span class="a">£27.30</span><span class="o">Germany</span></li>
         <li data-c="US"><span class="d">14 Oct</span><span class="p">NETFLIX.COM</span><span class="a">£12.99</span><span class="o">United States</span></li>
         <li data-c="GB"><span class="d">15 Oct</span><span class="p">GREGGS 1234 LONDON</span><span class="a">£4.10</span><span class="o">United Kingdom</span></li>
-        <li data-c="GB" class="est"><span class="d">16 Oct</span><span class="p">SQ *THE OLD BAKEHOUSE</span><span class="a">£7.20</span><span class="o">United Kingdom, estimated from where you paid</span></li>
+        <li data-c="GB" class="est"><span class="d">16 Oct</span><span class="p">SQ *THE OLD BAKEHOUSE</span><span class="a">£7.20</span><span class="o">United Kingdom, a local independent (Square card reader)</span></li>
         <li data-c="person" class="person"><span class="d">16 Oct</span><span class="p">JANE SMITH DINNER</span><span class="a">£25.00</span><span class="o">A person: not counted, never sent</span></li>
         <li data-c="DE"><span class="d">17 Oct</span><span class="p">ALDI 84 GREENWICH</span><span class="a">£31.60</span><span class="o">Germany</span></li>
       </ol>
@@ -100,7 +100,7 @@
     <thead><tr><th scope="col">What</th><th scope="col">Who holds it</th><th scope="col">For how long</th><th scope="col">To keep it from us</th></tr></thead>
     <tbody>
       <tr><th scope="row">Your statement: amounts, dates, balances, account numbers and the people you pay</th><td data-label="Who holds it">Only your phone (or your browser, on the web)</td><td data-label="For how long">Until you delete it</td><td data-label="To keep it from us">Nothing to do: it never reaches us</td></tr>
-      <tr><th scope="row">Names of shops the app doesn't know</th><td data-label="Who holds it">Our look-up service (Supabase, Ireland). It may ask Wikidata, the Global LEI register, Companies House and Mistral AI (France) about the name</td><td data-label="For how long">The name and its answer, 3 days to a year, with no record of who asked</td><td data-label="To keep it from us">Settings → Shops we don't know → Never</td></tr>
+      <tr><th scope="row">Names of shops the app doesn't know</th><td data-label="Who holds it">Our look-up service (Supabase, Ireland). It may ask Wikidata, the Global LEI register, Companies House and Mistral AI (France) about the name</td><td data-label="For how long">The name and its answer, 3 days to a year, and how many times each name has been asked about, until a year after the last time. No record of who asked</td><td data-label="To keep it from us">Settings → Shops we don't know → Never</td></tr>
       <tr><th scope="row">Your email address and results, if you ask us to email them</th><td data-label="Who holds it">Sent through Brevo (France). We don't keep your address, unless you also ask for updates</td><td data-label="For how long">Brevo's delivery log: 1 month. Scrambled codes that stop misuse: 30 days</td><td data-label="To keep it from us">Don't use "Email me my results"</td></tr>
       <tr><th scope="row">A copy of your data, if you make an account</th><td data-label="Who holds it">Supabase (Ireland), locked on your phone first with a passphrase only you know, so we can't read it</td><td data-label="For how long">Until you delete your account</td><td data-label="To keep it from us">Don't make one: you don't need it</td></tr>
       <tr><th scope="row">Anonymous counts</th><td data-label="Who holds it">Us: one running total per action per day, with nothing about you</td><td data-label="For how long">Kept as totals</td><td data-label="To keep it from us">They're off unless you switch them on</td></tr>
@@ -137,7 +137,8 @@
 <section class="method">
   <h2>How we know who owns a shop</h2>
   <p>KnowYourSpend carries its own list of who owns over {{BRANDS}} shops and brands, so matching happens on your phone. It's built from open data and company registers: Wikidata, the Global LEI register and OpenStreetMap's brand list. Shops that aren't on it can be looked up online, if you allow it.</p>
-  <p>Every answer shows where it came from and how sure we are: <b>Checked</b> (verified by a person), <b>Matched</b> (official records agree) or <b>Unverified</b> (a best guess). A shop it doesn't know is counted by where you paid, marked "Estimated", or you can set the country yourself.</p>
+  <p>Every answer shows where it came from and how sure we are: <b>Checked</b> (verified by a person), <b>Matched</b> (official records agree) or <b>Unverified</b> (a best guess). Small businesses like cafés and market stalls are counted where you paid, marked "Local independent"; any other shop it doesn't know is counted the same way, marked "Estimated". Or you can set the country yourself.</p>
+  <p><a href="/how-it-works">Read exactly how we work it out</a>: every step, the rules we follow and how accurate it is. In the app, tap any shop to see why it counts where it does.</p>
   <p class="aside">Spotted a mistake? <a href="mailto:{{EMAIL}}?subject=Ownership%20mistake">Tell us</a> and we'll fix it for everyone.</p>
 </section>
 
@@ -157,7 +158,7 @@
   </details>
   <details>
     <summary>What does "owned outside the UK" mean?</summary>
-    <p>We follow each business up to its ultimate parent company and use the country where that parent is based. A shop on your high street can be owned by a company based abroad. It says nothing about where the staff are, where tax is paid or where the products are made.</p>
+    <p>We follow each business up to its ultimate parent company and use the country where that parent is based. A shop on your high street can be owned by a company based abroad. It says nothing about where the staff are, where tax is paid or where the products are made. <a href="/how-it-works">How we work it out</a>.</p>
   </details>
   <details>
     <summary>Do I need to install anything?</summary>

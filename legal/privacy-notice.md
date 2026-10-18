@@ -1,6 +1,6 @@
 ---
 title: Privacy notice
-updated: 15 October 2026
+updated: 18 October 2026
 status: Draft for legal review — not yet published
 ---
 
@@ -47,9 +47,16 @@ miss some, which is why you can check the list and stop it being sent.
 - **When:** by default ("Automatically"), when you add a statement. The check screen shows the names
   that would be sent and has a tick box to stop them being sent for that statement. You can change the
   setting to "Ask me" or "Never" in Settings → Shops we don't know.
-- **What we keep:** the shop name and the answer, in a cache shared by all users, for 3 days to a year so
-  the next person gets an answer faster. The cache doesn't record who asked. We also keep daily counts
-  of how many look-ups were made.
+- **What we keep:** the shop name and the answer, in a cache shared by all users, used for 3 days to a year
+  so the next person gets an answer faster. An answer past its time isn't used, but stays until the name is
+  next looked up, when it's replaced [deleting expired answers automatically: to switch on before launch].
+  For each shop name the look-up answers, except names it decides aren't a business (which may be someone's
+  name), we also keep a running count of how many look-ups have asked about it, with the dates of the first
+  and the latest, until a year after the latest: it shows which shops many people pay, so we can check those
+  by hand first, and lets us skip a paid web search for a name only one look-up has asked about. Neither
+  records who asked, and since 18 October 2026 both keep times only to the day. When the app asks again
+  about a name whose answer was still waiting for its full check, it marks the name as asked before, so that
+  isn't counted as another look-up. We also keep daily counts of how many look-ups were made.
 - **Who helps us:** the look-up service runs on Supabase. Its database is in Ireland; the code may run
   in the Supabase region nearest you. To answer, it may pass the shop name to Companies House, Wikidata
   (Wikimedia Foundation, USA) and GLEIF, and — if those don't know — to Mistral AI's AI service (France),
@@ -159,7 +166,8 @@ Transfer Addendum. Shop names on their own are not usually personal data.
 | What | How long |
 | --- | --- |
 | Your statements, transactions, settings, fixes | On your device until you delete them |
-| Shop names and answers in the look-up cache | 3 days to a year, then refreshed or removed |
+| Shop names and answers in the look-up cache | Used for 3 days to a year, then replaced when the name is next looked up [automatic deletion of expired answers: to switch on] |
+| How many look-ups asked about each shop name (not names it decides aren't a business) | Until a year after the latest one |
 | Daily look-up counts | Kept, but they contain no personal data |
 | Hosting logs (IP addresses) | As set by Supabase and Vercel [to confirm] |
 | Emails to us | Up to 2 years after the last message |

@@ -1,4 +1,5 @@
 import type { OwnershipEntry } from "@kys/ownership";
+import type { LookupCheck } from "@kys/core/lookup-plan";
 import type { RequestLogEntry } from "./types";
 
 /**
@@ -8,6 +9,8 @@ import type { RequestLogEntry } from "./types";
  *              when a statement is added; "ask" waits for a tap on the report; "off" never sends anything
  */
 export type LookupMode = "auto" | "ask" | "off";
+
+export type { LookupCheck } from "@kys/core/lookup-plan";
 
 export interface Prefs {
   home: string;
@@ -19,6 +22,11 @@ export interface Prefs {
   lookups: Record<string, OwnershipEntry>;
   /** normalised payees already looked up with no answer (not re-sent for 30 days) */
   lookupMisses: Record<string, string>;
+  /** normalised payees our look-up said are small local businesses (date it said so); counted as local independents */
+  lookupLocal: Record<string, string>;
+  /** more about the look-up's answers (since 18 Oct 2026): `recheck`, an answer still to get its full check, asked again
+   *  on or after that day; `web`, a web search checked a "small local business" answer */
+  lookupChecks: Record<string, LookupCheck>;
   requestLog: RequestLogEntry[];
   /** send anonymous counts ("a statement was added") — no IP, ID or cookie kept; see lib/usage.ts */
   shareCounts: boolean;
@@ -34,6 +42,8 @@ export const DEFAULT_PREFS: Prefs = {
   overrides: {},
   lookups: {},
   lookupMisses: {},
+  lookupLocal: {},
+  lookupChecks: {},
   requestLog: [],
   shareCounts: DEFAULT_SHARE_COUNTS,
 };

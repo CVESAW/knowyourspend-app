@@ -72,7 +72,24 @@ export var WIKIDATA_API = "https://www.wikidata.org/w/api.php", UA = "KnowYourSp
   "Q13442814",
   "Q4022",
   "Q23397",
-  "Q8502"
+  "Q8502",
+  // 17 Oct 2026: places, which can have an LEI for their bonds (Warren, Ohio, matched "WARREN EVANS"): US city, county
+  // seat, human settlement, municipality, US county, English ceremonial county, unitary authority, London borough,
+  // English district, civil parish, census-designated place, US town, unincorporated community, city or town
+  "Q1093829",
+  "Q62049",
+  "Q486972",
+  "Q15284",
+  "Q47168",
+  "Q180673",
+  "Q1136601",
+  "Q211690",
+  "Q349084",
+  "Q1115575",
+  "Q498162",
+  "Q15127012",
+  "Q17343829",
+  "Q7930989"
 ]);
 export function itemId(c) {
   return c.mainsnak?.datavalue?.value?.id;
@@ -98,10 +115,18 @@ export function current(claims) {
   let live = (claims ?? []).filter((c) => c.rank !== "deprecated" && !ended(c)), pref = live.filter((c) => c.rank === "preferred");
   return pref.length ? pref : live;
 }
+// A company's name: English first, then "mul" (one name for every language), then another language written in Latin
+// letters (18 Oct 2026: newer companies often have no English label, and showed as a bare id like "Q2836957").
+var LABEL_LANGS = ["en", "en-gb", "mul", "fr", "de", "es", "it", "nl", "pt", "sv", "da", "nb", "fi", "pl"];
+export function pickLabel(labels, id) {
+  for (let l of LABEL_LANGS.slice(0, 3)) if (labels?.[l]?.value) return labels[l].value;
+  for (let l of LABEL_LANGS.slice(3)) if (labels?.[l]?.value && readable(labels[l].value, null)) return labels[l].value;
+  return Object.values(labels ?? {}).map((x) => x?.value).find((v) => v && readable(v, null)) ?? id;
+}
 export function parseEntity(raw) {
   let id = raw.id;
   if (!id || raw.missing !== void 0) return;
-  let labels = raw.labels, descs = raw.descriptions, al = raw.aliases, claims = raw.claims ?? {}, label = labels?.en?.value ?? labels?.["en-gb"]?.value ?? Object.values(labels ?? {})[0]?.value ?? id, parents = [];
+  let labels = raw.labels, descs = raw.descriptions, al = raw.aliases, claims = raw.claims ?? {}, label = pickLabel(labels, id), parents = [];
   for (let c of current(claims.P749)) {
     let p = itemId(c);
     p && p !== id && parents.push({ id: p, via: "P749" });
@@ -157,10 +182,22 @@ export var Wikidata = class {
   async entities(ids) {
     let need = [...new Set(ids)].filter((id) => /^Q\d+$/.test(id) && !this.cache.has(id));
     for (let i = 0; i < need.length; i += 50) {
-      let batch = need.slice(i, i + 50), url = `${WIKIDATA_API}?action=wbgetentities&format=json&props=labels|descriptions|aliases|claims&languages=en|en-gb&ids=${batch.join("|")}`, data = await this.get(url);
+      let batch = need.slice(i, i + 50), url = `${WIKIDATA_API}?action=wbgetentities&format=json&props=labels|descriptions|aliases|claims&languages=en|en-gb|mul&ids=${batch.join("|")}`, data = await this.get(url);
       for (let id of batch) {
         let raw = data.entities?.[id];
         this.cache.set(id, raw ? parseEntity(raw) ?? null : null);
+      }
+      // No English or "mul" name: one more call for a name in another language (otherwise the id stays as the name).
+      let unnamed = batch.filter((id) => this.cache.get(id)?.label === id);
+      if (unnamed.length) {
+        try {
+          let more = await this.get(`${WIKIDATA_API}?action=wbgetentities&format=json&props=labels&languages=${LABEL_LANGS.slice(3).join("|")}&ids=${unnamed.join("|")}`);
+          for (let id of unnamed) {
+            let e = this.cache.get(id), l = pickLabel(more?.entities?.[id]?.labels, id);
+            if (e && l !== id) e.label = l;
+          }
+        } catch {
+        }
       }
     }
     let out = new Map();
@@ -392,13 +429,301 @@ export var CH_API = "https://api.company-information.service.gov.uk", chUrl = (n
   MEXICO: "MX",
   BRAZIL: "BR",
   ISRAEL: "IL",
-  TURKEY: "TR"
+  TURKEY: "TR",
+  // 17 Oct 2026: every other country (and a few US states, Canadian provinces and other names registers use), so an owner
+  // registered in, say, Nigeria isn't dropped from the chain. Georgia is left out: it's also a US state.
+  "AFGHANISTAN": "AF",
+  "ALBANIA": "AL",
+  "ALGERIA": "DZ",
+  "AMERICAN SAMOA": "AS",
+  "ANDORRA": "AD",
+  "ANGOLA": "AO",
+  "ANGUILLA": "AI",
+  "ANTARCTICA": "AQ",
+  "ANTIGUA AND BARBUDA": "AG",
+  "ARGENTINA": "AR",
+  "ARMENIA": "AM",
+  "ARUBA": "AW",
+  "AZERBAIJAN": "AZ",
+  "BAHAMAS": "BS",
+  "BAHRAIN": "BH",
+  "BANGLADESH": "BD",
+  "BARBADOS": "BB",
+  "BELARUS": "BY",
+  "BELIZE": "BZ",
+  "BENIN": "BJ",
+  "BHUTAN": "BT",
+  "BOLIVIA": "BO",
+  "BONAIRE SINT EUSTATIUS AND SABA": "BQ",
+  "BOSNIA AND HERZEGOVINA": "BA",
+  "BOTSWANA": "BW",
+  "BOUVET ISLAND": "BV",
+  "BRITISH INDIAN OCEAN TERRITORY": "IO",
+  "BRUNEI": "BN",
+  "BULGARIA": "BG",
+  "BURKINA FASO": "BF",
+  "BURUNDI": "BI",
+  "CABO VERDE": "CV",
+  "CAMBODIA": "KH",
+  "CAMEROON": "CM",
+  "CENTRAL AFRICAN REPUBLIC": "CF",
+  "CHAD": "TD",
+  "CHILE": "CL",
+  "CHRISTMAS ISLAND": "CX",
+  "COCOS KEELING ISLANDS": "CC",
+  "COLOMBIA": "CO",
+  "COMOROS": "KM",
+  "CONGO": "CG",
+  "COOK ISLANDS": "CK",
+  "COSTA RICA": "CR",
+  "CROATIA": "HR",
+  "CUBA": "CU",
+  "CURACAO": "CW",
+  "CZECHIA": "CZ",
+  "COTE DIVOIRE": "CI",
+  "DR CONGO": "CD",
+  "DJIBOUTI": "DJ",
+  "DOMINICA": "DM",
+  "DOMINICAN REPUBLIC": "DO",
+  "ECUADOR": "EC",
+  "EGYPT": "EG",
+  "EL SALVADOR": "SV",
+  "EQUATORIAL GUINEA": "GQ",
+  "ERITREA": "ER",
+  "ESTONIA": "EE",
+  "ESWATINI": "SZ",
+  "ETHIOPIA": "ET",
+  "FALKLAND ISLANDS MALVINAS": "FK",
+  "FAROE ISLANDS": "FO",
+  "FIJI": "FJ",
+  "FRENCH GUIANA": "GF",
+  "FRENCH POLYNESIA": "PF",
+  "FRENCH SOUTHERN TERRITORIES": "TF",
+  "GABON": "GA",
+  "GAMBIA": "GM",
+  "GHANA": "GH",
+  "GREECE": "GR",
+  "GREENLAND": "GL",
+  "GRENADA": "GD",
+  "GUADELOUPE": "GP",
+  "GUAM": "GU",
+  "GUATEMALA": "GT",
+  "GUINEA": "GN",
+  "GUINEA BISSAU": "GW",
+  "GUYANA": "GY",
+  "HAITI": "HT",
+  "HEARD ISLAND AND MCDONALD ISLANDS": "HM",
+  "HOLY SEE VATICAN CITY STATE": "VA",
+  "HONDURAS": "HN",
+  "HUNGARY": "HU",
+  "ICELAND": "IS",
+  "INDONESIA": "ID",
+  "IRAN": "IR",
+  "IRAQ": "IQ",
+  "JAMAICA": "JM",
+  "JORDAN": "JO",
+  "KAZAKHSTAN": "KZ",
+  "KENYA": "KE",
+  "KIRIBATI": "KI",
+  "KOSOVO": "XK",
+  "KUWAIT": "KW",
+  "KYRGYZSTAN": "KG",
+  "LAOS": "LA",
+  "LATVIA": "LV",
+  "LEBANON": "LB",
+  "LESOTHO": "LS",
+  "LIBERIA": "LR",
+  "LIBYA": "LY",
+  "LIECHTENSTEIN": "LI",
+  "LITHUANIA": "LT",
+  "MACAO": "MO",
+  "MADAGASCAR": "MG",
+  "MALAWI": "MW",
+  "MALAYSIA": "MY",
+  "MALDIVES": "MV",
+  "MALI": "ML",
+  "MARSHALL ISLANDS": "MH",
+  "MARTINIQUE": "MQ",
+  "MAURITANIA": "MR",
+  "MAURITIUS": "MU",
+  "MAYOTTE": "YT",
+  "MICRONESIA": "FM",
+  "MOLDOVA": "MD",
+  "MONACO": "MC",
+  "MONGOLIA": "MN",
+  "MONTENEGRO": "ME",
+  "MONTSERRAT": "MS",
+  "MOROCCO": "MA",
+  "MOZAMBIQUE": "MZ",
+  "MYANMAR": "MM",
+  "NAMIBIA": "NA",
+  "NAURU": "NR",
+  "NEPAL": "NP",
+  "NEW CALEDONIA": "NC",
+  "NEW ZEALAND": "NZ",
+  "NICARAGUA": "NI",
+  "NIGER": "NE",
+  "NIGERIA": "NG",
+  "NIUE": "NU",
+  "NORFOLK ISLAND": "NF",
+  "NORTH KOREA": "KP",
+  "NORTH MACEDONIA": "MK",
+  "NORTHERN MARIANA ISLANDS": "MP",
+  "OMAN": "OM",
+  "PAKISTAN": "PK",
+  "PALAU": "PW",
+  "PALESTINE": "PS",
+  "PANAMA": "PA",
+  "PAPUA NEW GUINEA": "PG",
+  "PARAGUAY": "PY",
+  "PERU": "PE",
+  "PHILIPPINES": "PH",
+  "PITCAIRN": "PN",
+  "PORTUGAL": "PT",
+  "PUERTO RICO": "PR",
+  "ROMANIA": "RO",
+  "RUSSIA": "RU",
+  "RWANDA": "RW",
+  "REUNION": "RE",
+  "SAINT BARTHELEMY": "BL",
+  "SAINT HELENA ASCENSION AND TRISTAN DA CUNHA": "SH",
+  "SAINT KITTS AND NEVIS": "KN",
+  "SAINT LUCIA": "LC",
+  "SAINT MARTIN FRENCH PART": "MF",
+  "SAINT PIERRE AND MIQUELON": "PM",
+  "SAINT VINCENT AND THE GRENADINES": "VC",
+  "SAMOA": "WS",
+  "SAN MARINO": "SM",
+  "SAO TOME AND PRINCIPE": "ST",
+  "SENEGAL": "SN",
+  "SERBIA": "RS",
+  "SEYCHELLES": "SC",
+  "SIERRA LEONE": "SL",
+  "SINT MAARTEN DUTCH PART": "SX",
+  "SLOVAKIA": "SK",
+  "SLOVENIA": "SI",
+  "SOLOMON ISLANDS": "SB",
+  "SOMALIA": "SO",
+  "SOUTH GEORGIA AND THE SOUTH SANDWICH ISLANDS": "GS",
+  "SOUTH SUDAN": "SS",
+  "SRI LANKA": "LK",
+  "SUDAN": "SD",
+  "SURINAME": "SR",
+  "SVALBARD AND JAN MAYEN": "SJ",
+  "SYRIA": "SY",
+  "TAIWAN": "TW",
+  "TAJIKISTAN": "TJ",
+  "TANZANIA": "TZ",
+  "THAILAND": "TH",
+  "TIMOR LESTE": "TL",
+  "TOGO": "TG",
+  "TOKELAU": "TK",
+  "TONGA": "TO",
+  "TRINIDAD AND TOBAGO": "TT",
+  "TUNISIA": "TN",
+  "TURKMENISTAN": "TM",
+  "TURKS AND CAICOS ISLANDS": "TC",
+  "TUVALU": "TV",
+  "TURKIYE": "TR",
+  "UGANDA": "UG",
+  "UKRAINE": "UA",
+  "UNITED STATES MINOR OUTLYING ISLANDS": "UM",
+  "URUGUAY": "UY",
+  "UZBEKISTAN": "UZ",
+  "VANUATU": "VU",
+  "VENEZUELA": "VE",
+  "VIETNAM": "VN",
+  "VIRGIN ISLANDS U S": "VI",
+  "WALLIS AND FUTUNA": "WF",
+  "WESTERN SAHARA": "EH",
+  "YEMEN": "YE",
+  "ZAMBIA": "ZM",
+  "ZIMBABWE": "ZW",
+  "ALAND ISLANDS": "AX",
+  "CZECH REPUBLIC": "CZ",
+  "RUSSIAN FEDERATION": "RU",
+  "REPUBLIC OF KOREA": "KR",
+  "KOREA": "KR",
+  "PEOPLES REPUBLIC OF CHINA": "CN",
+  "PRC": "CN",
+  "HONG KONG SAR": "HK",
+  "UAE": "AE",
+  "U S A": "US",
+  "U S": "US",
+  "VIRGIN ISLANDS BRITISH": "VG",
+  "BVI": "VG",
+  "HOLLAND": "NL",
+  "VIET NAM": "VN",
+  "IVORY COAST": "CI",
+  "DEMOCRATIC REPUBLIC OF THE CONGO": "CD",
+  "REPUBLIC OF THE CONGO": "CG",
+  "SWISS CONFEDERATION": "CH",
+  "GRAND DUCHY OF LUXEMBOURG": "LU",
+  "FEDERAL REPUBLIC OF GERMANY": "DE",
+  "KINGDOM OF THE NETHERLANDS": "NL",
+  "PEOPLES REPUBLIC OF BANGLADESH": "BD",
+  "FEDERAL REPUBLIC OF NIGERIA": "NG",
+  "ST KITTS AND NEVIS": "KN",
+  "ST LUCIA": "LC",
+  "ST VINCENT AND THE GRENADINES": "VC",
+  "TEXAS": "US",
+  "NEVADA": "US",
+  "FLORIDA": "US",
+  "ILLINOIS": "US",
+  "MASSACHUSETTS": "US",
+  "NEW JERSEY": "US",
+  "OHIO": "US",
+  "MICHIGAN": "US",
+  "MINNESOTA": "US",
+  "PENNSYLVANIA": "US",
+  "WISCONSIN": "US",
+  "COLORADO": "US",
+  "ARIZONA": "US",
+  "NORTH CAROLINA": "US",
+  "CONNECTICUT": "US",
+  "MARYLAND": "US",
+  "OREGON": "US",
+  "TENNESSEE": "US",
+  "UTAH": "US",
+  "MISSOURI": "US",
+  "INDIANA": "US",
+  "WYOMING": "US",
+  "ONTARIO": "CA",
+  "QUEBEC": "CA",
+  "BRITISH COLUMBIA": "CA",
+  "ALBERTA": "CA",
+  "NEW SOUTH WALES": "AU",
+  "VICTORIA AUSTRALIA": "AU",
+  // 18 Oct 2026: official forms that held a shorter name for another country ("…REPUBLIC OF KOREA" is the north;
+  // "MACAO, CHINA" tied with "CHINA"; the ISO form of the DR Congo held only "CONGO").
+  "DEMOCRATIC PEOPLES REPUBLIC OF KOREA": "KP",
+  "KOREA DEMOCRATIC PEOPLES REPUBLIC OF": "KP",
+  "DPRK": "KP",
+  "MACAO CHINA": "MO",
+  "MACAO SAR": "MO",
+  "MACAU": "MO",
+  "CONGO THE DEMOCRATIC REPUBLIC OF THE": "CD",
+  "DEMOCRATIC REPUBLIC OF CONGO": "CD",
+  "CONGO KINSHASA": "CD",
+  "CONGO BRAZZAVILLE": "CG",
+  "CONGO DEMOCRATIC REPUBLIC": "CD",
+  "LAO PEOPLES DEMOCRATIC REPUBLIC": "LA"
 };
+// Longest first, so "NEW JERSEY" wins over "JERSEY" and "NORTHERN IRELAND" over "IRELAND".
+var COUNTRY_NAMES = Object.entries(COUNTRY).map(([k, v]) => [normaliseName(k), v]).sort((a, b) => b[0].length - a[0].length);
+/**
+ * The country a register's text names ("Delaware, USA", "Federal Republic of Nigeria"), matched on whole words: the
+ * longest name found, and of names as long, the first in the text ("Macau SAR, China" is Macao, 18 Oct 2026).
+ */
 export function countryFromText(t) {
   if (!t) return;
-  let n = normaliseName(t);
-  if (COUNTRY[n]) return COUNTRY[n];
-  for (let [k, v] of Object.entries(COUNTRY)) if (n.includes(k)) return v;
+  let n = ` ${normaliseName(t)} `, best;
+  for (let [k, v] of COUNTRY_NAMES) {
+    if (best && k.length < best.len) break;
+    let at = n.indexOf(` ${k} `);
+    if (at >= 0 && (!best || at < best.at)) best = { len: k.length, at, v };
+  }
+  return best?.v;
 }
 export var CompaniesHouse = class {
   constructor(fetch2, apiKey) {

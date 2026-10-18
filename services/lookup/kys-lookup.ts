@@ -91,6 +91,15 @@ Deno.serve(async (req) => {
     return fetch(url, { ...init, signal: init.signal ? AbortSignal.any([init.signal, stop]) : stop });
   }, wikidata = new Wikidata(fetchImpl, { retries: 1 }), gleif = new Gleif(fetchImpl), ch = chOk && country === "GB" ? new CompaniesHouse(fetchImpl, env("COMPANIES_HOUSE_API_KEY")) : void 0;
   let keys = names.map((n) => cacheKey(n, country)), plain = names.map((n) => cacheKey(n)), { data: cachedRows } = await db.from("kys_lookup_cache").select("key, result, expires_at").in("key", keys), cached = new Map();
+  // How many times each name has been asked about (17 Oct 2026): one running count per name, nothing about who asked.
+  // It shows which shops most people pay, to check by hand first, and holds back the paid web search for a name only one
+  // request has asked about when the AI says it's a small local business or can't tell what kind of business it is.
+  // Read here; added to once the answers are in (18 Oct 2026, below). seenNow counts this request in; unknown (the count
+  // couldn't be read) is taken as a later request. A name the app sends again (body.again: an answer it got before its
+  // full check) is the same phone asking, so it isn't counted as another request.
+  let again = new Set((Array.isArray(body.again) ? body.again : []).filter((m) => typeof m == "string").map((m) => normaliseName(m).slice(0, MAX_LEN)));
+  let { data: seenRows, error: seenError } = await db.from("kys_lookup_names").select("name, requests").in("name", [...new Set(keys)]), seen = new Map((seenRows ?? []).map((r) => [r.name, r.requests]));
+  let seenNow = (k, name) => seenError || !seenRows ? void 0 : (seen.get(k) ?? 0) + (again.has(name) ? 0 : 1);
   for (let r of cachedRows ?? []) Date.parse(r.expires_at) > now && cached.set(r.key, r.result);
   let { data: refRows } = await db.from("kys_reference_entries").select("alias, entry").in("alias", plain), reference = new Map((refRows ?? []).map((r) => [r.alias, r.entry]));
   // New names start until 90 s; AI calls end by 125 s, so the request finishes inside the host's 150-second limit.
@@ -98,7 +107,7 @@ Deno.serve(async (req) => {
   let results = await mapLimit(
     names,
     4,
-    (name) => Date.now() > deadline ? Promise.resolve({ query: name, status: "UNRESOLVED", trace: [{ step: "cache", status: "error", detail: "Ran out of time on this request; try again." }], looked_up_at: (new Date()).toISOString() }) : lookupName(name, {
+    (name) => Date.now() > deadline ? Promise.resolve({ query: name, status: "UNRESOLVED", trace: [{ step: "cache", status: "error", detail: "Ran out of time on this request; try again." }], looked_up_at: today }) : lookupName(name, {
       fetch: fetchImpl,
       wikidata,
       gleif,
@@ -107,29 +116,51 @@ Deno.serve(async (req) => {
       referenceList: (n) => reference.get(cacheKey(n)),
       companiesHouseKey: chOk && country === "GB" ? env("COMPANIES_HOUSE_API_KEY") : void 0,
       ch,
+      seen: seenNow(cacheKey(name, country), name),
       llm: llmOk ? { apiKey: env("MISTRAL_API_KEY"), options: { model: env("LLM_MODEL") || AI_DEFAULTS.model, web: webMode }, webOk, webQueue, state: aiState, deadline: aiDeadline, onResult: (a) => ai.set(a.name, a) } : void 0
-    }).catch((e) => ({ query: name, status: "UNRESOLVED", trace: [{ step: "cache", status: "error", detail: `Lookup failed (${e.message}).` }], looked_up_at: (new Date()).toISOString() }))
+    }).catch((e) => ({ query: name, status: "UNRESOLVED", trace: [{ step: "cache", status: "error", detail: `Lookup failed (${e.message}).` }], looked_up_at: today }))
   );
   let fresh = results.filter((r) => r.trace[0]?.step !== "cache" || r.trace[0]?.status !== "found");
   let ttl = (r) => {
     let t = TTL[r.entry?.tier ?? "NONE"] ?? TTL.NONE, a = ai.get(r.query);
     // The AI's answers (15 Oct 2026): a year when checked with the web, or agreed by all five answers and confirmed by a
     // register; 3 days when a web check was wanted but couldn't be had (today's limit, the request's time, or a
-    // failure), so the check comes soon; otherwise ("not sure", "not a business", or no web check possible) 30 days, as
-    // long as the app waits before asking again about a name with no answer.
+    // failure), or (17 Oct 2026) waits for a later request, so the check comes soon; otherwise ("not sure", "not a
+    // business", or no web check possible) 30 days, as long as the app waits before asking again about a name with no
+    // answer. "A small local business" follows the same rules (a year once a web search found no owner either).
     if (a && webMode !== "off") t = a.checked && r.via === "llm" ? 365 * DAY : a.webMissed ? 3 * DAY : 30 * DAY;
     return t;
   };
-  let rows = fresh.filter((r) => !r.trace.some((s) => s.status === "error")).map((r) => ({
+  // Times are kept to the day (18 Oct 2026), so the names one request sends don't share an exact time; an expiry is
+  // rounded down, so no answer is kept longer than its time.
+  let failed = (r) => r.trace.some((s) => s.status === "error"), dayStart = new Date(Math.floor(now / DAY) * DAY).toISOString(), upTo = (t) => new Date(Math.floor(t / DAY) * DAY).toISOString();
+  // An answer still to get its full check (a web check wanted but not had yet, or a step that failed, so it isn't kept
+  // here) tells the app when to ask again (18 Oct 2026: phones kept such answers for good).
+  for (let r of fresh) if (failed(r) || (webMode !== "off" && ai.get(r.query)?.webMissed)) r.recheck_after = upTo(now + (failed(r) ? 3 * DAY : ttl(r))).slice(0, 10);
+  let rows = fresh.filter((r) => !failed(r)).map((r) => ({
     key: cacheKey(r.query, country),
     status: r.status,
     via: r.via ?? null,
     tier: r.entry?.tier ?? null,
     result: r,
-    updated_at: (new Date()).toISOString(),
-    expires_at: new Date(now + ttl(r)).toISOString()
+    // created_at too, as the table's default is the exact time (so it's the day an answer was last saved)
+    created_at: dayStart,
+    updated_at: dayStart,
+    expires_at: upTo(now + ttl(r))
   }));
-  rows.length && await db.from("kys_lookup_cache").upsert(rows, { onConflict: "key" });
+  if (rows.length) {
+    let { error } = await db.from("kys_lookup_cache").upsert(rows, { onConflict: "key" });
+    // One row the table refuses stops the whole batch being kept (17 Oct 2026: a status its check didn't allow yet), so
+    // say so in the function's logs.
+    if (error) console.error(`kys_lookup_cache: ${rows.length} answers not kept (${error.message})`);
+  }
+  // The count (above): one more for each name answered this time, except names the look-up decided aren't a business
+  // (they may be someone's name, which isn't kept for a year) and names the app sent again.
+  let counted = [...new Set(results.filter((r) => r.status !== "NOT_A_BUSINESS" && !failed(r) && !again.has(r.query)).map((r) => cacheKey(r.query, country)))];
+  if (counted.length) {
+    let { error } = await db.rpc("kys_count_names", { p_names: counted });
+    if (error) console.error(`kys_count_names: ${error.message}`);
+  }
   let llmCalls = aiState.calls, chCalls = ch?.calls ?? 0;
   await db.rpc("kys_bump_usage", { p_names: names.length, p_llm: llmCalls, p_ch: chCalls });
   for (let i = 0; i < webAsked; i++) await db.rpc("kys_count", { p_event: "lookup_web" });

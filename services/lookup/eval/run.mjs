@@ -45,6 +45,9 @@ export const SETUPS = {
   // web search, whose answer wins, unless all five agree and a register confirms the owner. Graded as run (asRun),
   // since the vote isn't the last word.
   live: { asRun: true },
+  // 17 Oct 2026: the first request for each name (the live look-up counts requests per name): no web search yet for a
+  // name the answers call a small local business or can't place. "live" is a later request: the full check.
+  "live-first": { asRun: true, seen: 1 },
   // The live setting until 14 Oct: the web search for every business.
   always: { asRun: true, web: "always" },
 };
@@ -101,6 +104,8 @@ export function grade(c, d) {
   if (truth[c.name]?.skip) return "skip";
   if (d.decision === "error") return "error";
   const ok = accepted(c);
+  // "local" (since 17 Oct 2026): the app counts it where it was paid, the bank's country (GB on the bench)
+  if (d.decision === "local") return !ok.length || ok.includes("GB") ? "right" : "wrong";
   if (!ok.length) return d.decision === "found" ? "wrong" : "right";
   if (d.decision !== "found") return "declined";
   return ok.includes(d.country) ? "right" : "wrong";
@@ -122,8 +127,10 @@ function report(name, saved) {
     const p = PRICE["mistral-large-4"], searches = avg((r) => r.usage.searches ?? 0);
     const cost = ((avg((r) => r.usage.in) * p[0] + avg((r) => r.usage.out) * p[1]) / 1e6 + searches * WEB_SEARCH_USD) * 1000;
     const ms = ok.map((r) => r.ms ?? 0).sort((a, b) => a - b), pct = (q) => ms[Math.min(ms.length - 1, Math.floor(q * ms.length))] / 1000;
-    console.log(`\n== ${name}  (the live defaults${setup.web ? `, web "${setup.web}"` : ""})`);
+    console.log(`\n== ${name}  (the live defaults${setup.web ? `, web "${setup.web}"` : ""}${setup.seen ? `, as request ${setup.seen} for each name` : ""})`);
     console.log(`   median ${pct(0.5).toFixed(1)} s, 90th percentile ${pct(0.9).toFixed(1)} s; ${avg((r) => r.usage.web ?? 0).toFixed(2)} web checks and ${searches.toFixed(2)} searches a name; ~$${cost.toFixed(0)} per 1,000 names`);
+    const locals = rows.filter((r) => r.decision === "local");
+    if (locals.length) console.log(`   ${locals.length} answered "a small local business": ${locals.map((r) => r.name).join(", ")}`);
   } else {
     const p = PRICE[setup.model];
     const cost = p ? ((avg((r) => r.usage.in) * p[0] + avg((r) => r.usage.out) * p[1]) / 1e6) * 1000 : NaN;
@@ -137,7 +144,7 @@ function report(name, saved) {
   } else {
     console.log(`   ${"as run".padEnd(21)} ${fmt(tally(rows))}`);
   }
-  for (const set of ["known-chains", "owned-brands", "not-a-business"]) {
+  for (const set of ["known-chains", "owned-brands", "not-a-business", "local-independents"]) {
     const rs = rows.filter((r) => r.set === set);
     const cfg = setup.samples > 1 && !setup.asRun ? { minAgree: 0.6, policy: setup.onConflict === "ask" ? "ask" : "decline", total: setup.samples } : null;
     console.log(`     ${set.padEnd(15)} ${fmt(tally(rs, cfg))}`);
@@ -161,7 +168,7 @@ if (!isMain) {
     const t0 = Date.now();
     const rows = [];
     for (let i = 0; i < todo.length; i += chunk) {
-      const j = await call({ action: "run", options: setup, cases: todo.slice(i, i + chunk), concurrency: conc, today: "2026-10-14" });
+      const j = await call({ action: "run", options: setup, seen: setup.seen, cases: todo.slice(i, i + chunk), concurrency: conc, today: "2026-10-14" });
       rows.push(...j.rows);
       process.stderr.write(`${name}: ${rows.length}/${todo.length}\r`);
     }

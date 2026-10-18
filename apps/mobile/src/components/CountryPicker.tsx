@@ -34,7 +34,7 @@ export function CountryPicker({ name, current, open, onPick, onClear, onClose }:
         <Pressable onPress={() => {}} style={{ alignSelf: "center", width: "100%", maxWidth: 560, maxHeight: "85%", backgroundColor: t.paper, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: insets.bottom + 16, gap: 12 }} testID="country-picker">
           <Text style={[serif, { fontSize: 22, fontWeight: "600", color: t.ink }]}>Which country is this?</Text>
           <P small muted>
-            Where is the company that owns <Text style={{ fontFamily: "monospace", color: t.ink }}>{name}</Text> run from? Your answer is used for every payment to it, and stays on this phone.
+            Where is the company that owns <Text style={{ fontFamily: "monospace", color: t.ink }}>{name}</Text> run from? Your answer is used for every payment to it, and kept with the rest of your data, which only you can read.
           </P>
           <TextInput
             value={q}

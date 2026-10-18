@@ -16,7 +16,7 @@ function mock({ chat, web }) {
   };
   return { f, calls };
 }
-const run = async (name, m, opts = {}, country) => aiEstimate(name, { fetch: m.f, apiKey: "x", wikidata: wd, gleif, today: "2026-10-14", country }, opts);
+const run = async (name, m, opts = {}, country, seen) => aiEstimate(name, { fetch: m.f, apiKey: "x", wikidata: wd, gleif, today: "2026-10-14", country, seen }, opts);
 // (a) register agrees → no web in "check" mode
 let m = mock({ chat: ans("Frasers Group", "GB"), web: ans("Someone", "US") });
 let r = await run("FLANNELS", m, { web: "check" });
@@ -154,3 +154,102 @@ ok(m.calls.web === 0 && r.checked === "register" && !r.webMissed, `k3: unanimous
 m = mock2({ chats: [[ans(null, null, "high", false), ans("Zzq Holdings", "GB"), ans("Zzq Holdings", "GB"), ans("Zzq Holdings", "GB"), ans("Zzq Holdings", "GB")]], web: ans("Someone", "GB") });
 r = await run("ROGER PLATT", m);
 ok(m.calls.web === 0 && r.decision === "found" && !r.webMissed, `k4: an answer says "not a business" → no web, not webMissed (${r.decision})`);
+
+// --- What kind of business (17 Oct): on the first request for a name, "local" answers aren't checked or searched, and
+// the web waits for a later request when the answers can't tell what kind of business it is
+const scaled = (o, c, scale, k = "high", b = true) => JSON.stringify({ ...JSON.parse(ans(o, c, k, b)), scale });
+const localish = [scaled(null, null, "local", "low"), scaled(null, null, "local", "low"), scaled(null, null, "local", "low"), scaled(null, null, "unknown", "low"), scaled(null, null, "chain", "low")];
+// (l1) first request, most answers say a small local business → "local": no register check, no web search, kept briefly
+m = mock2({ chats: [localish], web: ans("Someone", "GB") });
+r = await run("THE BEAN HOUSE", m, {}, undefined, 1);
+ok(r.decision === "local" && r.country === "GB" && m.calls.web === 0 && !r.registry && r.webMissed === true, `l1: local, first request → decision local, no web, kept briefly (${r.decision} ${r.country}, web calls ${m.calls.web}, webMissed=${r.webMissed})`);
+// (l1b) a later request: the web search runs, and finds no owner either → "local", checked (kept a year)
+m = mock2({ chats: [localish], web: scaled(null, null, "local", "low") });
+r = await run("THE BEAN HOUSE", m, {}, undefined, 2);
+ok(r.decision === "local" && r.country === "GB" && m.calls.web === 1 && r.checked === "web" && !r.webMissed, `l1b: local, later request → web finds no owner → local, checked (${r.decision}, web ${m.calls.web}, checked=${r.checked})`);
+// (l1c) a later request, and the web search finds a chain owned abroad → that owner
+m = mock2({ chats: [localish], web: scaled("Rexel", "FR", "chain") });
+r = await run("ZZQ ELECTRICAL", m, {}, undefined, 2);
+ok(r.decision === "found" && r.country === "FR" && r.resolved === "web", `l1c: local, later request → web finds a chain abroad (${r.decision} ${r.country})`);
+// (l1d) a later request; the answers named a UK owner nothing confirms, and the web search finds none → "local"
+m = mock2({ chats: [scaled("Zzq Garden Trust", "GB", "local", "medium")], web: scaled(null, null, "local", "low") });
+r = await run("ZZQ GARDENS", m, {}, undefined, 2);
+ok(r.decision === "local" && m.calls.web === 1, `l1d: unconfirmed UK owner, web finds none → local (${r.decision}, web ${m.calls.web})`);
+// (l1f) a later request, and the web search names an owner but still calls it a small local business → not used: local
+m = mock2({ chats: [localish], web: scaled("Zzq Leisure Group", "GB", "local", "medium") });
+r = await run("THE ZZQ SPOON BISTRO", m, {}, undefined, 2);
+ok(r.decision === "local" && m.calls.web === 1 && r.notes.some((n) => /not used/.test(n)), `l1f: web names an owner but says local → local (${r.decision} ${r.owner ?? ""})`);
+// (l1g) the answers couldn't tell what it is; the web search says local and names an owner → local too
+m = mock2({ chats: [scaled(null, null, "unknown", "low")], web: scaled("Zzq Leisure Group", "GB", "local", "medium") });
+r = await run("ZZQ SPOON", m, {}, undefined, 2);
+ok(r.decision === "local" && m.calls.web === 1, `l1g: unclear, web says local with an owner → local (${r.decision})`);
+// (l1e) no count (the counter didn't answer) → treated as a later request: the full check
+m = mock2({ chats: [localish], web: scaled(null, null, "local", "low") });
+r = await run("THE BEAN HOUSE", m);
+ok(r.decision === "local" && m.calls.web === 1, `l1e: no count → full check (${r.decision}, web ${m.calls.web})`);
+// (l2) local, but the answers agree on an owner abroad → not "local": the usual checks run
+m = mock2({ chats: [scaled("Zzq Investments", "QA", "local", "high")], web: ans("Zzq Investments", "QA") });
+r = await run("THE ZZQ HOTEL", m, {}, undefined, 1);
+ok(r.decision === "found" && r.country === "QA" && m.calls.web === 1, `l2: local but owned abroad → checked like any other (${r.decision} ${r.country}, web ${m.calls.web})`);
+// (l3) a bank in Spain: a local business there counts in Spain
+m = mock2({ chats: [scaled(null, null, "local", "low")], web: ans("x", "ES") });
+r = await run("TAVERNA SOFIA", m, {}, "ES", 1);
+ok(r.decision === "local" && r.country === "ES", `l3: local, Spanish bank → ES (${r.country})`);
+// (l4) the setting off (bench comparison) → the old behaviour
+m = mock2({ chats: [scaled(null, null, "local", "low")], web: ans(null, null, "low") });
+r = await run("THE BEAN HOUSE", m, { local: false });
+ok(r.decision !== "local" && m.calls.web === 1, `l4: local off → searched as before (${r.decision}, web ${m.calls.web})`);
+// --- After the review of 18 Oct ---------------------------------------------------------------------------------
+// (l5) first request; most answers say local, but two are sure it's a chain abroad → not "local" straight away: the
+// web search runs
+const splitLocal = [scaled(null, null, "local", "low"), scaled(null, null, "local", "low"), scaled(null, null, "local", "low"), scaled("Zzq Burger Corp", "US", "chain"), scaled("Zzq Burger Corp", "US", "chain")];
+m = mock2({ chats: [splitLocal], web: scaled("Zzq Burger Corp", "US", "chain") });
+r = await run("ZZQ BURGER", m, {}, undefined, 1);
+ok(r.decision === "found" && r.country === "US" && m.calls.web === 1, `l5: local, but sure answers abroad → web on the first request (${r.decision} ${r.country}, web ${m.calls.web})`);
+// (l5b) …and the web search finds a small local business with no owner → local, checked
+m = mock2({ chats: [splitLocal], web: scaled(null, null, "local", "low") });
+r = await run("ZZQ BURGER", m, {}, undefined, 1);
+ok(r.decision === "local" && m.calls.web === 1 && r.checked === "web", `l5b: …web finds it's local → local, checked (${r.decision}, checked=${r.checked})`);
+// (l6) the answers agree on a chain abroad, and the web search calls it a small local business → no answer, rather
+// than the answers' owner with no word of the web search
+m = mock2({ chats: [scaled("Zzq Burger Corp", "US", "chain")], web: scaled("Zzq Family Ltd", "GB", "local", "medium") });
+r = await run("ZZQ BURGER", m, {}, undefined, 2);
+ok(r.decision === "declined" && m.calls.web === 1 && /small local business/.test(r.reason ?? ""), `l6: owner abroad, web says local → declined (${r.decision}: ${r.reason})`);
+m = mock2({ chats: [scaled("Zzq Burger Corp", "US", "chain")], web: scaled("Zzq Family Ltd", "GB", "local", "medium") });
+r = await run("ZZQ BURGER", m, { web: "always" }, undefined, 2);
+ok(r.decision === "declined" && m.calls.web === 1, `l6b: the same with the web always on → declined (${r.decision})`);
+// (l6c) the answers' owner is in the UK and the web search says local → local (the country is the same)
+m = mock2({ chats: [scaled("Zzq Family Ltd", "GB", "chain", "medium")], web: scaled("Zzq Family Ltd", "GB", "local", "medium") });
+r = await run("ZZQ BURGER", m, {}, undefined, 2);
+ok(r.decision === "local" && r.country === "GB", `l6c: UK owner, web says local → local (${r.decision})`);
+// (l6d) the same with a web search that calls it local but names no owner it's sure of → no answer either
+m = mock2({ chats: [scaled("Zzq Burger Corp", "US", "chain")], web: scaled(null, null, "local", "low") });
+r = await run("ZZQ BURGER", m, {}, undefined, 2);
+ok(r.decision === "declined" && m.calls.web === 1, `l6d: owner abroad, web says local with no owner → declined (${r.decision})`);
+// (l7) most answers local but two sure it's a chain abroad, and no web search to settle it (today's limit) → not
+// counted as a local business: no answer, kept briefly so it's checked soon
+m = mock2({ chats: [splitLocal], web: scaled(null, null, "local", "low") });
+r = await aiEstimate("ZZQ BURGER", { fetch: m.f, apiKey: "x", wikidata: wd, gleif, today: "2026-10-18", seen: 2, webOk: () => false }, {});
+ok(r.decision === "declined" && r.webMissed === true && m.calls.web === 0, `l7: local but sure answers abroad, no web → declined, kept briefly (${r.decision}, webMissed=${r.webMissed})`);
+// (l7b) …and when one answer took it for a person (no web search at all) → no answer, not a local business
+const splitDoubt = [scaled(null, null, "local", "low"), scaled(null, null, "local", "low"), scaled(null, null, "local", "low"), scaled("Zzq Burger Corp", "US", "chain"), scaled(null, null, "unknown", "high", false)];
+m = mock2({ chats: [splitDoubt], web: scaled(null, null, "local", "low") });
+r = await run("ZZQ BURGER", m, {}, undefined, 1);
+ok(r.decision === "declined" && m.calls.web === 0, `l7b: local, one sure answer abroad, one "not a business" → declined (${r.decision})`);
+// (l8) a web search runs but isn't sure, so the answers' owner stands: the technique says the web search couldn't confirm it
+m = mock2({ chats: [[ans("Zzq Holdings", "IE"), ans("Zzq Holdings", "IE"), ans("Zzq Holdings", "IE"), ans("Zzq Holdings", "IE"), ans("Other", "GB")]], web: ans(null, null, "low") });
+r = await run("ZZQ SHOP", m, {}, undefined, 2);
+ok(r.decision === "found" && m.calls.web === 1 && /a web search couldn't confirm it/.test(r.technique) && !/checked with a web search/.test(r.technique), `l8: web not sure → the vote, and says so (${r.technique})`);
+// (m1) the answers can't tell what kind of business it is, and it's the first request for the name → no web yet
+m = mock2({ chats: [scaled("Zzq Made Up Holdings", "GB", "unknown")], web: ans("Frasers Group", "GB") });
+r = await aiEstimate("SOME SHOP", { fetch: m.f, apiKey: "x", wikidata: wd, gleif, today: "2026-10-17", seen: 1 }, {});
+ok(m.calls.web === 0 && r.webMissed === true && r.notes.some((n) => /first request/.test(n)), `m1: unknown kind, first request → web waits, kept briefly (webMissed=${r.webMissed})`);
+// (m2) …asked about again → the web search runs
+m = mock2({ chats: [scaled("Zzq Made Up Holdings", "GB", "unknown")], web: ans("Frasers Group", "GB") });
+r = await aiEstimate("SOME SHOP", { fetch: m.f, apiKey: "x", wikidata: wd, gleif, today: "2026-10-17", seen: 2 }, {});
+ok(m.calls.web === 1 && r.resolved === "web", `m2: second request → web (${r.owner} ${r.country})`);
+// (m3) a chain, first request → the web search runs (only "unknown" waits)
+m = mock2({ chats: [scaled("Zzq Made Up Holdings", "GB", "chain")], web: ans("Frasers Group", "GB") });
+r = await aiEstimate("SOME SHOP", { fetch: m.f, apiKey: "x", wikidata: wd, gleif, today: "2026-10-17", seen: 1 }, {});
+ok(m.calls.web === 1, `m3: chain, first request → web (${r.country})`);
+ok(systemPrompt("2026-10-17").includes('"local": a single independent shop') && systemPrompt("2026-10-17").includes('"scale":"local"'), "prompt explains scale, with an example");

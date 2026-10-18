@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { router } from "expo-router";
 import { allEntries, checkedEntries } from "@/lib/ownership";
 import { BackLink, Card, H1, H2, LinkText, P, Page } from "@/components/ui";
-import { reportMistake } from "@/lib/links";
+import { METHOD_URL, openUrl, reportMistake } from "@/lib/links";
 import { useOwnershipVersion } from "@/lib/brand-data";
 
 const TIERS: [string, string, string][] = [
@@ -22,6 +22,7 @@ export default function Method() {
       <BackLink onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))} />
       <H1>How we work out who owns what</H1>
       <P muted>For each shop or brand we trace a chain — brand, the company that runs it in the UK, and the company at the top — and record the country the top company is run from. That country is what your pie chart shows.</P>
+      <P muted>Tap any shop in a report to see why it counts where it does: what your bank wrote, how we recognised it, who owns it and how we know.</P>
       <View>
         <H2>How sure we are</H2>
         <View style={{ gap: 8 }}>
@@ -37,9 +38,9 @@ export default function Method() {
       </View>
       <View style={{ gap: 6 }}>
         <H2>Where our list comes from</H2>
-        <P muted>• {checkedEntries.length} shops and brands researched one by one against company registers (Wikidata, GLEIF) and recent takeover news.</P>
+        <P muted>• {checkedEntries.length} shops and brands researched one by one, with an AI's help, against company registers (Wikidata, GLEIF) and recent takeover news. A person hasn't checked them yet.</P>
         <P muted>• {total - checkedEntries.length} more from OpenStreetMap's brand list, linked to Wikidata, with owners found by following Wikidata's “owned by” records. UK chains were then re-checked for takeovers the records missed; those answers are marked Unverified.</P>
-        <P muted>• Shops in neither list can be looked up online by name (Wikidata, GLEIF, Companies House and an AI estimate, in that order) — see Settings.</P>
+        <P muted>• Shops in neither list can be looked up online by name (our own list, Wikidata and GLEIF, Companies House, then an AI, which also checks register answers that may be out of date) — see Settings.</P>
         <P small muted={3}>Brand data © OpenStreetMap contributors (name-suggestion-index, BSD-3-Clause) and Wikidata (CC0). Place names from GeoNames (CC BY 4.0).</P>
       </View>
       <View style={{ gap: 6 }}>
@@ -47,9 +48,11 @@ export default function Method() {
         <P muted>• Franchises: we show the brand owner, and the UK company that runs it as a separate step.</P>
         <P muted>• Private-equity owners count as the owner. Joint ventures are marked as shared.</P>
         <P muted>• Where a company is run from and where it's legally registered can differ. The main chart uses where it's run from.</P>
-        <P muted>• Payment services in front of a shop (PayPal, Square, SumUp) are looked through to the shop itself.</P>
+        <P muted>• Payment services in front of a shop (PayPal, Klarna, Clearpay, Square, SumUp) are looked through to the shop itself. Marketplaces (Amazon Marketplace, eBay, Deliveroo) count as themselves, as the seller isn't on your statement.</P>
+        <P muted>• Small local businesses — paid with a card reader small businesses use (“SQ *”, “SUMUP *”, “ZETTLE_*”), named like one (CAFE, BAKERY, BARBER…), or found to be local by our look-up — are counted where you paid them, marked “Local independent”. Names spotted by the card reader or the name aren't sent to the look-up.</P>
         <P muted>• Shops we can't link to an owner are counted under the country you paid them in, and marked “Estimated”. An unlisted café in Lewisham is almost always owned in the UK; an unlisted taverna in Málaga, in Spain. We read the country from the country code, town or web address your bank prints, and otherwise take it as paid at home. You can switch this off, or set any shop's country yourself.</P>
       </View>
+      <LinkText onPress={() => openUrl(METHOD_URL)} testID="method-full">The full method, and how accurate it is ↗</LinkText>
       <P small muted={3}>
         Estimates based on published ownership data; may contain errors.{" "}
         <LinkText onPress={() => reportMistake()} testID="method-report-mistake">Report a mistake</LinkText>. Brand names are used for identification only; no affiliation or endorsement.
