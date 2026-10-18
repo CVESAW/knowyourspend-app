@@ -92,13 +92,18 @@ try {
   await tid("empty-home").waitFor();
   step("website's sample-statement link opens the demo");
 
-  // CSV statement
+  // CSV statement: no bank to choose first; the bank is read from the file (18 Oct 2026), and the download help is optional
   await tid("add-button").click();
   await tid("choose-statement").click();
+  await tid("statement-help").click();
   await tid("bank-monzo").click();
+  await tid("guide-monzo").waitFor();
+  step("statement help shows a bank's download steps");
   let [fc] = await Promise.all([page.waitForEvent("filechooser"), tid("choose-file").click()]);
   await fc.setFiles(join(repo, "packages/statement/test/fixtures/monzo.csv"));
   await tid("statement-check").waitFor();
+  const detected = (await tid("statement-bank").textContent()) ?? "";
+  if (!detected.startsWith("Monzo")) throw new Error(`bank not read from the file: "${detected}"`);
   const willLookUp = await tid("lookup-toggle").isVisible();
   await tid("confirm-statement").click();
   await tid("report-summary").waitFor();
@@ -108,7 +113,7 @@ try {
     const keys = Object.keys(b).join();
     if ((keys !== "merchants" && keys !== "merchants,again") || !b.merchants.every((n) => typeof n === "string" && !/\d+\.\d{2}/.test(n)) || (b.again ?? []).some((n) => !b.merchants.includes(n))) throw new Error(`lookup body carried more than names: ${JSON.stringify(b)}`);
   }
-  step(`CSV statement → report (${willLookUp ? `looked up ${lookupBodies[0].merchants.length} unknown shop names, names only` : "every shop recognised, nothing sent"})`);
+  step(`CSV statement, bank read from the file → report (${willLookUp ? `looked up ${lookupBodies[0].merchants.length} unknown shop names, names only` : "every shop recognised, nothing sent"})`);
   // Tap a shop: "Why this country?" explains the answer, and the country can be set by hand from there
   const shopRow = page.locator('[data-testid^="shop-"]').filter({ visible: true }).first();
   await shopRow.click();
@@ -142,9 +147,10 @@ try {
   [fc] = await Promise.all([page.waitForEvent("filechooser"), tid("choose-file").click()]);
   await fc.setFiles(join(repo, "packages/core/test/fixtures/revolut-2026.pdf"));
   await tid("statement-check").waitFor({ timeout: 30000 });
+  if (!((await tid("statement-bank").textContent()) ?? "").startsWith("Revolut")) throw new Error("PDF statement: bank not read from the file");
   await tid("confirm-statement").click();
   await tid("report-summary").waitFor();
-  step("PDF statement → report");
+  step("PDF statement, bank read from the file → report");
 
   // receipt photo (on-device OCR)
   await page.goto(`${BASE}/add-receipt`);

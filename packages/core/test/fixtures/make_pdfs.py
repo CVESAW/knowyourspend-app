@@ -1,4 +1,4 @@
-"""Mock bank-statement PDFs (made-up people and numbers) in three common UK layouts, with truth.json."""
+"""Mock bank-statement PDFs (made-up people, shops and numbers) in common UK layouts, with truth.json."""
 import json, random
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
@@ -164,6 +164,116 @@ def revolut2(path):
     c.save()
     return n, round(out, 2), round(inn, 2)
 
+# ── first direct (HSBC) statement: a type-code column, each payment over several lines with the amount on the
+#    last one, card payments abroad with "INT'L <ref>" / town / "THB 250.00" / "@ 45.1020MAS Rate" lines, cash
+#    abroad as "CASH <ref>", "Balance brought forw ard" (split by the PDF), balances only at the end of a day ──────
+def firstdirect(path):
+    c = canvas.Canvas(path, pagesize=A4)
+    def money2(x): return f"{x:,.2f}"
+    # (date or None, code, [description lines], out, in): made-up shops and people
+    pages = [[
+        ("10 Jul 26", "MAS", ["TESCO STORES 3456", "LONDON"], 23.45, None),
+        (None, ")))", ["COSTA COFFEE 43012", "LONDON"], 3.10, None),
+        ("11 Jul 26", "DD", ["OCTOPUS ENERGY", "A1B2C3D4"], 85.00, None),
+        (None, "CR", ["ACME LTD SALARY"], None, 1850.00),
+        (None, "MAS", ["MONZO* ME A FRIEND", "LONDON"], 12.00, None),  # "Monzo" on page 1 of a first direct statement
+        ("12 Jul 26", "MAS", ["INT'L 0012345678", "WWW.EXAMPLETAXI.COM", "BANGKOK", "THB 250.00", "@ 45.1020MAS Rate"], 5.54, None),
+        (None, "MAS", ["INT'L 0012345679", "NOODLE CORNER", "BANGKOK", "THB 80.00 @ 44.8000", "MAS Rate"], 1.79, None),
+        (None, "MAS", ["CASH 0012345680", "EXAMPLE BANK", "BANGKOK", "THB 2000.00", "@ 44.9500MAS Rate"], 44.49, None),
+    ], [
+        # no date on the first payment of a page: it's the last date on the page before
+        (None, ")))", ["INT'L 0012345681", "CAFE EXEMPLO", "MADRID", "EUR 6.50 @ 1.1700", "MAS Rate"], 5.56, None),
+        (None, "BP", ["J Smith", "dinner"], 25.00, None),
+        ("14 Jul 26", "MAS", ["Hotelnet HOTELNET 55", "HOTELNET.CO.UK"], 300.00, None),
+        (None, "MAS", ["EXAMPLE OUTDOORS", "PENZANCE"], None, 50.00),
+        (None, "VIS", ["AMAZON.CO.UK*AB12CD34E", "AMAZON.CO.UK"], 15.99, None),
+        ("15 Jul 26", "OBP", ["EXAMPLE COUNCIL", "COUNCIL TAX"], 120.00, None),
+        (None, ")))", ["PRET A MANGER", "LONDON"], 4.50, None),
+    ]]
+    bal = 1200.00; n = 0; out = inn = 0.0
+    for pi, rs in enumerate(pages):
+        c.setFont("Helvetica", 8)
+        c.drawString(423, 775.6, "firstdirect.com"); c.drawString(423, 761.2, "0300 000 0000")
+        if pi == 0:
+            c.drawString(77, 679.3, "Mx Alex Example"); c.drawString(77, 668.5, "1 Example Road"); c.drawString(77, 657.7, "London")
+            c.drawString(376, 648.7, "AccountSummary"); c.drawString(77, 636.1, "SE10 0AA")
+            c.drawString(376, 636.1, "Opening Balance"); c.drawString(526, 636.1, "£"); c.drawString(531, 636.1, money2(1200.00))
+            c.drawString(68, 505.9, "1 July to 31 July 2026")
+            y = 415.9
+        else:
+            # the period and account lines come again above the table on later pages
+            c.drawString(68, 688.6, "1 July to 31 July 2026")
+            c.drawString(68, 658.9, "Account Name"); c.drawString(384, 658.9, "Sortcode"); c.drawString(431, 658.9, "Account Number"); c.drawString(512, 658.9, "Sheet Number")
+            c.drawString(68, 646.9, "Mx Alex Example"); c.drawString(384, 646.9, "40-00-00"); c.drawString(431, 646.9, "12345678"); c.drawString(512, 646.9, "12")
+            y = 593.5
+        c.drawString(68, y + 12, "Your 1st Account details")
+        c.drawString(68, y, "Date"); c.drawString(131, y, "Paym ent t ype and det ails"); c.drawString(365, y, "£ Paid out"); c.drawString(453, y, "£ Paid in"); c.drawString(528, y, "£ Balance")
+        y -= 19.5
+        if pi == 0:
+            c.drawString(69, y, "09 Jul 26"); c.drawString(156, y, "Balance brought forw ard"); c.drawString(331, y, "."); c.drawRightString(572, y, money2(bal))
+        else:
+            c.drawString(155, y, "Balance brought forward"); c.drawRightString(572, y, money2(bal))
+        y -= 11.4
+        for i, (date, code, lines, o, m) in enumerate(rs):
+            bal = round(bal - (o or 0) + (m or 0), 2)
+            last_of_day = i + 1 == len(rs) or rs[i + 1][0] is not None
+            for j, text in enumerate(lines):
+                if j == 0:
+                    if date: c.drawString(68, y, date)
+                    c.drawString(128, y, code)
+                c.drawString(155, y, text)
+                if j == len(lines) - 1:
+                    if o: c.drawRightString(410, y, money2(o))
+                    if m: c.drawRightString(492, y, money2(m))
+                    if last_of_day: c.drawRightString(572, y, money2(bal))
+                y -= 11.4
+            n += 1; out += o or 0; inn += m or 0
+        c.drawString(155, y - 1.5, "Balance carried forward"); c.drawRightString(572, y - 1.5, money2(bal))
+        c.setFont("Helvetica", 7); c.drawString(411, 14.5, "first direct is a division of HSBC UK Bank plc")
+        c.showPage()
+    c.save()
+    return n, round(out, 2), round(inn, 2)
+
+# ── Revolut statement with a section per currency (EUR, GBP, USD), each starting "Account statement … Currency EUR":
+#    only the GBP rows are spending in pounds; card payments charged in dollars carry an FX line ───────────────────
+def revolut_multicurrency(path):
+    c = canvas.Canvas(path, pagesize=A4)
+    syms = {"GBP": "£", "EUR": "€", "USD": "$"}
+    def amt(ccy, x): return syms[ccy] + f"{x:,.2f}".replace(",", " ")
+    sections = [
+        ("EUR", [("MOA", "Exchanged to EUR", None, None, 50.00), ("CAR", "Cafe Exemplo", None, 4.20, None)]),
+        ("GBP", [("CAR", "Tesco", None, 23.45, None), ("CAR", "Sp Example Games", "FX", 120.00, None),
+                 ("MOS", "To A Friend", None, 25.00, None), ("CAR", "Pret A Manger", None, 4.50, None),
+                 ("MOR", "Payment from Acme Ltd", None, None, 1850.00), ("CAR", "Example Comics Llc", "FX", 60.00, None)]),
+        ("USD", [("CAR", "Example Diner", None, 18.00, None)]),
+    ]
+    rows = {}
+    for ccy, rs in sections:
+        c.setFont("Helvetica-Bold", 18); c.drawString(360, 767, "Account statement")
+        c.setFont("Helvetica", 8); c.drawString(42, 700, "London"); c.drawString(360, 700, "Currency"); c.drawString(470, 700, ccy)
+        c.setFont("Helvetica-Bold", 11); c.drawString(42, 507, "Balance summary")
+        c.setFont("Helvetica-Bold", 12); c.drawString(42, 347, "Transactions from 1 June 2026 to 29 June 2026")
+        y = 324
+        c.setFont("Helvetica-Bold", 8)
+        c.drawString(43.5, y, "Date (UTC)"); c.drawString(172.8, y, "Description"); c.drawString(360, y, "Money out"); c.drawString(443.5, y, "Money in"); c.drawString(526, y, "Balance")
+        y -= 22; bal = 500.0; n = 0; out = inn = 0.0
+        for i, (code, desc, detail, o, m) in enumerate(rs):
+            bal = round(bal - (o or 0) + (m or 0), 2)
+            c.setFont("Helvetica", 7.5)
+            c.drawString(43.5, y, f"{10 + i} Jun 2026"); c.drawString(121, y, code); c.drawString(172.8, y, desc)
+            if o: c.drawRightString(402.6, y, amt(ccy, o))
+            if m: c.drawRightString(480.2, y, amt(ccy, m))
+            c.drawRightString(557.7, y, amt(ccy, bal))
+            if detail == "FX":
+                c.setFont("Helvetica", 6); c.drawString(172.8, y - 10.7, "FX Rate GBP 1 = USD 1.342888"); c.drawRightString(402.6, y - 10.7, "$" + f"{(o * 1.34):,.2f}".replace(",", " "))
+            n += 1; out += o or 0; inn += m or 0
+            y -= 33
+        rows[ccy] = {"rows": n, "out": round(out, 2), "in": round(inn, 2)}
+        c.setFont("Helvetica", 6); c.drawString(36, 14.9, "\u00a9 2026 Revolut Ltd")
+        c.showPage()
+    c.save()
+    return rows
+
 for name, fn in [("revolut", revolut), ("monzo", monzo), ("barclays", barclays)]:
     random.seed(3)
     rs = fn(f"{name}.pdf")
@@ -172,5 +282,10 @@ for name, fn in [("revolut", revolut), ("monzo", monzo), ("barclays", barclays)]
                    "first": rs[0]["name"], "closing": rs[-1]["bal"]}
 n, o, i = revolut2("revolut-2026.pdf")
 truth["revolut-2026"] = {"rows": n, "out": o, "in": i}
+n, o, i = firstdirect("firstdirect.pdf")
+truth["firstdirect"] = {"rows": n, "out": o, "in": i}
+by = revolut_multicurrency("revolut-multicurrency.pdf")
+truth["revolut-multicurrency"] = {"rows": sum(v["rows"] for v in by.values()), "out": round(sum(v["out"] for v in by.values()), 2),
+                                  "in": round(sum(v["in"] for v in by.values()), 2), "byCurrency": by}
 json.dump(truth, open("truth.json", "w"), indent=1)
 print(truth)

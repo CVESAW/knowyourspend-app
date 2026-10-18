@@ -25,7 +25,7 @@ export type TypeHint = "card" | "refund" | "dd" | "bill" | "transfer" | "income"
 export interface TypeCodeInfo {
   meaning: string;
   hint: TypeHint;
-  source: "LBG" | "MSE" | "MoneySorted" | "Revolut PDF" | "unconfirmed";
+  source: "LBG" | "MSE" | "MoneySorted" | "Revolut PDF" | "first direct PDF" | "unconfirmed";
 }
 
 /**
@@ -117,6 +117,9 @@ export const UK_TYPE_CODES: Readonly<Record<string, TypeCodeInfo>> = {
   "C/L": { meaning: "Cashline (NatWest/RBS ATM)", hint: "cash", source: "unconfirmed" },
   DPC: { meaning: "Digital Banking Payment (NatWest)", hint: "transfer", source: "unconfirmed" },
   ")))": { meaning: "Contactless (HSBC)", hint: "card", source: "unconfirmed" },
+  // first direct / HSBC PDF statements (18 Oct 2026): Mastercard debit card payments, including abroad
+  MAS: { meaning: "Mastercard debit card (first direct, HSBC)", hint: "card", source: "first direct PDF" },
+  OBP: { meaning: "Online bill payment (HSBC)", hint: "bill", source: "unconfirmed" },
   // Revolut PDF statements (the code column; legend printed at the end of the statement)
   CAR: { meaning: "Card payment (Revolut)", hint: "card", source: "Revolut PDF" },
   MOS: { meaning: "Money sent (Revolut)", hint: "transfer", source: "Revolut PDF" },
@@ -168,6 +171,23 @@ const DESCRIPTION_PREFIX_RULES: ReadonlyArray<[RegExp, TypeHint]> = [
 // Money moving between the user's own accounts / e-money wallets / card repayments.
 const INTERNAL_TEXT =
   /\bPOTS?\b|TO SAVINGS|FROM SAVINGS|SAVINGS (?:POT|ACCOUNT|SPACE)|\bTOP[- ]?UP\b|\bTOPUP\b|\bEXCHANGED?\s+(?:TO|FROM)\b|\bCONVERTED\b|PAYMENT RECEIVED|THANK YOU|OWN ACCOUNT|\bADD TO BAL(?:ANCE)?\b/;
+// Since 18 Oct 2026, also moving money to yourself: a savings account ("MONTHLY SAVER"; not by card, where "EASY SAVER"
+// can be a shop), and an investment platform people pay into their own accounts with, when its name is all the payee
+// says apart from finance words and references ("VANGUARD ISA", "Trading212"; not "VANGUARD SELF STORAGE" or
+// "NUTMEG INDIAN RESTAURANT").
+const SAVINGS_ACCOUNT = /\b(?:MONTHLY|REGULAR|EASY|ONLINE|LOYALTY|CHILDRENS?) SAVER\b/;
+const PLATFORM =
+  /^(?:TO |FROM )?(?:TRADING ?212|VANGUARD|FREETRADE|NUTMEG|MONEYBOX|HARGREAVES LANSDOWN|AJ BELL|INTERACTIVE INVESTOR|ETORO|INVESTENGINE|MONEYFARM|WEALTHIFY)\b(.*)$/;
+const FINANCE_WORDS =
+  /\b(?:LTD|LIMITED|PLC|UK|EUROPE|ISA|SIPP|GIA|LISA|JISA|\w*INVEST\w*|ASSETS?|MANAGEMENT|MGMT|SECURITIES|NOMINEES?|MARKETS|CFD|PERSONAL|PENSIONS?|WEALTH|MONEY|ACCOUNT|ACC|TOP ?UP|DEPOSIT|PAYMENT|TRANSFER|SAVINGS?|STOCKS|SHARES|AND)\b|&/g;
+/**
+ * The payee is an investment platform on its own: money to your own account there. Judged on the name as normalised
+ * (bank prefixes, codes, dates, towns and references gone), so "VANGUARD ISA DDR" and "CARD PAYMENT TO FREETRADE,…" count.
+ */
+export function ownMoneyPlatform(payee: string): boolean {
+  const m = PLATFORM.exec(normalisePayee(payee));
+  return !!m && !/[A-Z]{2,}/.test(m[1]!.replace(FINANCE_WORDS, " ").replace(/\b[A-Z]*\d[A-Z0-9]*\b/g, " "));
+}
 const CARD_REPAYMENT = /\b(?:CREDIT CARD|BARCLAYCARD|AMERICAN EXPRESS|AMEX|MBNA|CAPITAL ONE|VANQUIS|AQUA CARD)\b/;
 // Money moved into the user's own wallets (a bank transfer to PayPal funds their PayPal balance; card payments via PayPal still count as spend)
 const OWN_WALLET = /^(?:REVOLUT|MONZO|TRANSFERWISE|WISE|CURVE|PAYPAL)\b/;
@@ -178,6 +198,9 @@ const REFUND_TEXT = /\bREFUND\b|\bREVERSAL\b|\bREFD\b/;
 // Descriptor text that means "payment to a person/account" whatever the type column says.
 const TRANSFER_TEXT = /FASTER PAYMENTS?|\bFPO\b|\bTFR\b|TRANSFER TO|BANK TRANSFER|MOBILE PAYMENT|SENT MONEY TO|MONZO-TO-MONZO/;
 const CARD_MARKERS = /\)\)\)|\*|\.COM\b|\.CO\.UK\b|\bWWW\.|\s\d{3,}\b|\b(?:GB|GBR|UK|IRL|USA|LUX)$/;
+// A card payment through someone's payment link goes to that person, not to a shop: "MONZO* ME A FRIEND" is a
+// monzo.me link (18 Oct 2026; it was counted as spending at Monzo).
+const PERSON_LINK = /^MONZO\s?\*\s?ME\b|\bMONZO\.ME\b/;
 
 /**
  * Words that mark an organisation. A Faster Payment / transfer / standing order payee containing
@@ -228,6 +251,24 @@ export function looksLikePerson(raw: string): boolean {
   return tokens.some((t) => t.length >= 2);
 }
 
+/**
+ * A bill payment or transfer sent from the bank (BP, SO, Faster Payment…) to a one-word payee with nothing that marks a
+ * business, like "PIPPA": it's counted as spending, but it may be a person, so it's held back from the online look-up
+ * like a sensitive name (18 Oct 2026). Card payments and Direct Debits are businesses.
+ */
+export function mayBePerson(row: ClassifyInput): boolean {
+  const payee = (row.rawPayee ?? "").toUpperCase().replace(/\s+/g, " ").trim();
+  const desc = (row.rawDescription ?? "").toUpperCase().replace(/\s+/g, " ").trim();
+  let hint = typeHint(row.typeLabel);
+  if (!hint || hint === "other") hint = DESCRIPTION_PREFIX_RULES.find(([re]) => re.test(desc || payee))?.[1] ?? hint;
+  if (hint !== "bill" && hint !== "transfer" && hint !== "income") return false;
+  // judged only on the name as the look-up would get it: "PIPPA 1234", "PIPPA 12/08/26", "MRS. PIPPA" and
+  // "PIPPA REF: RENT/JULY" are all PIPPA. A name run into digits ("SHOP24") keeps them, which marks a business.
+  const name = normalisePayee(payee).replace(/^(?:TO|FROM)\s+/, "").replace(HONORIFICS, "");
+  if (!/^[A-Z][A-Z'-]{1,24}$/.test(name)) return false;
+  return !ORG_WORDS.test(name) && !BRAND_RE.test(name);
+}
+
 function hasOrgMarker(s: string): boolean {
   return ORG_WORDS.test(s) || BRAND_RE.test(s);
 }
@@ -252,6 +293,7 @@ export function classify(row: ClassifyInput): TransactionKind {
 
   // Own-money movements first, for both signs (pots, savings, top-ups, conversions, card repayments).
   if (hint === "internal" || INTERNAL_TEXT.test(text) || category === "SAVINGS") return "internal";
+  if (ownMoneyPlatform(payee) || (hint && hint !== "card" && hint !== "refund" && SAVINGS_ACCOUNT.test(text))) return "internal";
 
   if (amount > 0) {
     if (hint === "refund" || hint === "card" || REFUND_TEXT.test(text)) return "refund";
@@ -264,6 +306,7 @@ export function classify(row: ClassifyInput): TransactionKind {
   if (hint === "cash" || category === "CASH" || (hint !== "dd" && CASH_TEXT.test(text))) return "cash";
   if (hint === "fee" || FEE_TEXT.test(text)) return "fee";
   if ((hint === "dd" || hint === "transfer" || hint === "bill") && CARD_REPAYMENT.test(payee)) return "internal";
+  if (PERSON_LINK.test(payee)) return "transfer";
   if (hint !== "card" && hint !== "dd" && OWN_WALLET.test(payee)) return "internal";
 
   switch (hint) {

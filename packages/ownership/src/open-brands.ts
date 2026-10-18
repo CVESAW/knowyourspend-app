@@ -98,9 +98,12 @@ export function expandOpenBrand(r: OpenBrandRecord, asOf: string): OwnershipEntr
 export interface OpenBrandCorrection {
   qid: string;
   name: string;
-  action: "fix" | "drop";
+  /** fix: new owner; drop: leave the brand out; narrow (18 Oct 2026): keep only `aliases`, when a short name belongs to
+   *  other businesses too ("PUMA" was Puma Energy's as well as the sportswear brand's) */
+  action: "fix" | "drop" | "narrow";
   owner?: string;
   owner_country?: string;
+  aliases?: string[];
   reason: string;
 }
 export interface OpenBrandCorrectionsFile {
@@ -139,10 +142,13 @@ export function openBrandEntries(file: OpenBrandsFile, handChecked: OwnershipEnt
     for (const a of e.aliases) aliases.add(normalise(a));
   }
   const out: OwnershipEntry[] = [];
-  for (const r of file.brands) {
+  for (const brand of file.brands) {
+    const c = fix.get(brand.qid);
+    const keep = c?.action === "narrow" ? new Set(c.aliases ?? []) : null;
+    const r = keep ? { ...brand, aliases: brand.aliases.filter((a) => keep.has(a)), strict: brand.strict?.filter((a) => keep.has(a)) } : brand;
+    if (!r.aliases.length) continue;
     if (qids.has(r.qid)) continue;
     if (r.aliases.some((a) => aliases.has(normalise(a)))) continue;
-    const c = fix.get(r.qid);
     if (c?.action === "drop") continue;
     const e = expandOpenBrand(r, file.generated);
     out.push(c?.action === "fix" && c.owner && c.owner_country ? applyCorrection(e, c, corrections!.reviewed) : e);

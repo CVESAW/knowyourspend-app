@@ -65,4 +65,34 @@ describe("matching v2", () => {
     const strict = createResolver(checkedEntries, { fuzzy: false });
     expect(strict.resolve("WAITROSSE 812").entry).toBeUndefined();
   });
+  it("drops generated brands that matched the wrong business on real statements (18 Oct 2026)", () => {
+    // PUMA is the sportswear brand, not Puma Energy (no UK fuel stations), which won the tie by name before
+    expect(r.resolve("PUMA 1234 LONDON").entry?.display_name).toBe("Puma");
+    expect(r.resolve("PUMA 1234 LONDON").entry?.owner_country).toBe("DE");
+    // METRO, CASA and EL RINCON start the names of railways, restaurants and bars more often than these chains
+    expect(r.resolve("METRO DE LISBOA", { country: "PT" }).entry).toBeUndefined();
+    // …but their full names still match where they trade
+    expect(r.resolve("PUMA ENERGY 1234", { country: "ZA" }).entry?.display_name).toBe("Puma Energy");
+    expect(r.resolve("METRO CASH & CARRY", { country: "DE" }).entry?.display_name).toBe("Metro Cash & Carry");
+    expect(r.resolve("CASA LUCIA", { country: "ES" }).entry).toBeUndefined();
+    expect(r.resolve("EL RINCON DE PEPE", { country: "ES" }).entry).toBeUndefined();
+    expect(openBrands.some((e) => e.display_name === "Casa")).toBe(false);
+  });
+  it("after a word like RESTAURANTE the rest is the place's own name, not a chain (18 Oct 2026)", () => {
+    expect(r.resolve("RESTAURANTE ICELAND", { country: "ES" }).entry).toBeUndefined();
+    expect(r.resolve("TRATTORIA DA TESCO").entry).toBeUndefined();
+    expect(r.resolve("ARGOS LTD").entry?.id).toBe("argos");
+    // not after CAFE or HOTEL, which chains print before their own names
+    expect(r.resolve("HOTEL IBIS LONDON").entry).toBeDefined();
+    // and a chain that is itself a restaurant, café or bar still matches
+    expect(r.resolve("PIZZERIA TELEPIZZA", { country: "ES" }).entry?.display_name).toBe("Telepizza");
+    expect(r.resolve("RESTAURANTE FOSTERS HOLLYWOOD", { country: "ES" }).entry?.display_name).toBe("Foster's Hollywood");
+    expect(r.resolve("RESTAURANT MCDONALDS").entry?.display_name).toBe("McDonald's");
+    // …unless its name is an everyday phrase: this is a restaurant called La Romana, not the ice-cream chain
+    expect(r.resolve("RESTAURANTE LA ROMANA", { country: "ES" }).entry).toBeUndefined();
+  });
+  it("reads FACEBK as Facebook (Meta)", () => {
+    expect(r.resolve("FACEBK").entry?.owner_country).toBe("US");
+    expect(r.resolve("FACEBK").entry?.display_name).toMatch(/Meta|Facebook/);
+  });
 });

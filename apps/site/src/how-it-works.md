@@ -40,7 +40,7 @@ To avoid false matches, a brand whose name is an everyday word only matches at t
 Where the list comes from:
 
 - **{{HAND}} shops, services and grocery brands researched one at a time, with an AI's help.** Where Wikidata (an open database of companies) and the Global LEI register agree on the top company, that's the answer. Where they disagree or are out of date, often after a takeover, the answer rests on published reports, cited in the app where we have one.
-- **About {{OPEN}} more brands from OpenStreetMap's list of shop brands**, each linked to Wikidata, with owners from Wikidata's records. An AI review re-checked the UK and Irish ones for takeovers Wikidata had missed: it corrected {{FIXES}} owners, and dropped {{DROPS}} brands that have closed, no longer trade here, or aren't businesses people pay.
+- **About {{OPEN}} more brands from OpenStreetMap's list of shop brands**, each linked to Wikidata, with owners from Wikidata's records. An AI review re-checked the UK and Irish ones for takeovers Wikidata had missed: it corrected {{FIXES}} owners, and dropped {{DROPS}} brands that have closed, no longer trade here, or aren't businesses people pay. For {{NARROWED}} more, a short name that other businesses use too (PUMA, METRO) no longer counts, only their full names.
 
 None of the list has been checked by a person yet. We'll start with the brands people pay most.
 
@@ -54,7 +54,7 @@ We spot them in three ways:
 2. **A word that usually means one local business:** CAFE, DELI, BAKERY, BUTCHER, BARBER, FISH BAR, KEBAB, FLORIST, NEWSAGENT, OFF LICENCE or TAKEAWAY, in a name that isn't a chain we know. We leave out words chains use in their names, like COFFEE, PIZZA and EXPRESS.
 3. **Our online look-up says so:** its AI step found a small local business rather than a chain, and named no owner (see below).
 
-Names spotted the first two ways are never sent to our look-up. Where you paid is read from the country code, country name, town or web address your bank prints, and is otherwise your home country, which you can change in Settings → Shops we don't know. If one of these is really part of a bigger company, set its country yourself.
+Names spotted the first two ways are never sent to our look-up. Where you paid is read from the country code, country name, town or web address your bank prints, or else from the currency the shop charged in, when it's mainly one country's (Thai baht, say, but not euros), and is otherwise your home country, which you can change in Settings → Shops we don't know. If one of these is really part of a bigger company, set its country yourself.
 
 ## 3. The online look-up, if you allow it
 
@@ -88,7 +88,7 @@ When a register's answer is weak, the AI is asked too, and its answer is used if
 
 ## 4. Everything else: counted where you paid
 
-A shop we can't name an owner for, and that doesn't look like a local independent, is counted in the country where you paid it and marked **Estimated**. An unknown shop in Lewisham is almost always owned in the UK; one in Málaga, in Spain. The country comes from the same clues: a country code, country name, town or web address in your bank's text, or else your home country. You can switch this off in Settings → Shops we don't know → Estimate them from where you paid; then these payments, and local independents, aren't counted at all.
+A shop we can't name an owner for, and that doesn't look like a local independent, is counted in the country where you paid it and marked **Estimated**. An unknown shop in Lewisham is almost always owned in the UK; one in Málaga, in Spain. The country comes from the same clues: a country code, country name, town or web address in your bank's text, the currency the shop charged in when it's mainly one country's, or else your home country. You can switch this off in Settings → Shops we don't know → Estimate them from where you paid; then these payments, and local independents, aren't counted at all.
 
 ## 5. Your choice comes first
 

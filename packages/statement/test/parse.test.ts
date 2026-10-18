@@ -308,3 +308,14 @@ describe("generic mapping fallback", () => {
     expect(r.warnings?.[0]).toMatch(/amount/);
   });
 });
+
+describe("names that might be a person (18 Oct 2026)", () => {
+  it("counts a bill payment to one plain word as spending but holds it back from the look-up", async () => {
+    const text = "Date,Type,Description,Amount\n2026-07-01,BP,PIPPA,-40.00\n2026-07-02,BP,EXAMPLE COUNCIL,-120.00\n2026-07-03,DEB,TESCO STORES 3456,-9.50\n";
+    const r = await parseWithMapping(text, { date: 0, type: 1, description: 2, amount: 3 });
+    const by = (p: string) => r.transactions.find((t) => t.rawPayee === p)!;
+    expect(by("PIPPA")).toMatchObject({ kind: "spend", sensitive: true });
+    expect(by("EXAMPLE COUNCIL")).toMatchObject({ kind: "spend", sensitive: false });
+    expect(by("TESCO STORES 3456")).toMatchObject({ kind: "spend", sensitive: false });
+  });
+});

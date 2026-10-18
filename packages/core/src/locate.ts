@@ -6,13 +6,14 @@ import { countries } from "@kys/ownership";
  *  1. a country code or country name at the end ("… PARIS FR", "… BARCELONA ESP", "… UNITED STATES")
  *  2. a town or city at the end ("… MALAGA", "… LISBOA")
  *  3. the web address ending (".FR", ".DE", ".CO.UK")
- *  4. otherwise the user's home country — card payments with nothing foreign printed are made at home.
+ *  4. the currency the shop charged in, when it's mainly one country's ("THB 250.00"), since 18 Oct 2026
+ *  5. otherwise the user's home country — card payments with nothing foreign printed are made at home.
  *
  * Used for shops we can't name an owner for: an unlisted café in Lewisham is almost certainly owned in the
  * UK, and an unlisted taverna in Malaga in Spain. Shown as "Estimated", never as a named owner.
  */
 
-export type LocationEvidence = "country_code" | "country_name" | "place" | "web_domain" | "home";
+export type LocationEvidence = "country_code" | "country_name" | "place" | "web_domain" | "currency" | "home";
 
 export interface Location {
   country: string; // ISO2
@@ -73,15 +74,19 @@ function norm(s: string): string {
 
 /** Strip the tail noise banks add after the location: amounts, dates, card digits, references, "ON 12 MAR". */
 function tailTokens(raw: string): { tokens: string[]; padded: boolean } {
-  // Web addresses are read separately (step 3): "ZALANDO.CO.UK" must not look like the country code "UK".
-  let s = raw.toUpperCase().replace(/(?:HTTPS?:\/\/)?(?:[A-Z0-9-]+\.)+[A-Z]{2,6}(?:\/\S*)?/g, " ");
+  // Web addresses are read separately (step 3): "ZALANDO.CO.UK" must not look like the country code "UK". The address
+  // stays as one word, as it's the shop's name: "WWW.EXAMPLETAXI.COM BANGKOK" was paid in Bangkok (18 Oct 2026). No
+  // spaces are added round it, so they can't look like a terminal's padding.
+  let s = raw.toUpperCase().replace(/(?:HTTPS?:\/\/)?(?:[A-Z0-9-]+\.)+[A-Z]{2,6}(?:\/\S*)?/g, "WEBADDRESS");
   s = s.replace(/\s+ON\s+\d{1,2}[\s-]?[A-Z]{3}.*$/, "").replace(/\s+ON\s+\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4}.*$/, "");
   // Terminals pad fixed-width fields: "SHOP NAME        PARIS        FR". Padding before the last word makes
   // even a word-like two-letter code safe to read as a country.
   const padded = /\s{2,}[A-Z]{2}$/.test(s.replace(/[\s\d.,:/-]+$/, ""));
   const tokens = norm(s).split(" ").filter((t) => t && !/^\d+$/.test(t) && !/^\d+[A-Z]*\d*$/.test(t));
-  // Drop trailing currency codes and bank codes that often follow the location.
-  while (tokens.length && /^(?:GBP|EUR|USD|CR|DR|POS|VIS|DEB|BCC|CLP)$/.test(tokens[tokens.length - 1]!)) tokens.pop();
+  // Drop trailing currency codes and bank codes that often follow the location ("… BANGKOK THB 250.00"). Codes that are
+  // also words (PEN, TRY, MAD, COP) stay.
+  const code = (t: string) => /^(?:GBP|EUR|USD|CR|DR|POS|VIS|DEB|BCC|CLP)$/.test(t) || (!!CURRENCY_COUNTRY[t] && !/^(?:PEN|TRY|MAD|COP)$/.test(t));
+  while (tokens.length && code(tokens[tokens.length - 1]!)) tokens.pop();
   return { tokens, padded };
 }
 
@@ -146,13 +151,48 @@ export function locate(texts: (string | undefined)[], home = "GB"): Location {
       if (iso) return { country: iso, evidence: "web_domain", clue: `.${dom[1]!.toLowerCase()}` };
     }
   }
+  // 4. the currency the shop charged in, when it's mainly one country's ("THB 250.00": Thailand). Euros don't say which
+  // country, and pounds are home.
+  for (const raw of texts) {
+    const m = raw?.toUpperCase().match(PAID_IN_RE);
+    const ccy = m?.[1] ?? m?.[2] ?? m?.[3] ?? m?.[4];
+    if (ccy && CURRENCY_COUNTRY[ccy]) return { country: CURRENCY_COUNTRY[ccy]![0], evidence: "currency", clue: ccy };
+  }
   return { country: home, evidence: "home" };
 }
+
+/** A currency → [the country it belongs to, its name]. Only currencies that are mainly one country's. */
+export const CURRENCY_COUNTRY: Readonly<Record<string, readonly [string, string]>> = {
+  USD: ["US", "US dollars"], CAD: ["CA", "Canadian dollars"], AUD: ["AU", "Australian dollars"], NZD: ["NZ", "New Zealand dollars"],
+  JPY: ["JP", "Japanese yen"], CNY: ["CN", "Chinese yuan"], HKD: ["HK", "Hong Kong dollars"], SGD: ["SG", "Singapore dollars"],
+  THB: ["TH", "Thai baht"], VND: ["VN", "Vietnamese dong"], IDR: ["ID", "Indonesian rupiah"], MYR: ["MY", "Malaysian ringgit"],
+  PHP: ["PH", "Philippine pesos"], KRW: ["KR", "South Korean won"], TWD: ["TW", "Taiwan dollars"], INR: ["IN", "Indian rupees"],
+  LKR: ["LK", "Sri Lankan rupees"], AED: ["AE", "UAE dirhams"], SAR: ["SA", "Saudi riyals"], QAR: ["QA", "Qatari riyals"],
+  ILS: ["IL", "Israeli shekels"], EGP: ["EG", "Egyptian pounds"], MAD: ["MA", "Moroccan dirhams"], TRY: ["TR", "Turkish lira"],
+  ZAR: ["ZA", "South African rand"], KES: ["KE", "Kenyan shillings"], MXN: ["MX", "Mexican pesos"], BRL: ["BR", "Brazilian reais"],
+  ARS: ["AR", "Argentine pesos"], COP: ["CO", "Colombian pesos"], PEN: ["PE", "Peruvian soles"], CHF: ["CH", "Swiss francs"],
+  NOK: ["NO", "Norwegian kroner"], SEK: ["SE", "Swedish kronor"], DKK: ["DK", "Danish kroner"], ISK: ["IS", "Icelandic krónur"],
+  PLN: ["PL", "Polish złoty"], CZK: ["CZ", "Czech koruna"], HUF: ["HU", "Hungarian forint"], RON: ["RO", "Romanian lei"],
+  RSD: ["RS", "Serbian dinars"],
+};
+/**
+ * "THB 250.00", "THB250.00", "300.00 THB", "JPY 1,200": a currency code next to an amount with pence; whole amounts
+ * (after a space) only for money that has no pence in practice (yen, won, dong…). So "TRY 100 DAYS", "MAD123456" and
+ * "12.50 PEN-Y-BONT" (a code followed by more of a word) aren't.
+ */
+const DEC = "\\d[\\d,]*\\.\\d{2}";
+const WHOLE = "(?:\\d{1,3}(?:,\\d{3})+|\\d{3,})";
+const ALL_CCY = Object.keys(CURRENCY_COUNTRY).join("|");
+const NO_PENCE = "JPY|KRW|VND|IDR|ISK|HUF|TWD";
+const PAID_IN_RE = new RegExp(
+  `\\b(?:(${ALL_CCY}) ?${DEC}|(${NO_PENCE}) ${WHOLE})(?![\\d.,])|(?<![\\d.,])(?:${DEC} ?(${ALL_CCY})|${WHOLE} (${NO_PENCE}))(?![\\w-])`,
+);
 
 export const EVIDENCE_LABEL: Readonly<Record<LocationEvidence, string>> = {
   country_code: "country code on your statement",
   country_name: "country named on your statement",
   place: "town named on your statement",
   web_domain: "the shop's web address",
+  currency: "the currency the shop charged in",
   home: "paid at home (nothing foreign on the statement)",
 };

@@ -29,6 +29,18 @@ describe("card readers small businesses use", () => {
   });
 });
 
+describe("where it was paid, from the currency (18 Oct 2026)", () => {
+  it("an unknown shop charged in baht is counted in Thailand, and says why", () => {
+    const { a, w } = why("EXAMPLE STALL THB 250.00", "EXAMPLE STALL");
+    expect(a).toMatchObject({ basis: "estimated", country: "TH", evidence: "currency", clue: "THB" });
+    expect(text(w)).toMatch(/amount in Thai baht, Thailand's currency/);
+  });
+  it("reads well for countries whose names end in s", () => {
+    const { w } = why("EXAMPLE DINER USD 18.00", "EXAMPLE DINER");
+    expect(text(w)).toMatch(/US dollars, the United States' currency/);
+  });
+});
+
 describe("attribute(): local independents", () => {
   it("a card-reader payment to a name we don't know is a local independent, counted where it was paid", () => {
     const { a, w } = why("SQ *THE BEAN HOUSE", "THE BEAN HOUSE");
@@ -84,6 +96,18 @@ describe("attribute(): local independents", () => {
     } as unknown as ParseResult;
     _resetAttributionCache();
     expect(prepareStatement(parse, "i").plan.candidates).toEqual(["ZZQ MADE UP TRADING"]);
+  });
+  it("a name held back on one row is held back on all of them (18 Oct 2026)", () => {
+    const parse = {
+      transactions: [
+        { id: "1", date: "2026-10-01", amount: -40, currency: "GBP", rawPayee: "PIPPA", normPayee: "PIPPA", kind: "spend", sensitive: true },
+        { id: "2", date: "2026-10-08", amount: -40, currency: "GBP", rawPayee: "PIPPA 2", normPayee: "PIPPA", kind: "spend", sensitive: false },
+      ],
+    } as unknown as ParseResult;
+    _resetAttributionCache();
+    const { plan } = prepareStatement(parse, "i");
+    expect(plan.candidates).toEqual([]);
+    expect(plan.sensitive).toEqual(["PIPPA"]);
   });
 });
 

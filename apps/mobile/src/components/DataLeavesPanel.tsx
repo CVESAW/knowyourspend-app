@@ -77,7 +77,7 @@ export function DataLeavesPanel({ kind, plan, record, willSend, defaultOpen, ite
       where: "Sent to Google by ML Kit",
       why: "Receipts are read by Google's ML Kit, on this phone. It never sends the photo or the words on it, but it does report how often and how fast it runs.",
     });
-  if (sensitive.length) rows.push({ what: "Names that might be sensitive", count: sensitive.length, fate: "held", where: "On this phone", why: "Things like health, gambling, dating, religion, politics or debt are held back by default." });
+  if (sensitive.length) rows.push({ what: "Names that might be sensitive", count: sensitive.length, fate: "held", where: "On this phone", why: "Things like health, gambling, dating, religion, politics or debt, and payments that might be to a person, are held back by default." });
   if (sentNames.length)
     rows.push({
       what: record ? "Shop names looked up online" : "Shop names we'll look up online",

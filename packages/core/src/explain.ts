@@ -2,6 +2,7 @@ import type { OwnershipEntry, Source } from "@kys/ownership";
 import { FACILITATOR, type Attribution } from "./attribute";
 import { countryName } from "./countries";
 import { shortDate } from "./format";
+import { CURRENCY_COUNTRY } from "./locate";
 
 /**
  * "Why this country?" — turns an Attribution into the plain words the app shows under every shop: what the bank
@@ -75,12 +76,19 @@ export function theCountry(iso: string): string {
   return THE.test(n) ? `the ${n}` : n;
 }
 
+/** "Thailand's", "the Netherlands'", "the United States'". */
+const countrys = (iso: string) => {
+  const n = theCountry(iso);
+  return n.endsWith("s") ? `${n}'` : `${n}'s`;
+};
+
 const ROLE: Record<string, string> = { brand_of: "Brand", operator: "Run in the UK by", owned_by: "Owned by", ultimate_parent: "Top owner" };
 
 /** Names for the payment services that put their name before the shop's ("PAYPAL *STEAMGAMES"). */
 const PAID_THROUGH: Record<string, string> = {
   PAYPAL: "PayPal", PP: "PayPal", GOOGLE: "Google Play", CRV: "Curve", SQ: "Square", SUMUP: "SumUp", ZETTLE: "Zettle", ZETTLE_: "Zettle",
   IZETTLE: "Zettle", IZ: "Zettle", SP: "an online shop's payment service", TST: "Toast", KLARNA: "Klarna", CLEARPAY: "Clearpay",
+  BT: "Braintree (PayPal's card payments)",
 };
 
 /** A company known only by its Wikidata id (no English name there): words, not "Q2836957". Used wherever a name shows. */
@@ -101,7 +109,9 @@ function whereSentence(a: Attribution, home: string): string {
     case "place":
       return `Your bank printed the town “${c}”, which is in ${theCountry(a.country!)}.`;
     case "web_domain":
-      return `Its web address ends in ${c}, which is ${theCountry(a.country!)}'s.`;
+      return `Its web address ends in ${c}, which is ${countrys(a.country!)}.`;
+    case "currency":
+      return `Your bank printed the amount in ${CURRENCY_COUNTRY[c]?.[1] ?? c}, ${countrys(a.country!)} currency, so it was most likely paid there.`;
     default:
       return `Your bank didn't print another country, so it was paid at home in ${theCountry(a.country ?? home)}.`;
   }

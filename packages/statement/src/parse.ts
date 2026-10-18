@@ -8,7 +8,7 @@
 import Papa from "papaparse";
 import type { BankDefinition, ColumnRef, RawRecord } from "./banks/format";
 import { toBankFormat } from "./banks/format";
-import { classify } from "./classify";
+import { classify, mayBePerson } from "./classify";
 import { OccurrenceCounter, transactionId } from "./dedupe";
 import { normalisePayee } from "./normalise";
 import { matchHeaderRow, matchTextFormat } from "./registry";
@@ -504,7 +504,11 @@ function makeTransaction(rec: RawRecord, currency: string, counter: OccurrenceCo
   const kind = rec.kind ?? classify({ amount: rec.amount, rawPayee, rawDescription, typeLabel: rec.typeLabel, category: rec.category });
   let norm = normalisePayee(rawPayee);
   if (!norm && rawDescription) norm = normalisePayee(rawDescription);
-  const sensitive = isSensitive(norm) || (rawDescription !== undefined && isSensitive(normalisePayee(rawDescription)));
+  // Held back from the look-up: a sensitive category, or a one-word payee of a bill payment that may be a person
+  const sensitive =
+    isSensitive(norm) ||
+    (rawDescription !== undefined && isSensitive(normalisePayee(rawDescription))) ||
+    (kind === "spend" && mayBePerson({ amount: rec.amount, rawPayee, rawDescription, typeLabel: rec.typeLabel, category: rec.category }));
   const occurrence = counter.next(rec.date, rec.amount, rawPayee);
   const t: LocalTransaction = {
     id: transactionId(rec.date, rec.amount, rawPayee, rec.balance, occurrence),

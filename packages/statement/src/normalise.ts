@@ -39,8 +39,11 @@ export const BANK_PREFIXES: readonly string[] = [
  * CRV = Curve, SP = Shopify Payments, TST = Toast, KLARNA and CLEARPAY (pay later; since 18 Oct 2026, so
  * "KLARNA*ASOS" is ASOS, as the method page says, not Klarna).
  */
-const FACILITATOR_RE = /^(SQ|SUMUP|ZETTLE_?|IZETTLE|IZ|PAYPAL|PP|GOOGLE|CRV|SP|TST|KLARNA|CLEARPAY)\s*\*\s*/;
+// BT * is Braintree, PayPal's card processor (18 Oct 2026: "BT *<a shop>" was counted as BT Group)
+const FACILITATOR_RE = /^(SQ|SUMUP|ZETTLE_?|IZETTLE|IZ|PAYPAL|PP|GOOGLE|CRV|SP|TST|KLARNA|CLEARPAY|BT)\s*\*\s*/;
 const FACILITATOR_NAME: Record<string, string> = { PP: "PAYPAL", IZ: "ZETTLE", IZETTLE: "ZETTLE", ZETTLE_: "ZETTLE" };
+/** What follows "BT *" when it's BT's own bill rather than a shop paid through Braintree. */
+const BT_OWN = /^(?:MOBILE|BROADBAND|SPORT|TV|GROUP|PLC|BUSINESS|BILL|INTERNET|HOME|OPENREACH|PAYMENT|EE)\b/;
 
 /**
  * Well-known messy forms mapped to one canonical key. Anchored at the start; the whole string is
@@ -107,8 +110,11 @@ export const PLACE_NAMES: readonly string[] = [
   "NEW YORK", "SAN FRANCISCO", "LOS ANGELES", "SEATTLE",
 ];
 
-/** Trailing bank/terminal type codes (Barclays BCC/CLP, HSBC CR/DR…). */
-const TRAILING_CODES = ["BCC", "CLP", "DDR", "POS", "VIS", "DEB", "CPT", "BGC", "STO", "FPO", "FPI", "TFR", "CR", "DR", "GBP", "EUR"];
+/**
+ * Trailing bank/terminal type codes (Barclays BCC/CLP, HSBC CR/DR…). RECEIPT since 18 Oct 2026: Aldi prints
+ * "ALDI 12345 RECEIPT" with a different number every time, which made every Aldi visit a different shop.
+ */
+const TRAILING_CODES = ["BCC", "CLP", "DDR", "POS", "VIS", "DEB", "CPT", "BGC", "STO", "FPO", "FPI", "TFR", "CR", "DR", "GBP", "EUR", "RECEIPT"];
 
 /** A place/country is not stripped when it follows one of these (AIR FRANCE, BANK OF IRELAND). */
 const CONNECTOR_BEFORE = /(?:^|\s)(?:OF|AIR|AND|&|THE|DE|DU|LA|LE|VON|VAN)$/;
@@ -127,7 +133,10 @@ const TRAILING_COUNTRY_RE = new RegExp(`\\s(?:${alt(COUNTRIES_SAFE)})$`);
 const TRAILING_PLACE_RE = new RegExp(`\\s(?:${alt(PLACE_NAMES)})$`);
 const MORE_PLACE_RE = new RegExp(`\\s(?:${alt(MORE_PLACES)})$`);
 const TRAILING_CODE_RE = new RegExp(`\\s(?:${alt(TRAILING_CODES)})$`);
-const TLD = "CO\\.UK|ORG\\.UK|GOV\\.UK|AC\\.UK|LTD\\.UK|ME\\.UK|COM|NET|ORG|UK|IE|DE|FR|NL|IO|EU|ES|IT|BE|LU|APP|TV|CO";
+// FM, AI, ME, GG… since 18 Oct 2026 ("EXAMPLE.FM" and "EXAMPLE.AI" kept their endings)
+const TLD =
+  "CO\\.UK|ORG\\.UK|GOV\\.UK|AC\\.UK|LTD\\.UK|ME\\.UK|COM|NET|ORG|UK|IE|DE|FR|NL|IO|EU|ES|IT|BE|LU|APP|TV|CO|" +
+  "FM|AI|ME|GG|DEV|XYZ|SHOP|STORE|ONLINE|TECH|BIZ|INFO|US|CA|AU|SE|DK|NO|FI|AT|CH|PL|PT";
 const DOMAIN_TOKEN_RE = new RegExp(`^(?:HTTPS?://)?(?:WWW\\.)?(?:[A-Z0-9-]+\\.)*?([A-Z0-9-]*[A-Z][A-Z0-9-]*)\\.(?:${TLD})(?:/\\S*)?$`);
 
 /** Apply `next` only if it still contains a letter — never normalise a payee to nothing. */
@@ -187,6 +196,9 @@ function pass(input: string): string {
     if (next === s) break;
     s = next;
   }
+  // "To" in front of money sent to a business (Revolut's "To Example Supplies Ltd"), when two words or more follow, so
+  // "TO GO" stays (18 Oct 2026)
+  s = s.replace(/^TO\s+(?=\S+\s+\S)/, "");
 
   s = applyKnownForms(s);
 
@@ -201,7 +213,8 @@ function pass(input: string): string {
   if (fac) {
     const rest = s.slice(fac[0].length).trim();
     const name = FACILITATOR_NAME[fac[1]!] ?? fac[1]!;
-    s = /[A-Z]/.test(rest) ? rest : name;
+    // "BT *MOBILE" is BT's own bill, not a shop paid through Braintree
+    s = !/[A-Z]/.test(rest) ? name : fac[1] === "BT" && BT_OWN.test(rest) ? `BT ${rest}` : rest;
   }
   s = applyKnownForms(s);
 
@@ -210,6 +223,11 @@ function pass(input: string): string {
     const left = s.slice(0, s.indexOf("*")).trim();
     s = /[A-Z]/.test(left) ? left : s.replace(/\*/g, " ");
   }
+  // A run of zeros before the name is a terminal field, not part of it: "000*RAILFINDER" (18 Oct 2026).
+  s = keep(s, s.replace(/^0+\s+/, ""));
+  // A long number run into the name when that's all the payee is: "HIRECO1234567890" → HIRECO. With other words
+  // round it, it's a reference ("REF1234567 TESCO"), which the rule for references below drops whole.
+  s = s.replace(/^(?!(?:ORDER|INVOICE|POLICY|ACCOUNT|ACCT|MANDATE|MEMBER|TICKET|BOOKING|CUSTOMER|CUST|TRANS|PAYMENT|REFUND|BILL)\d)([A-Z]{4,})\d{6,}$/, "$1");
 
   // Domains → brand label: NETFLIX.COM → NETFLIX, HELP.UBER.COM → UBER, WWW.HETZNER.DE → HETZNER.
   s = s
@@ -224,6 +242,8 @@ function pass(input: string): string {
   // Dates, times, amounts anywhere.
   s = keep(s, s.replace(new RegExp(`\\b\\d{1,2}\\s?(?:${MONTHS})\\s?\\d{2}(?:\\d{2})?\\b`, "g"), " "));
   s = keep(s, s.replace(/\b\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}\b/g, " "));
+  // a day and month with no year, two digits each ("PIPPA 12/08"; "24/7" stays), since 18 Oct 2026
+  s = keep(s, s.replace(/\b(?:0[1-9]|[12]\d|3[01])\/(?:0[1-9]|1[0-2])\b(?!\/)/g, " "));
   s = keep(s, s.replace(/\b\d{4}-\d{2}-\d{2}\b/g, " "));
   s = keep(s, s.replace(/\b\d{1,2}:\d{2}(?::\d{2})?\b/g, " "));
   s = keep(s, s.replace(/(?:GBP|EUR|USD)\s?\d[\d,]*(?:\.\d{1,2})?\b/g, " "));
@@ -255,6 +275,9 @@ function pass(input: string): string {
     if (s === before) break;
   }
   s = s.replace(/^[\s\-&/.*+#]+/, "").trim();
+  // The name printed twice, as the shop's own name and then the card network's ("Hotelnet HOTELNET 55"). Five letters
+  // or more, so short doubled names (NOM NOM, BORA BORA) are left alone. 18 Oct 2026.
+  s = s.replace(/^([A-Z][A-Z&-]{4,}) \1(?= |$)/, "$1");
 
   s = applyKnownForms(s);
   if (s.length > MAX_PAYEE_LENGTH) s = s.slice(0, MAX_PAYEE_LENGTH).trim();

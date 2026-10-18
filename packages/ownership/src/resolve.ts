@@ -82,6 +82,18 @@ export function badgeFor(tier: Tier): { label: BadgeLabel; description: string }
   }
 }
 
+/**
+ * Words that start a restaurant's own name in many languages ("RESTAURANTE ICELAND", "TRATTORIA DA MARIO"). Not CAFE,
+ * BAR or HOTEL: chains print those before their names ("CAFE NERO", "HOTEL IBIS").
+ */
+const VENUE_FIRST = new Set([
+  "RESTAURANTE", "RESTAURANT", "RISTORANTE", "TRATTORIA", "OSTERIA", "PIZZERIA", "TABERNA", "TAVERNA", "TASCA",
+  "CERVECERIA", "MARISQUERIA", "ASADOR", "BRASSERIE",
+]);
+/** Categories of chains that are themselves places to eat or drink (hand-checked list, then OpenStreetMap's). */
+const FOOD_AND_DRINK = /^(?:coffee_fast_food|pub|amenity\/(?:restaurant|fast_food|cafe|bar|pub|biergarten|ice_cream|food_court)|shop\/(?:bakery|pastry|coffee|deli))$/;
+const ARTICLE = /^(?:LA|EL|LE|IL|LO|LES|LOS|LAS|THE|DA|DE|DI|DEL|DES|DU)$/;
+
 interface IndexedAlias {
   key: string; // normalised alias
   tokens: string[];
@@ -117,7 +129,7 @@ export const SHORTHAND: Readonly<Record<string, string>> = {
   SMKT: "SUPERMARKET", SMKTS: "SUPERMARKET", SPRMKT: "SUPERMARKET", SUPERMKT: "SUPERMARKET", SPMKT: "SUPERMARKET",
   SAINSBURY: "SAINSBURYS", SAINSBURYSS: "SAINSBURYS", MORRISON: "MORRISONS", MCDONALD: "MCDONALDS",
   MCD: "MCDONALDS", MACDONALDS: "MCDONALDS", WETHERSPOON: "WETHERSPOONS", JDWETHERSPOON: "WETHERSPOONS",
-  NFLX: "NETFLIX", SPOTIFYUK: "SPOTIFY", GOOGLEPLAY: "GOOGLE PLAY", PRIMEVIDEO: "PRIME VIDEO",
+  NFLX: "NETFLIX", SPOTIFYUK: "SPOTIFY", GOOGLEPLAY: "GOOGLE PLAY", PRIMEVIDEO: "PRIME VIDEO", FACEBK: "FACEBOOK",
   INTL: "INTERNATIONAL", SVCS: "SERVICES", SVC: "SERVICE", STN: "STATION", RSTRNT: "RESTAURANT", RESTRNT: "RESTAURANT",
 };
 
@@ -250,9 +262,15 @@ class AliasIndex {
     const add = (m: Match) => {
       if (keep(m)) out.push(m);
     };
+    // "RESTAURANTE ICELAND" is a restaurant called Iceland, not Iceland Foods: after a word like that, a name further on
+    // only matches a chain that is itself a restaurant, café or bar ("PIZZERIA TELEPIZZA"), and not one whose name is an
+    // everyday phrase starting "LA", "EL", "THE"… ("RESTAURANTE LA ROMANA") (18 Oct 2026).
+    const venue = toks.length > 1 && VENUE_FIRST.has(toks[0]!);
+    const fits = (i: number, a: IndexedAlias) => !venue || i === 0 || (FOOD_AND_DRINK.test(a.entry.category ?? "") && !ARTICLE.test(a.tokens[0]!));
     for (let i = 0; i < toks.length; i++) {
       for (const a of this.byFirst.get(toks[i]!) ?? []) {
         if (a.strict && i !== 0) continue;
+        if (!fits(i, a)) continue;
         if (a.tokens.length > toks.length - i) continue;
         let ok = true;
         for (let k = 1; k < a.tokens.length; k++) if (toks[i + k] !== a.tokens[k]) { ok = false; break; }
@@ -263,22 +281,22 @@ class AliasIndex {
     // Run-together words: a payee token that is a multi-word alias without spaces ("JDSPORTS"), or two
     // payee tokens that together make a one-word alias ("PAY PAL").
     for (let i = 0; i < toks.length; i++) {
-      for (const a of this.joined.get(toks[i]!) ?? []) add({ alias: a.key, entry: a.entry, method: "joined" });
+      for (const a of this.joined.get(toks[i]!) ?? []) if (fits(i, a)) add({ alias: a.key, entry: a.entry, method: "joined" });
       if (i + 1 < toks.length) {
         const pair = toks[i]! + toks[i + 1]!;
-        for (const a of this.joined.get(pair) ?? []) add({ alias: a.key, entry: a.entry, method: "joined" });
-        if (pair.length >= 6) for (const a of this.single.get(pair) ?? []) if (!a.strict || i === 0) add({ alias: a.key, entry: a.entry, method: "joined" });
+        for (const a of this.joined.get(pair) ?? []) if (fits(i, a)) add({ alias: a.key, entry: a.entry, method: "joined" });
+        if (pair.length >= 6) for (const a of this.single.get(pair) ?? []) if ((!a.strict || i === 0) && fits(i, a)) add({ alias: a.key, entry: a.entry, method: "joined" });
       }
     }
     if (out.length) return out;
     // One letter off, long names only, first letter must agree: "SAINSBURRYS", "WAITROSSE".
-    for (const t of toks) {
-      if (t.length < 7 || !/^[A-Z]+$/.test(t)) continue;
+    toks.forEach((t, i) => {
+      if (t.length < 7 || !/^[A-Z]+$/.test(t)) return;
       for (const a of this.long.get(t[0]!) ?? []) {
-        if (Math.abs(a.key.length - t.length) > 1) continue;
+        if (Math.abs(a.key.length - t.length) > 1 || !fits(i, a)) continue;
         if (editDistance(a.key, t, 1) <= 1) add({ alias: a.key, entry: a.entry, method: "near" });
       }
-    }
+    });
     return out;
   }
 }

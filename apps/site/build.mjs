@@ -129,6 +129,7 @@ const openShipped = openBrands.filter((r) => !handIds.has(r.qid) && !r.aliases.s
 const OPEN = (Math.round(openShipped / 100) * 100).toLocaleString("en-GB");
 const FIXES = String(corrections.filter((c) => c.action === "fix").length);
 const DROPS = String(corrections.filter((c) => c.action === "drop").length);
+const NARROWED = String(corrections.filter((c) => c.action === "narrow").length);
 
 // ── Calls to action ───────────────────────────────────────────────────────────────────────────
 const ios = cfg.appStoreId
@@ -246,6 +247,7 @@ const howSrc = readFileSync(join(here, "src", "how-it-works.md"), "utf8")
   .replaceAll("{{OPEN}}", OPEN)
   .replaceAll("{{FIXES}}", FIXES)
   .replaceAll("{{DROPS}}", DROPS)
+  .replaceAll("{{NARROWED}}", NARROWED)
   .replaceAll("{{EMAIL}}", cfg.contactEmail)
   .replaceAll("{{SOURCE}}", cfg.sourceUrl)
   .replaceAll("{{SOURCE_LABEL}}", cfg.sourceUrl.replace(/^https:\/\//, ""));

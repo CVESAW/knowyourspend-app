@@ -30,6 +30,8 @@ export function prepareStatement(parse: ParseResult, itemId: string): PreparedSt
     if (t.resolution === "RESOLVED") recognised.add(t.normPayee);
     else if (t.resolution === "UNRESOLVED") (t.sensitive ? sensitive : candidates).add(t.normPayee);
   }
+  // A name held back on any row is held back everywhere: one row can look like a person and another not (18 Oct 2026).
+  for (const n of sensitive) candidates.delete(n);
   return {
     parse,
     txns,

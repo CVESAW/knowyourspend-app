@@ -266,6 +266,12 @@
    "reason": "Standalone stores closed in 2020; it survives only as a concession inside Currys."
   },
   {
+   "qid": "Q1991755",
+   "name": "Casa",
+   "action": "drop",
+   "reason": "The Casa homeware chain has no UK shops, and on statements from Spain, Portugal and Italy CASA usually starts a restaurant's name (18 Oct 2026)."
+  },
+  {
    "qid": "Q83948954",
    "name": "Cazoo",
    "action": "drop",
@@ -406,6 +412,16 @@
    "owner": "The Entertainer (TEAL)",
    "owner_country": "GB",
    "reason": "Mothercare sold Early Learning Centre to The Entertainer in 2007."
+  },
+  {
+   "qid": "Q98456614",
+   "name": "El Rincón",
+   "action": "narrow",
+   "aliases": [
+    "FRUTOS SECOS EL RINCON",
+    "EL RINCON & COFFEE"
+   ],
+   "reason": "'El Rincón' starts many Spanish bar and restaurant names, so on its own it named the wrong owner. Kept for the chain's longer names (18 Oct 2026)."
   },
   {
    "qid": "Q1776022",
@@ -852,6 +868,17 @@
    "reason": "Colombian billionaire Jaime Gilinski's Spaldy took a majority stake in the 2023 rescue."
   },
   {
+   "qid": "Q13610282",
+   "name": "Metro Cash & Carry",
+   "action": "narrow",
+   "aliases": [
+    "METRO CASH & CARRY",
+    "METRO GASTRO",
+    "C C SCHAPER"
+   ],
+   "reason": "On its own, METRO on a statement is usually a city's metro railway; Metro Cash & Carry has no UK stores and sells to trade customers. Kept for its longer names (18 Oct 2026)."
+  },
+  {
    "qid": "Q123415563",
    "name": "Mobile Mini UK",
    "action": "fix",
@@ -980,6 +1007,15 @@
    "owner": "Sumitomo Rubber Industries",
    "owner_country": "JP",
    "reason": "Protyre belongs to Micheldever Group, bought by Japan's Sumitomo Rubber in 2017."
+  },
+  {
+   "qid": "Q7259769",
+   "name": "Puma Energy",
+   "action": "narrow",
+   "aliases": [
+    "PUMA ENERGY"
+   ],
+   "reason": "Puma Energy has no UK fuel stations, and on its own PUMA is the sportswear brand, which this entry was winning ties against. Kept for \"PUMA ENERGY\" abroad (18 Oct 2026)."
   },
   {
    "qid": "Q7310479",

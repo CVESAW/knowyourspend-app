@@ -17,7 +17,7 @@ export type { ParseOptions } from "./parse";
 
 export { normalisePayee, BANK_PREFIXES, PLACE_NAMES, MAX_PAYEE_LENGTH } from "./normalise";
 
-export { classify, looksLikePerson, typeHint, UK_TYPE_CODES, COMMON_BRANDS } from "./classify";
+export { classify, looksLikePerson, mayBePerson, typeHint, UK_TYPE_CODES, COMMON_BRANDS } from "./classify";
 export type { ClassifyInput, TypeCodeInfo, TypeHint } from "./classify";
 
 export {

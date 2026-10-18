@@ -204,7 +204,8 @@ interface Header {
 function headerKind(t: string): ColKind | "date" | "desc" | null {
   const s = t.toLowerCase().replace(/[£$€()]/g, " ").replace(/\b(gbp|eur|usd)\b/g, " ").replace(/\s+/g, " ").trim();
   if (/^(transaction |posting |value |completed )?date( utc| gmt)?$/.test(s)) return "date";
-  if (/^(description|details|transaction details|transaction|payment type and details|merchant|narrative|particulars)$/.test(s)) return "desc";
+  // (HSBC and first direct PDFs space out some letters: "Paym ent t ype and det ails")
+  if (/^(description|details|transaction details|transaction|payment type and details|merchant|narrative|particulars)$/.test(s) || s.replace(/\s/g, "") === "paymenttypeanddetails") return "desc";
   if (/^(money out|paid out|out|withdrawals?|debits?|payments? out|spent|outgoings?)$/.test(s)) return "out";
   if (/^(money in|paid in|in|deposits?|credits?|payments? in|received|incomings?)$/.test(s)) return "in";
   if (/^(amount|value|transaction amount)$/.test(s)) return "amount";
@@ -247,36 +248,83 @@ interface Row {
   out?: number;
   in?: number;
   balance?: number;
+  currency: string;
+  /** what the shop charged in another currency, "THB 300.00": added to the end of the description (18 Oct 2026) */
+  charged?: string;
 }
 
-const NOISE = /(^page \d+( of \d+)?$|registered in england|financial conduct authority|prudential regulation|financial services compensation|fscs|generated on|continued (on|over)|brought forward|carried forward|^total\b|report lost or stolen|get help directly in app|scan the qr code)/i;
+const NOISE = /(^page \d+( of \d+)?$|registered in england|financial conduct authority|prudential regulation|financial services compensation|fscs|generated on|continued (on|over)|brought forward|carried forward|^total\b|report lost or stolen|get help directly in app|scan the qr code|^©|your funds have been transferred from your e-money account|transition has been managed in the background|transition to revolut bank)/i;
 const SKIP_SECTION = /\b(pending|reverted|declined|failed)\b/i;
 const OPEN_SECTION = /\b(account transactions|transactions from|your transactions|statement of account|transactions)\b/i;
 const DROP_DETAIL = /^(card:|card number|reference:|ref:|payment reference|exchange rate|fx rate|fee:|revolut rate|ecb rate|•)/i;
-const BALANCE_ROW = /^(opening|closing|start|end|brought|carried) balance|^balance (brought|carried) forward/i;
+const BALANCE_ROW = /^(opening|closing|start|end|brought|carried) balance|^balance (brought|carried) forw\s?ard/i;
+/** "1 July to 31 July 2026" above the table on every first direct page: the statement's period, not a payment date */
+const PERIOD_LINE = /^\d{1,2}(?:st|nd|rd|th)? [a-z]+(?: \d{2,4})? to \d{1,2}(?:st|nd|rd|th)? [a-z]+ \d{2,4}$/i;
+// A statement with one section per currency (Revolut: "Currency EUR", then "Currency GBP"…, 18 Oct 2026: only the first
+// page's currency was read, so a GBP section after an empty EUR one came out with no rows).
+const SECTION_CURRENCY = /\bCurrency\s+([A-Z]{3})\b/;
+// HSBC and first direct (18 Oct 2026) print a payment over several lines: its type code (")))", "MAS", "VIS", "DD",
+// "BP", "CR", "SO", "TFR"…) and payee on the first, then the place or reference, any exchange-rate lines, and the
+// amount on the last line. Other banks print the amount on the first line and details under it.
+const TYPE_CODE = /^(\)\)\)|[A-Z]{2,4})$/;
+const FX_LINE = /^[A-Z]{3}\s?[\d,]+\.\d{2}(\s*@\s*[\d.]+)?$|^@\s?[\d.]+\s*(MAS|VIS|VISA)?\s*rate$|^(MAS|VIS|VISA)\s+rate$/i;
+// "INT'L 0012345678" and "CASH 0012345680" start a payment abroad; the reference is a long number, so "CASH CONVERTERS",
+// "CASH 4U" and "INTL BOOKS" stay shop names
+const INTL_LINE = /^INT'?L\s+\d{4,}$/i;
+const CASH_LINE = /^CASH\s+\d{4,}$/i;
 
-const BANKS: [RegExp, string, string][] = [
-  [/\brevolut\b/i, "revolut", "Revolut"],
-  [/\bmonzo\b/i, "monzo", "Monzo"],
-  [/\bstarling\b/i, "starling", "Starling"],
-  [/\bbarclays\b/i, "barclays", "Barclays"],
-  [/\bhsbc\b/i, "hsbc", "HSBC"],
-  [/\bfirst direct\b/i, "hsbc", "First Direct"],
-  [/\blloyds\b/i, "lloyds", "Lloyds"],
-  [/\bhalifax\b/i, "lloyds", "Halifax"],
-  [/\bnatwest\b/i, "natwest", "NatWest"],
-  [/\broyal bank of scotland\b/i, "natwest", "RBS"],
-  [/\bsantander\b/i, "santander", "Santander"],
-  [/\bnationwide\b/i, "nationwide", "Nationwide"],
-  [/\bchase\b/i, "chase", "Chase UK"],
-  [/\bwise\b/i, "wise", "Wise"],
-  [/\bamerican express\b|\bamex\b/i, "amex", "American Express"],
-  [/\btsb\b/i, "tsb", "TSB"],
-  [/\bmetro bank\b/i, "metro", "Metro Bank"],
-  [/\bvirgin money\b/i, "virgin", "Virgin Money"],
-  [/\bco-operative bank\b/i, "coop", "Co-operative Bank"],
-  [/\bn26\b/i, "n26", "N26"],
+/**
+ * Banks by what their statements print about themselves: `strong` is the bank's legal name or web address, which a
+ * payment line almost never has; `weak` is the name alone, which can also be a payee, a person or a street ("REVOLUT LTD"
+ * top-ups, "John Wise", "Chase Road"). first direct comes before HSBC: its statements say "first direct is a division of
+ * HSBC UK Bank plc".
+ */
+const BANKS: { id: string; name: string; strong: RegExp; weak: RegExp }[] = [
+  { id: "revolut", name: "Revolut", strong: /\brevolut (?:ltd|bank uk)\b|\brevolut\.com\b/i, weak: /\brevolut\b/i },
+  { id: "monzo", name: "Monzo", strong: /\bmonzo bank limited\b|\bmonzo\.com\b/i, weak: /\bmonzo\b/i },
+  { id: "starling", name: "Starling", strong: /\bstarling bank\b|\bstarlingbank\.com\b/i, weak: /\bstarling\b/i },
+  { id: "barclays", name: "Barclays", strong: /\bbarclays bank (?:uk )?plc\b|\bbarclays\.co\.uk\b/i, weak: /\bbarclays\b/i },
+  { id: "hsbc", name: "first direct", strong: /\bfirst direct is a division\b|\bfirstdirect\.com\b/i, weak: /\bfirst direct\b/i },
+  { id: "hsbc", name: "HSBC", strong: /\bhsbc uk bank plc\b|\bhsbc\.co\.uk\b/i, weak: /\bhsbc\b/i },
+  { id: "lloyds", name: "Lloyds", strong: /\blloyds bank plc\b|\blloydsbank\.com\b/i, weak: /\blloyds\b/i },
+  { id: "lloyds", name: "Halifax", strong: /\bhalifax is a division of bank of scotland\b|\bhalifax\.co\.uk\b/i, weak: /\bhalifax\b/i },
+  { id: "natwest", name: "NatWest", strong: /\bnational westminster bank\b|\bnatwest\.com\b/i, weak: /\bnatwest\b/i },
+  { id: "natwest", name: "RBS", strong: /\broyal bank of scotland plc\b|\brbs\.co\.uk\b/i, weak: /\broyal bank of scotland\b/i },
+  { id: "santander", name: "Santander", strong: /\bsantander uk plc\b|\bsantander\.co\.uk\b/i, weak: /\bsantander\b/i },
+  { id: "nationwide", name: "Nationwide", strong: /\bnationwide building society\b|\bnationwide\.co\.uk\b/i, weak: /\bnationwide\b/i },
+  { id: "chase", name: "Chase UK", strong: /\bj\.?\s?p\.? morgan europe\b|\bchase\.co\.uk\b/i, weak: /\bchase\b/i },
+  { id: "wise", name: "Wise", strong: /\bwise payments\b|\bwise\.com\b/i, weak: /\bwise\b/i },
+  { id: "amex", name: "American Express", strong: /\bamerican express services europe\b|\bamericanexpress\.co\.uk\b/i, weak: /\bamerican express\b|\bamex\b/i },
+  { id: "tsb", name: "TSB", strong: /\btsb bank plc\b|\btsb\.co\.uk\b/i, weak: /\btsb\b/i },
+  { id: "metro", name: "Metro Bank", strong: /\bmetro bank plc\b|\bmetrobankonline\.co\.uk\b/i, weak: /\bmetro bank\b/i },
+  { id: "virgin", name: "Virgin Money", strong: /\bvirgin money uk plc\b|\bvirginmoney\.com\b/i, weak: /\bvirgin money\b/i },
+  { id: "coop", name: "Co-operative Bank", strong: /\bco-operative bank p\.?l\.?c\b|\bco-operativebank\.co\.uk\b/i, weak: /\bco-operative bank\b/i },
+  { id: "n26", name: "N26", strong: /\bn26 bank\b|\bn26\.com\b/i, weak: /\bn26\b/i },
 ];
+
+/**
+ * The bank, from the first page (18 Oct 2026), never from the table of payments: its legal name or web address below
+ * the table (the footer), then above it; failing that, its name below the table. The table runs from its heading to
+ * the last line with a date or an amount. So a payee ("MONZO* ME A FRIEND", a "Revolut Ltd" top-up) or the holder's name
+ * and address ("John Wise", "Chase Road") don't decide it. No bank found: the app says "Your bank".
+ */
+function whichBank(lines: Line[]): (typeof BANKS)[number] | undefined {
+  const find = (ls: Line[], kind: "strong" | "weak") => {
+    const text = ls.map((l) => l.text).join("\n");
+    return BANKS.find((b) => b[kind].test(text));
+  };
+  const top = lines.findIndex((l) => readHeader(l));
+  if (top < 0) return find(lines, "strong"); // no table on this page
+  let end = top;
+  for (let i = lines.length - 1; i > top; i--) {
+    if (/\d\.\d{2}\b/.test(lines[i]!.text) || readDate(lines[i]!.cells[0]?.text ?? "")) {
+      end = i;
+      break;
+    }
+  }
+  const below = lines.slice(end + 1);
+  return find(below, "strong") ?? find(lines.slice(0, top), "strong") ?? find(below, "weak");
+}
 
 function csvCell(v: string | number | undefined): string {
   if (v === undefined) return "";
@@ -290,8 +338,8 @@ export function pdfToStatementCsv(pages: PdfPage[]): PdfStatementResult {
   const allText = allLines.flat().map((l) => l.text).join("\n");
   const scanned = pages.length > 0 && pages.every((p) => p.items.length < 5);
   const firstPageText = allLines[0]?.map((l) => l.text).join("\n") ?? "";
-  const bankHit = BANKS.find(([re]) => re.test(firstPageText));
-  const currency = /\bEUR\b|€/.test(firstPageText.slice(0, 400)) && !/\bGBP\b|£/.test(firstPageText.slice(0, 400)) ? "EUR" : "GBP";
+  const bankHit = whichBank(allLines[0] ?? []);
+  let currency = /\bEUR\b|€/.test(firstPageText.slice(0, 400)) && !/\bGBP\b|£/.test(firstPageText.slice(0, 400)) ? "EUR" : "GBP";
   const period = periodEnd(allText);
 
   const rows: Row[] = [];
@@ -299,6 +347,9 @@ export function pdfToStatementCsv(pages: PdfPage[]): PdfStatementResult {
   let skipping = false;
   let carryDate: string | undefined;
   let detailLines = 0;
+  // HSBC-style layout (amount on a payment's last line), and the payment being read in it
+  let amountLast = false;
+  let block: { date?: string; code?: string; lines: string[] } | null = null;
 
   const iso = (d: DateHit): string | undefined => {
     if (!validDate(d)) return undefined;
@@ -307,12 +358,39 @@ export function pdfToStatementCsv(pages: PdfPage[]): PdfStatementResult {
     return `${y}-${String(d.month).padStart(2, "0")}-${String(d.day).padStart(2, "0")}`;
   };
 
+  /** Money out / in / balance from the amounts on a line, by the nearest column heading. */
+  const placeAmounts = (r: Pick<Row, "out" | "in" | "balance">, amounts: { v: number; right: number }[]) => {
+    for (const a of amounts) {
+      let best = header!.cols[0]!;
+      for (const col of header!.cols) if (Math.abs(col.right - a.right) < Math.abs(best.right - a.right)) best = col;
+      if (Math.abs(best.right - a.right) > 90) continue;
+      if (best.kind === "out") r.out = Math.abs(a.v);
+      else if (best.kind === "in") r.in = Math.abs(a.v);
+      else if (best.kind === "balance") r.balance = a.v;
+      else if (a.v < 0) r.out = -a.v;
+      else r.in = a.v;
+    }
+  };
+
   for (const lines of allLines) {
+    // a payment's detail lines are on its own page: what's at the top of the next one ("Balance summary") isn't one. A
+    // first direct payment still open at a page break carries on below the next page's table heading; the account
+    // lines above that heading (the holder's name…) are skipped
+    detailLines = 3;
+    let aboveHeading = amountLast && lines.some((l) => readHeader(l));
     for (const line of lines) {
+      const sectionCurrency = line.text.match(SECTION_CURRENCY)?.[1];
+      if (sectionCurrency && line.text.length < 90) {
+        currency = sectionCurrency;
+        continue;
+      }
       const h = readHeader(line);
       if (h) {
         header = h;
         detailLines = 0;
+        // first direct / HSBC: known by the table's heading, not the bank's name (a payee can name a bank)
+        amountLast = /paymenttypeanddetails/i.test(line.text.replace(/\s/g, ""));
+        aboveHeading = false;
         continue;
       }
       const amountsInLine = line.cells.some((c) => readAmount(c.text, currency) !== null);
@@ -327,9 +405,72 @@ export function pdfToStatementCsv(pages: PdfPage[]): PdfStatementResult {
         }
       }
       if (!header || skipping) continue;
-      if (NOISE.test(line.text)) continue;
+      if (NOISE.test(line.text) || PERIOD_LINE.test(line.text.trim())) continue;
 
       const amountLeft = Math.min(...header.cols.map((c) => c.x)) - 4;
+
+      if (amountLast) {
+        if (aboveHeading) continue;
+        // Split the line into date, type code, description and amounts.
+        const amounts: { v: number; right: number }[] = [];
+        const text: Cell[] = [];
+        for (const c of line.cells) {
+          const a = c.x >= amountLeft - 30 ? readAmount(c.text, currency) : null;
+          if (a !== null && c.right > amountLeft) amounts.push({ v: a, right: c.right });
+          else if (c.x < amountLeft) text.push(c);
+        }
+        let i = 0;
+        let dateHit: DateHit | null = null;
+        let code: string | undefined;
+        if (text[0] && text[0].x < header.descX - 2) {
+          const d = readDate(text[0].text);
+          if (d) {
+            dateHit = d;
+            const rest = text[0].text.slice(d.len).trim();
+            if (TYPE_CODE.test(rest)) code = rest;
+            i = 1;
+          }
+        }
+        // the type code sits in its own column at the left of the description heading
+        const c = text[i];
+        if (!code && c && c.x < header.descX + 8 && TYPE_CODE.test(c.text) && text[i + 1] && text[i + 1]!.x - c.right > 4) {
+          code = c.text;
+          i++;
+        }
+        const date = dateHit ? iso(dateHit) : undefined;
+        const desc = text.slice(i).map((x) => x.text).join(" ").trim();
+        if (BALANCE_ROW.test(desc)) {
+          if (date) carryDate = date;
+          continue;
+        }
+        if (code) {
+          // a new payment starts here (one before it that never reached an amount is dropped)
+          block = { date: date ?? carryDate, code, lines: desc ? [desc] : [] };
+        } else if (date && desc && !block) {
+          block = { date, lines: [desc] };
+        } else if (block && desc) {
+          block.lines.push(desc);
+        }
+        if (date) carryDate = date;
+        if (!amounts.length || !block) continue;
+        // the amount line ends the payment: payee first, then the place or reference
+        let parts = block.lines.filter((l) => !FX_LINE.test(l));
+        // what the shop charged abroad ("THB 300.00 @ 41.5"): the currency says where it was paid when the bank prints
+        // nothing else (18 Oct 2026)
+        const abroad = block.lines.map((l) => /^([A-Z]{3})\s?([\d,]+\.\d{2})\b/.exec(l)).find((m) => m && m[1] !== currency);
+        let type = block.code;
+        if (parts[0] && INTL_LINE.test(parts[0])) parts = parts.slice(1);
+        else if (parts[0] && CASH_LINE.test(parts[0])) {
+          parts = parts.slice(1);
+          type = "ATM";
+        }
+        const r: Row = { date: block.date ?? "", payee: (parts[0] ?? "").trim(), details: parts.join(" ").trim(), type, currency };
+        if (abroad) r.charged = `${abroad[1]} ${abroad[2]}`;
+        placeAmounts(r, amounts);
+        block = null;
+        if (r.date && (r.out || r.in) && r.payee) rows.push(r);
+        continue;
+      }
       // date: text starting at the left edge of the table, before the description column
       const leadCells = line.cells.filter((c) => c.x < header!.descX - 2);
       const lead = leadCells.map((c) => c.text).join(" ");
@@ -360,17 +501,8 @@ export function pdfToStatementCsv(pages: PdfPage[]): PdfStatementResult {
       const desc = descParts.filter(Boolean).join(" ").replace(/\s*•.*$/, "").trim();
 
       if (amounts.length) {
-        const r: Row = { date: date ?? carryDate ?? "", payee: desc, details: "", type: typeCode && typeCode.length <= 12 ? typeCode : undefined };
-        for (const a of amounts) {
-          let best = header.cols[0]!;
-          for (const col of header.cols) if (Math.abs(col.right - a.right) < Math.abs(best.right - a.right)) best = col;
-          if (Math.abs(best.right - a.right) > 90) continue;
-          if (best.kind === "out") r.out = Math.abs(a.v);
-          else if (best.kind === "in") r.in = Math.abs(a.v);
-          else if (best.kind === "balance") r.balance = a.v;
-          else if (a.v < 0) r.out = -a.v;
-          else r.in = a.v;
-        }
+        const r: Row = { date: date ?? carryDate ?? "", payee: desc, details: "", type: typeCode && typeCode.length <= 12 ? typeCode : undefined, currency };
+        placeAmounts(r, amounts);
         if (date) carryDate = date;
         // zero rows are summary tables (Revolut's "Card payments (CAR) £0.00" legend), not transactions
         if (!r.date || !(r.out || r.in) || BALANCE_ROW.test(desc) || !desc) {
@@ -381,6 +513,16 @@ export function pdfToStatementCsv(pages: PdfPage[]): PdfStatementResult {
         detailLines = 0;
       } else if (date) {
         carryDate = date; // a date on its own line (some banks print the day as a sub-heading)
+      } else if (desc && rows.length && detailLines < 3 && /^fx rate\b/i.test(desc)) {
+        // Revolut: "FX Rate GBP 1 = USD 1.3400", with what the shop charged in the amount column ("$1 340.00"), kept as
+        // "USD 1340.00": the currency says where it was paid when nothing else does (18 Oct 2026)
+        const ccy = /=\s*([A-Z]{3})\b/.exec(desc)?.[1];
+        const amount = line.cells
+          .filter((c) => c.x >= amountLeft - 30)
+          .map((c) => c.text.replace(/[^\d.,]/g, "").replace(/,(?=\d{3}\b)/g, ""))
+          .find((t) => /\d/.test(t));
+        const last = rows[rows.length - 1]!;
+        if (ccy && ccy !== currency && amount && !last.charged) last.charged = `${ccy} ${amount}`;
       } else if (desc && rows.length && detailLines < 3 && !DROP_DETAIL.test(desc)) {
         const last = rows[rows.length - 1]!;
         const clean = desc.replace(/^(to|from|paid to|received from):\s*/i, "").trim();
@@ -393,13 +535,15 @@ export function pdfToStatementCsv(pages: PdfPage[]): PdfStatementResult {
 
   if (!rows.length) warnings.push(scanned ? "This PDF looks like a scan (no text in it). Try the bank's CSV export instead." : "We couldn't find a transaction table in this PDF.");
   const head = "Date,Payee,Description,Paid out,Paid in,Balance,Currency,Type";
-  const csv = [head, ...rows.map((r) => [r.date, r.payee, r.details || r.payee, r.out, r.in, r.balance, currency, r.type ?? ""].map(csvCell).join(","))].join("\n");
+  const describe = (r: Row) => [r.details || r.payee, r.charged].filter(Boolean).join(" ");
+  const csv = [head, ...rows.map((r) => [r.date, r.payee, describe(r), r.out, r.in, r.balance, r.currency, r.type ?? ""].map(csvCell).join(","))].join("\n");
   return {
     csv,
     mapping: { date: 0, payee: 1, description: 2, paidOut: 3, paidIn: 4, balance: 5, currency: 6, type: 7, dateOrder: "YMD" },
     rows: rows.length,
-    currency,
-    bank: bankHit ? { id: bankHit[1], name: bankHit[2] } : undefined,
+    // the currency most rows are in (a statement can have a section per currency)
+    currency: [...rows.reduce((m, r) => m.set(r.currency, (m.get(r.currency) ?? 0) + 1), new Map<string, number>())].sort((a, b) => b[1] - a[1])[0]?.[0] ?? currency,
+    bank: bankHit ? { id: bankHit.id, name: bankHit.name } : undefined,
     noTable: rows.length === 0,
     scanned,
     warnings,

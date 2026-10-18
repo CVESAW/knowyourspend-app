@@ -14,7 +14,8 @@ import { useTheme } from "@/lib/theme";
 import { DataLeavesPanel } from "@/components/DataLeavesPanel";
 import { BackLink, Button, Card, Chip, Divider, Eyebrow, H1, LinkText, P, Page, Row, Spinner } from "@/components/ui";
 
-type Step = "bank" | "file" | "reading" | "mapping" | "check" | "saving" | "looking" | "error";
+type Step = "file" | "reading" | "mapping" | "check" | "saving" | "looking" | "error";
+/** The bank whose download steps were opened last. Only for the help: the bank itself is read from the file (18 Oct 2026). */
 const BANK_KEY = "kys.bank";
 const FIELDS = [
   { k: "date", label: "Date" },
@@ -26,9 +27,9 @@ const FIELDS = [
 
 export default function AddStatement() {
   const t = useTheme();
-  const [step, setStep] = useState<Step>("bank");
-  const [bankId, setBankId] = useState<string | null>(null);
-  const [showSteps, setShowSteps] = useState(false);
+  const [step, setStep] = useState<Step>("file");
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [guideId, setGuideId] = useState<string | null>(null);
   const [file, setFile] = useState<{ name: string; bytes: ArrayBuffer } | null>(null);
   const [parse, setParse] = useState<ParseResult | null>(null);
   const [mapping, setMapping] = useState<Partial<ColumnMapping>>({});
@@ -42,17 +43,13 @@ export default function AddStatement() {
 
   useEffect(() => {
     kv.get(BANK_KEY).then((saved) => {
-      if (saved) {
-        setBankId(saved);
-        setStep("file");
-      }
+      if (saved && BANK_GUIDES.some((g) => g.id === saved)) setGuideId(saved);
     }).catch(() => {});
   }, []);
 
-  const chooseBank = (id: string) => {
-    setBankId(id);
-    kv.set(BANK_KEY, id).catch(() => {});
-    setStep("file");
+  const openGuide = (id: string | null) => {
+    setGuideId(id);
+    if (id) kv.set(BANK_KEY, id).catch(() => {});
   };
 
   const finishParse = (res: ParseResult) => {
@@ -112,68 +109,60 @@ export default function AddStatement() {
     router.replace({ pathname: "/item/[id]", params: { id: itemId, new: "1" } });
   };
 
-  const bank = BANK_GUIDES.find((b) => b.id === bankId);
+  const guide = BANK_GUIDES.find((b) => b.id === guideId);
 
   return (
     <Page testID="add-statement">
       <BackLink onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))} />
       <H1>Add a bank statement</H1>
 
-      {step === "bank" && (
-        <View style={{ gap: 12 }}>
-          <P muted>Which bank is it from? We'll show you how to download it.</P>
-          <Card style={{ overflow: "hidden" }}>
-            {BANK_GUIDES.map((g, i) => (
-              <View key={g.id}>
-                {i > 0 && <Divider />}
-                <Row onPress={() => chooseBank(g.id)} testID={`bank-${g.id}`}>
-                  <P bold style={{ flex: 1 }}>{g.name}</P>
-                  <View style={{ borderRadius: 6, backgroundColor: t.sunk, paddingHorizontal: 6, paddingVertical: 2 }}>
-                    <Text style={{ fontFamily: "monospace", fontSize: 11, color: t.ink2 }}>{g.format}</Text>
-                  </View>
-                  <Text style={{ color: t.ink3 }}>›</Text>
-                </Row>
-              </View>
-            ))}
-            <Divider />
-            <Row onPress={() => chooseBank("other")} testID="bank-other">
-              <P muted>My bank isn't listed — I have a CSV file</P>
-            </Row>
-          </Card>
-        </View>
-      )}
-
       {step === "file" && (
         <View style={{ gap: 16 }}>
-          {bank && (
-            <Card style={{ padding: 16, gap: 6 }}>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                <P bold style={{ flex: 1, fontSize: 18 }}>{bank.heading ?? `Getting your ${bank.name} statement`}</P>
-                <LinkText onPress={() => setStep("bank")}>Change bank</LinkText>
-              </View>
-              <P small muted={3}>{bank.format} · {bank.history}</P>
-              <LinkText onPress={() => setShowSteps((s) => !s)}>{showSteps ? "Hide the steps" : "Show me how"}</LinkText>
-              {showSteps && (
-                <View style={{ gap: 6, marginTop: 6 }}>
-                  {bank.steps.map((s, i) => (
-                    <P key={s} small muted>{i + 1}. {s}</P>
-                  ))}
-                </View>
-              )}
-            </Card>
-          )}
-          {!bank && bankId === "other" && (
-            <View style={{ flexDirection: "row" }}>
-              <LinkText onPress={() => setStep("bank")}>Choose a bank instead</LinkText>
-            </View>
-          )}
           <Card dashed style={{ padding: 24, alignItems: "center", gap: 12, borderWidth: 2 }}>
             <Text style={{ fontSize: 40 }}>📄</Text>
             <P bold>Choose your statement file</P>
             <P small muted={3}>{PDF_AVAILABLE ? "CSV, TXT, OFX, QIF or PDF" : "CSV, TXT, OFX or QIF"}</P>
             <Button title="Choose file" onPress={choose} testID="choose-file" />
           </Card>
-          <P small muted={3} style={{ textAlign: "center" }}>Your file is opened on this phone. There's no upload.</P>
+          <P small muted={3} style={{ textAlign: "center" }}>We'll work out which bank it's from. Your file is opened on this phone. There's no upload.</P>
+          <Card style={{ overflow: "hidden" }}>
+            <Row onPress={() => setHelpOpen((o) => !o)} testID="statement-help">
+              <P bold style={{ flex: 1 }}>How do I download my statement?</P>
+              <Text style={{ color: t.ink3 }}>{helpOpen ? "▾" : "›"}</Text>
+            </Row>
+            {helpOpen && guide && (
+              <View style={{ paddingHorizontal: 16, paddingBottom: 16, gap: 6 }} testID={`guide-${guide.id}`}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <P bold style={{ flex: 1 }}>{guide.heading ?? `Getting your ${guide.name} statement`}</P>
+                  <LinkText onPress={() => openGuide(null)} testID="guide-other-bank">Another bank</LinkText>
+                </View>
+                <P small muted={3}>{guide.format} · {guide.history}</P>
+                {guide.steps.map((s, i) => (
+                  <P key={s} small muted>{i + 1}. {s}</P>
+                ))}
+              </View>
+            )}
+            {helpOpen && !guide && (
+              <>
+                {BANK_GUIDES.map((g) => (
+                  <View key={g.id}>
+                    <Divider />
+                    <Row onPress={() => openGuide(g.id)} testID={`bank-${g.id}`}>
+                      <P style={{ flex: 1 }}>{g.name}</P>
+                      <View style={{ borderRadius: 6, backgroundColor: t.sunk, paddingHorizontal: 6, paddingVertical: 2 }}>
+                        <Text style={{ fontFamily: "monospace", fontSize: 11, color: t.ink2 }}>{g.format}</Text>
+                      </View>
+                      <Text style={{ color: t.ink3 }}>›</Text>
+                    </Row>
+                  </View>
+                ))}
+                <Divider />
+                <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+                  <P small muted>Bank not listed? Look in its app or online banking for Statements, Download or Export transactions, and save a CSV (best) or PDF.</P>
+                </View>
+              </>
+            )}
+          </Card>
         </View>
       )}
 
@@ -227,7 +216,7 @@ export default function AddStatement() {
         <View style={{ gap: 16 }} testID="statement-check">
           <Card style={{ padding: 16, gap: 4 }}>
             <Eyebrow>Read on this phone</Eyebrow>
-            <P bold style={{ fontSize: 18 }}>
+            <P bold style={{ fontSize: 18 }} testID="statement-bank">
               {prep.parse.bank?.name ?? "Your bank"} · {monthRange(prep.parse.dateRange?.from, prep.parse.dateRange?.to)}
             </P>
             <P small muted>

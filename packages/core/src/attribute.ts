@@ -55,7 +55,7 @@ export interface Attribution {
  * Payment facilitators put their own name in front of the real shop ("PAYPAL *TCGPLAYER", "SQ *THE OLD BAKEHOUSE"). The
  * bank may print words first ("CARD PAYMENT TO PAYPAL *…", "VIS KLARNA*…"; 18 Oct 2026: those counted as the facilitator).
  */
-export const FACILITATOR = /(?:^|[^A-Z0-9])(SQ|SUMUP|ZETTLE_?|IZETTLE|IZ|PAYPAL|PP|GOOGLE|CRV|SP|TST|KLARNA|CLEARPAY)\s*\*/i;
+export const FACILITATOR = /(?:^|[^A-Z0-9])(SQ|SUMUP|ZETTLE_?|IZETTLE|IZ|PAYPAL|PP|GOOGLE|CRV|SP|TST|KLARNA|CLEARPAY|BT)\s*\*/i;
 
 /**
  * Card readers small businesses use, by the prefix they put in the bank text ("SQ *THE BEAN HOUSE"). A payment

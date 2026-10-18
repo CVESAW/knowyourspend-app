@@ -24,5 +24,32 @@
   "rows": 28,
   "out": 11020.86,
   "in": 7524.73
+ },
+ "firstdirect": {
+  "rows": 15,
+  "out": 646.42,
+  "in": 1900.0
+ },
+ "revolut-multicurrency": {
+  "rows": 9,
+  "out": 255.15,
+  "in": 1900.0,
+  "byCurrency": {
+   "EUR": {
+    "rows": 2,
+    "out": 4.2,
+    "in": 50.0
+   },
+   "GBP": {
+    "rows": 6,
+    "out": 232.95,
+    "in": 1850.0
+   },
+   "USD": {
+    "rows": 1,
+    "out": 18.0,
+    "in": 0.0
+   }
+  }
  }
 }
