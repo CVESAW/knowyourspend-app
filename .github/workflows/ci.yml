@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Tests, types and builds
+    runs-on: ubuntu-24.04 # 26.04 has no Python 3.9, the oldest kys.py supports (11 Nov 2026)
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Ownership data is valid
+        run: pnpm --filter @kys/ownership validate
+      - name: Unit tests
+        run: pnpm -r test
+      - name: Look-up service tests (no network)
+        run: node services/lookup/test/names.mjs && node services/lookup/test/pipeline.mjs
+      - name: Email functions tests (no network)
+        run: node --experimental-strip-types services/supabase/test/email.mjs
+      - name: Type check
+        run: pnpm -r typecheck
+      - name: Python tool is built from the current TypeScript
+        run: node tools/python/build.mjs --check
+      - name: Python 3.9, the oldest the tool supports
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Python tool gives the same answers as the TypeScript engine
+        run: |
+          pnpm --filter @kys/ownership exec tsx ../../tools/python/vectors.ts --out "$RUNNER_TEMP/vectors.json"
+          KYS_VECTORS="$RUNNER_TEMP/vectors.json" python -m unittest discover -s tools/python -v
+      - name: Build Expo web app (with the server-backed extras on, so the smoke test covers them)
+        run: pnpm --filter mobile build:web
+        env:
+          EXPO_PUBLIC_ONLINE_EXTRAS: "1"
+      - name: Android bundle compiles
+        working-directory: apps/mobile
+        run: npx expo export -p android --output-dir /tmp/android-bundle
+      - name: Install Chromium for end-to-end tests
+        working-directory: apps/mobile
+        run: npx playwright install --with-deps chromium
+      - name: End-to-end smoke test (phone size, production headers, no outside requests)
+        run: pnpm --filter mobile e2e
+      - name: Website search box in a browser (look-up stubbed; checks what is sent, and no outside requests)
+        run: pnpm --filter site build && node apps/mobile/e2e/site-lookup.mjs
+      - name: Keep the failure screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-failure
+          path: apps/mobile/e2e/failure.png
+          if-no-files-found: ignore

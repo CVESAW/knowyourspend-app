@@ -1,0 +1,14 @@
+{
+  "origin": "https://knowyourspend.org",
+  "webAppUrl": "https://app.knowyourspend.org",
+  "contactEmail": "hello@knowyourspend.org",
+  "sourceUrl": "https://github.com/CVESAW/knowyourspend-app",
+  "company": "KnowYourSpend",
+  "playPackage": "uk.knowyourspend.app",
+  "playLive": false,
+  "appStoreId": null,
+  "appleProviderToken": null,
+  "metaPixelId": null,
+  "lookupUrl": "https://cxvwngmnkxtweuwaxfmz.supabase.co/functions/v1/kys-lookup",
+  "lookupKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4dnduZ21ua3h0d2V1d2F4Zm16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODg2MzgsImV4cCI6MjA5MDU2NDYzOH0.707IwxJpvRl_ffzp7Jpfro7LrAJJ5h_bvv77YC5avgc"
+}

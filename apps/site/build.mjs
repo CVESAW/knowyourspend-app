@@ -1,0 +1,460 @@
+/**
+ * Builds the KnowYourSpend website into dist/: the landing page, the privacy notice and terms (from
+ * legal/*.md at the repo root, so there is one copy of each), a help page, and the sample statement.
+ * Plain Node, no dependencies:  node build.mjs
+ *
+ * Settings come from site.config.json; these environment variables override them on Vercel:
+ *   SITE_APP_STORE_ID   numeric App Store id once the iPhone app is live
+ *   SITE_APPLE_PT       App Store Connect provider token, for campaign links
+ *   SITE_PLAY_LIVE      "1" once the Android app is live on Google Play
+ *   SITE_META_PIXEL_ID  Meta Pixel id; without it there is no cookie banner and no pixel
+ */
+import { createHash } from "node:crypto";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { build as esbuild } from "esbuild";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const repo = join(here, "..", "..");
+const out = join(here, "dist");
+const cfg = JSON.parse(readFileSync(join(here, "site.config.json"), "utf8"));
+const env = process.env;
+if (env.SITE_APP_STORE_ID) cfg.appStoreId = env.SITE_APP_STORE_ID;
+if (env.SITE_APPLE_PT) cfg.appleProviderToken = env.SITE_APPLE_PT;
+if (env.SITE_PLAY_LIVE) cfg.playLive = env.SITE_PLAY_LIVE === "1";
+if (env.SITE_META_PIXEL_ID) cfg.metaPixelId = env.SITE_META_PIXEL_ID;
+if (cfg.metaPixelId && !/^\d{6,20}$/.test(String(cfg.metaPixelId))) throw new Error("Meta Pixel id must be digits");
+if (cfg.appStoreId && !/^\d{6,12}$/.test(String(cfg.appStoreId))) throw new Error("App Store id must be digits");
+
+rmSync(out, { recursive: true, force: true });
+mkdirSync(join(out, "assets"), { recursive: true });
+
+// ── Assets with content hashes, so they can be cached for a year ─────────────────────────────
+const asset = (file) => {
+  const buf = readFileSync(join(here, "src", file));
+  const h = createHash("sha256").update(buf).digest("hex").slice(0, 10);
+  const name = file.replace(/(\.\w+)$/, `.${h}$1`);
+  writeFileSync(join(out, "assets", name), buf);
+  return `/assets/${name}`;
+};
+const CSS = asset("site.css");
+const JS = asset("site.js");
+const JS_FLAG = asset("js.js");
+cpSync(join(here, "public"), out, { recursive: true });
+const sha256 = (buf) => createHash("sha256").update(buf).digest("hex");
+
+// ── The search box (since 22 Oct 2026): the app's own matching, bundled for the browser ──────────────────
+// Same code as the app (packages/core, ownership, statement); ".web.ts" first, so the 1.6 MB generated brand list
+// isn't bundled but fetched from /data after the page is up, as the web app does.
+const pkgSrc = (p) => join(repo, "packages", p, "src");
+const lookupBundle = await esbuild({
+  entryPoints: [join(here, "src", "lookup.ts")],
+  bundle: true, write: false, minify: true, format: "iife", target: "es2020", platform: "browser", legalComments: "none", logLevel: "warning",
+  resolveExtensions: [".web.ts", ".ts", ".js", ".json"],
+  alias: { "@kys/ownership": pkgSrc("ownership"), "@kys/statement": pkgSrc("statement"), "@kys/core": pkgSrc("core") },
+});
+const lookupJs = Buffer.from(lookupBundle.outputFiles[0].contents);
+const LOOKUP_JS = `/assets/lookup.${sha256(lookupJs).slice(0, 10)}.js`;
+writeFileSync(join(out, LOOKUP_JS.slice(1)), lookupJs);
+
+// ── Open data: the files the app, the search box and the Python script all match against ─────────────────
+// Hashed names, so they can be cached for a year; data/manifest.json lists them with their SHA-256 for kys.py.
+const DATA_FILES = ["merchants.json", "product-brands.json", "open-brands.json", "open-brand-corrections.json", "countries.json"];
+mkdirSync(join(out, "data", "files"), { recursive: true });
+const dataFiles = {};
+for (const f of DATA_FILES) {
+  const buf = readFileSync(join(repo, "packages", "ownership", "data", f));
+  const sum = sha256(buf);
+  const name = f.replace(/\.json$/, `.${sum.slice(0, 12)}.json`);
+  writeFileSync(join(out, "data", "files", name), buf);
+  dataFiles[f] = { url: `/data/files/${name}`, sha256: sum, bytes: buf.length };
+}
+const dataVersion = sha256(Buffer.from(DATA_FILES.map((f) => dataFiles[f].sha256).join(""))).slice(0, 12);
+writeFileSync(join(out, "data", "manifest.json"), `${JSON.stringify({
+  version: dataVersion,
+  about: "The ownership list KnowYourSpend matches against: hand-built merchants and product brands, brands generated from OpenStreetMap and Wikidata, and our corrections to them. Same licence as the code (MIT); see NOTICE in the source code for the sources' own terms.",
+  source: cfg.sourceUrl,
+  credits: ["OpenStreetMap name-suggestion-index (BSD-3-Clause)", "Wikidata (CC0)", "GLEIF (CC0)", "Companies House (Open Government Licence v3.0)"],
+  files: dataFiles,
+}, null, 2)}\n`);
+const OPEN_BRANDS = dataFiles["open-brands.json"].url;
+
+// ── The Python script, when it's been built (tools/python) ────────────────────────────────────────────
+const pyFile = join(repo, "tools", "python", "dist", "kys.py");
+let DOWNLOAD = `<p class="aside">The download goes up here shortly. Until then, the code is on <a href="${cfg.sourceUrl}">GitHub</a>.</p>`;
+if (existsSync(pyFile)) {
+  const buf = readFileSync(pyFile);
+  mkdirSync(join(out, "download"), { recursive: true });
+  writeFileSync(join(out, "download", "kys.py"), buf);
+  DOWNLOAD = `<p><a class="btn" href="/download/kys.py" download>Download kys.py</a></p>
+    <p class="aside">Python 3.9 or newer, nothing else to install. To check your copy is ours, its SHA-256 is <code class="hash">${sha256(buf)}</code></p>`;
+}
+
+// ── Tiny Markdown renderer for our own legal pages (headings, lists, tables, links, bold) ────
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const inline = (s) =>
+  esc(s)
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+|\/[^)\s]*|#[^)\s]+|mailto:[^)\s]+)\)/g, '<a href="$2">$1</a>')
+    .replace(/(^|[\s(])(https:\/\/[^\s<)]+[^\s<).,;:])/g, '$1<a href="$2">$2</a>')
+    .replace(/(^|[\s(])([a-z0-9.]+@knowyourspend\.org)/g, '$1<a href="mailto:$2">$2</a>')
+    .replace(/(^|[\s(])(ico\.org\.uk\/make-a-complaint)/g, '$1<a href="https://$2">$2</a>');
+
+function markdown(src) {
+  const meta = {};
+  const fm = src.match(/^---\n([\s\S]*?)\n---\n/);
+  if (fm) {
+    for (const line of fm[1].split("\n")) {
+      const m = line.match(/^(\w+):\s*(.*)$/);
+      if (m) meta[m[1]] = m[2];
+    }
+    src = src.slice(fm[0].length);
+  }
+  const lines = src.split("\n");
+  const html = [];
+  let i = 0;
+  while (i < lines.length) {
+    const l = lines[i];
+    if (!l.trim()) { i++; continue; }
+    // fenced code (the API page's examples): shown exactly as written
+    if (/^```/.test(l)) {
+      const code = [];
+      i++;
+      while (i < lines.length && !/^```/.test(lines[i])) code.push(lines[i++]);
+      i++;
+      html.push(`<pre><code>${esc(code.join("\n"))}</code></pre>`);
+      continue;
+    }
+    const h = l.match(/^(#{1,3}) (.*)$/);
+    if (h) {
+      // h2 and h3 get an id from their text, so a page can link to a section (/how-it-works#the-rules-we-follow)
+      const id = h[1].length > 1 ? ` id="${h[2].toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}"` : "";
+      html.push(`<h${h[1].length}${id}>${inline(h[2])}</h${h[1].length}>`);
+      i++;
+      continue;
+    }
+    if (/^\|/.test(l)) {
+      const rows = [];
+      while (i < lines.length && /^\|/.test(lines[i])) rows.push(lines[i++]);
+      const cells = (r) => r.replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+      const [head, , ...bodyRows] = rows;
+      const heads = cells(head);
+      // data-label: the column's heading, shown before each cell where narrow screens stack a row's cells
+      html.push(`<table><thead><tr>${heads.map((c) => `<th>${inline(c)}</th>`).join("")}</tr></thead><tbody>${bodyRows
+        .map((r) => `<tr>${cells(r).map((c, k) => `<td data-label="${esc(heads[k] ?? "")}">${inline(c)}</td>`).join("")}</tr>`)
+        .join("")}</tbody></table>`);
+      continue;
+    }
+    const list = l.match(/^(\s*)(- |\d+\. )/);
+    if (list) {
+      const ordered = /\d/.test(list[2]);
+      const items = [];
+      while (i < lines.length && (/^(- |\d+\. )/.test(lines[i]) || (/^\s{2,}\S/.test(lines[i]) && items.length))) {
+        if (/^(- |\d+\. )/.test(lines[i])) items.push(lines[i].replace(/^(- |\d+\. )/, ""));
+        else items[items.length - 1] += " " + lines[i].trim();
+        i++;
+      }
+      const tag = ordered ? "ol" : "ul";
+      html.push(`<${tag}>${items.map((t) => `<li>${inline(t)}</li>`).join("")}</${tag}>`);
+      continue;
+    }
+    const para = [];
+    while (i < lines.length && lines[i].trim() && !/^(#|\||- |\d+\. |```)/.test(lines[i])) para.push(lines[i++].trim());
+    html.push(`<p>${inline(para.join(" "))}</p>`);
+  }
+  return { meta, html: html.join("\n") };
+}
+
+// ── Facts shown on the page, read from the data the app ships with ────────────────────────────
+const ownData = join(repo, "packages", "ownership", "data");
+const ownJson = (file) => JSON.parse(readFileSync(join(ownData, file), "utf8"));
+const merchants = ownJson("merchants.json"), openBrands = ownJson("open-brands.json").brands;
+const brandCount = merchants.length + openBrands.length;
+const BRANDS = (Math.floor(brandCount / 500) * 500).toLocaleString("en-GB"); // "over 6,500"
+// The app's download guides, one per bank or card (the "any bank" OFX/QIF guide isn't counted)
+const guideIds = [...readFileSync(join(repo, "packages", "core", "src", "bank-guides.ts"), "utf8").matchAll(/^\s*\{ id: "([\w-]+)"/gm)].map((m) => m[1]);
+if (guideIds.length < 5) throw new Error("site build: couldn't read the bank guides");
+const GUIDES = String(guideIds.filter((id) => id !== "ofx").length);
+// For the how-it-works page: the hand-researched list, the open-data list, and the AI review's changes to it
+const handList = [...merchants, ...ownJson("product-brands.json")];
+const HAND = String(handList.length);
+const corrections = ownJson("open-brand-corrections.json").corrections;
+// The open-data brands the app ships: not on the hand-researched list (by Wikidata id or name) and not dropped by the
+// review, as in packages/ownership (openBrandEntries).
+const normName = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/['‘’`]/g, "").replace(/[^A-Z0-9&]+/g, " ").replace(/\s+/g, " ").trim();
+const handIds = new Set(handList.flatMap((e) => [...e.chain.filter((h) => h.source === "wikidata" && h.source_id).map((h) => h.source_id), ...(e.qid ? [e.qid] : [])]));
+const handNames = new Set(handList.flatMap((e) => e.aliases.map(normName)));
+const dropped = new Set(corrections.filter((c) => c.action === "drop").map((c) => c.qid));
+const openShipped = openBrands.filter((r) => !handIds.has(r.qid) && !r.aliases.some((a) => handNames.has(normName(a))) && !dropped.has(r.qid)).length;
+const OPEN = (Math.round(openShipped / 100) * 100).toLocaleString("en-GB");
+const FIXES = String(corrections.filter((c) => c.action === "fix").length);
+const DROPS = String(corrections.filter((c) => c.action === "drop").length);
+const NARROWED = String(corrections.filter((c) => c.action === "narrow").length);
+
+// ── Calls to action ───────────────────────────────────────────────────────────────────────────
+const ios = cfg.appStoreId
+  ? `https://apps.apple.com/gb/app/id${cfg.appStoreId}?mt=8${cfg.appleProviderToken ? `&pt=${cfg.appleProviderToken}` : ""}&ct=website`
+  : null;
+const android = cfg.playLive ? `https://play.google.com/store/apps/details?id=${cfg.playPackage}` : null;
+const storesLive = !!(ios || android);
+// Web-first: "Add my statement" goes straight to the statement screen in the web app, and "Try a
+// sample statement" opens the demo (made-up data) in one tap — neither needs an account. Store
+// buttons appear only once a store app is live.
+const ctas = `<div class="ctas">
+  ${ios ? `<a class="btn primary" data-store="ios" href="${ios}">Get the iPhone app</a>` : ""}
+  ${android ? `<a class="btn primary" data-store="android" href="${android}">Get the Android app</a>` : ""}
+  <a class="btn ${storesLive ? "" : "primary"}" data-store="web" data-cta="add" href="${cfg.webAppUrl}/add-statement">${storesLive ? "Add a statement in your browser" : "Add my statement"}</a>
+  <a class="btn" data-store="web" data-cta="receipt" href="${cfg.webAppUrl}/add-receipt">Add a receipt</a>
+  <a class="btn" data-store="web" data-cta="demo" href="${cfg.webAppUrl}/?demo=1">Try a sample statement</a>
+</div>`;
+
+// ── Page shell ────────────────────────────────────────────────────────────────────────────────
+const year = new Date().getFullYear();
+const page = ({ title, description, path, main, bodyClass = "", scripts = [] }) => `<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)}</title>
+<meta name="description" content="${esc(description)}">
+<link rel="canonical" href="${cfg.origin}${path}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="KnowYourSpend">
+<meta property="og:title" content="${esc(title)}">
+<meta property="og:description" content="${esc(description)}">
+<meta property="og:url" content="${cfg.origin}${path}">
+<meta property="og:image" content="${cfg.origin}/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#8c2f39">
+<link rel="icon" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="${cfg.webAppUrl}">
+<link rel="stylesheet" href="${CSS}">
+<script src="${JS_FLAG}"></script>
+<script src="${JS}" defer></script>
+${scripts.map((src) => `<script src="${src}" defer></script>\n`).join("")}</head>
+<body class="${bodyClass}"${cfg.metaPixelId ? ` data-pixel="${cfg.metaPixelId}"` : ""}>
+<header class="top"><div class="wrap"><a class="wordmark" href="/">KnowYourSpend</a><nav class="topnav" aria-label="Main"><a href="/how-it-works"${path === "/how-it-works" ? ' aria-current="page"' : ""}>How it works</a><a href="/api"${path === "/api" ? ' aria-current="page"' : ""}>API</a><a class="open" href="/statements"${path === "/statements" ? ' aria-current="page"' : ""}>Statements &amp; receipts</a></nav></div></header>
+<main class="wrap">
+${main}
+</main>
+<footer><div class="wrap">
+<nav aria-label="Site">
+  <a href="/how-it-works">How we work out who owns what</a>
+  <a href="/privacy">Privacy notice</a>
+  <a href="/terms">Terms of use</a>
+  <a href="/support">Help and contact</a>
+  <a href="/statements#transparency">Where your data goes</a>
+  <a href="${cfg.sourceUrl}">Source code</a>
+  ${cfg.metaPixelId ? `<button class="linkish" type="button" data-cookie-settings>Cookie settings</button>` : ""}
+</nav>
+<p>Estimates based on published ownership data; may contain errors. <a href="mailto:${cfg.contactEmail}?subject=Ownership%20mistake">Report a mistake</a>. Brand names are used for identification only; no affiliation or endorsement. KnowYourSpend doesn't give financial advice.</p>
+<p>© ${year} ${esc(cfg.company)}. ${esc(cfg.contactEmail)}</p>
+</div></footer>
+${cfg.metaPixelId ? `<div class="consent" id="consent" role="dialog" aria-label="Cookie choice" hidden>
+  <p>Can we use a Meta cookie to see which of our ads brought you here? It's only on this website, never in the app. Say no and nothing is loaded.</p>
+  <div class="row"><button type="button" data-yes>Accept</button><button type="button" data-no>Reject</button></div>
+</div>` : ""}
+</body>
+</html>
+`;
+
+const write = (path, html) => {
+  const file = path === "/" ? "index.html" : `${path.slice(1)}.html`;
+  writeFileSync(join(out, file), html);
+};
+
+// The Meta Pixel is off while we don't advertise (18 Oct 2026), and the privacy notice says the website has no
+// trackers: it must be updated before a pixel id goes in.
+if (cfg.metaPixelId && /uses no cookies or trackers/.test(readFileSync(join(repo, "legal", "privacy-notice.md"), "utf8")))
+  throw new Error("privacy notice section 8 says the website has no trackers: update it before switching on the Meta Pixel");
+// …and the website's security policy (vercel.json) lets it load nothing from Meta until then.
+if (cfg.metaPixelId && !/connect\.facebook\.net/.test(readFileSync(join(here, "vercel.json"), "utf8")))
+  throw new Error("vercel.json's Content-Security-Policy blocks Meta: add connect.facebook.net (script-src, connect-src) and www.facebook.com (img-src, connect-src) before switching on the Meta Pixel");
+const visitWho = `Our web host (Vercel) sees your IP address, as for any website, and so does Supabase when the app looks up a shop or uses your account.${cfg.metaPixelId ? " On this website only, Meta's pixel loads if you accept cookies" : " No cookies or trackers"}`;
+const visitKeep = cfg.metaPixelId ? "Say no to cookies. The app has no ads or trackers" : "Nothing to do: there are no ads or trackers";
+
+// Statements and receipts: the app, the Python script and how we protect your data (the old home page)
+const landing = readFileSync(join(here, "src", "statements.html"), "utf8")
+  .replaceAll("{{DOWNLOAD}}", DOWNLOAD)
+  .replaceAll("{{VISIT_WHO}}", visitWho)
+  .replaceAll("{{VISIT_KEEP}}", visitKeep)
+  .replaceAll("{{CTAS}}", ctas)
+  .replaceAll("{{BRANDS}}", BRANDS)
+  .replaceAll("{{GUIDES}}", GUIDES)
+  .replaceAll("{{EMAIL}}", cfg.contactEmail)
+  .replaceAll("{{APP}}", cfg.webAppUrl)
+  .replaceAll("{{SOURCE}}", cfg.sourceUrl)
+  .replaceAll("{{SOURCE_LABEL}}", cfg.sourceUrl.replace(/^https:\/\//, ""));
+if (/\{\{\w+\}\}/.test(landing)) throw new Error("statements page has an unfilled {{placeholder}}");
+write("/statements", page({
+  title: "Check a whole statement or receipt | KnowYourSpend",
+  description: "See your spending by the country that owns each business: in your browser, or with our script on your own computer, offline. We never see your amounts, dates or balances.",
+  path: "/statements",
+  main: landing,
+  bodyClass: "home",
+}));
+
+// Home: the search box. The look-up's address must be one the security policy (vercel.json) lets the page reach.
+const lookupOrigin = new URL(cfg.lookupUrl).origin;
+if (!new RegExp(`connect-src[^;]*${lookupOrigin.replace(/[.]/g, "\\.")}`).test(readFileSync(join(here, "vercel.json"), "utf8")))
+  throw new Error(`vercel.json's Content-Security-Policy must allow connect-src ${lookupOrigin} for the search box`);
+// The countries the look-up knows (services/lookup/ai.ts COUNTRY_NAMES), UK first
+const LOOKUP_COUNTRIES = ["GB", "AU", "AT", "BE", "CA", "CZ", "DK", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LU", "NL", "NZ", "NO", "PL", "PT", "RO", "ES", "SE", "CH", "US"];
+const countryNames = ownJson("countries.json");
+const COUNTRY_OPTIONS = LOOKUP_COUNTRIES.map((c) => `<option value="${c}"${c === "GB" ? " selected" : ""}>${esc(countryNames[c]?.name ?? c)}</option>`).join("");
+const home = readFileSync(join(here, "src", "index.html"), "utf8")
+  .replaceAll("{{OPEN_BRANDS}}", OPEN_BRANDS)
+  .replaceAll("{{LOOKUP_URL}}", esc(cfg.lookupUrl))
+  .replaceAll("{{LOOKUP_KEY}}", esc(cfg.lookupKey))
+  .replaceAll("{{COUNTRY_OPTIONS}}", COUNTRY_OPTIONS)
+  .replaceAll("{{EMAIL}}", cfg.contactEmail)
+  .replaceAll("{{APP}}", cfg.webAppUrl)
+  .replaceAll("{{SOURCE}}", cfg.sourceUrl);
+if (/\{\{\w+\}\}/.test(home)) throw new Error("home page has an unfilled {{placeholder}}");
+write("/", page({
+  title: "KnowYourSpend: who owns the shops you pay?",
+  description: "Type a shop or company, or paste a line from your bank statement or a receipt, and see who owns it and how we worked it out. Free, no account, no trackers.",
+  path: "/",
+  main: home,
+  bodyClass: "search-home",
+  scripts: [LOOKUP_JS],
+}));
+
+// The API page (22 Oct 2026): what the hosted API will do, and what developers can use today (open data, kys.py)
+const apiSrc = readFileSync(join(here, "src", "api.md"), "utf8")
+  .replaceAll("{{ORIGIN}}", cfg.origin)
+  .replaceAll("{{EMAIL}}", cfg.contactEmail)
+  .replaceAll("{{SOURCE}}", cfg.sourceUrl)
+  .replaceAll("{{DATA_VERSION}}", dataVersion)
+  .replaceAll("{{BRANDS}}", BRANDS);
+if (/\{\{\w+\}\}/.test(apiSrc)) throw new Error("api.md has an unfilled {{placeholder}}");
+const api = markdown(apiSrc);
+write("/api", page({
+  title: "KnowYourSpend API: who owns a shop, as data",
+  description: "Send a shop name or a line from a bank statement and get back who owns it, the ownership chain, the countries and the sources. Open data and a Python script you can use today.",
+  path: "/api",
+  main: `<article class="doc api">${api.html}</article>`,
+}));
+
+// Legal pages from the one copy in legal/
+for (const [path, file, description] of [
+  ["/privacy", "privacy-notice.md", "What KnowYourSpend keeps on your phone, the little that leaves it, and your rights."],
+  ["/terms", "terms.md", "The terms for using the KnowYourSpend app and website."],
+]) {
+  const { meta, html } = markdown(readFileSync(join(repo, "legal", file), "utf8"));
+  const draft = /^draft/i.test(meta.status ?? "") ? `<p class="draft">${esc(meta.status)}</p>` : "";
+  const body = html.replace(/<h1>(.*?)<\/h1>/, `<h1>$1</h1>\n<p class="updated">Last updated ${esc(meta.updated ?? "")}</p>\n${draft}`);
+  write(path, page({ title: `${meta.title} | KnowYourSpend`, description, path, main: `<article class="doc">${body}</article>` }));
+}
+
+// How we work out where your money goes (from src/how-it-works.md; the numbers come from the data the app ships with)
+const howSrc = readFileSync(join(here, "src", "how-it-works.md"), "utf8")
+  .replaceAll("{{BRANDS}}", BRANDS)
+  .replaceAll("{{GUIDES}}", GUIDES)
+  .replaceAll("{{HAND}}", HAND)
+  .replaceAll("{{OPEN}}", OPEN)
+  .replaceAll("{{FIXES}}", FIXES)
+  .replaceAll("{{DROPS}}", DROPS)
+  .replaceAll("{{NARROWED}}", NARROWED)
+  .replaceAll("{{EMAIL}}", cfg.contactEmail)
+  .replaceAll("{{SOURCE}}", cfg.sourceUrl)
+  .replaceAll("{{SOURCE_LABEL}}", cfg.sourceUrl.replace(/^https:\/\//, ""));
+if (/\{\{\w+\}\}/.test(howSrc)) throw new Error("how-it-works.md has an unfilled {{placeholder}}");
+const how = markdown(howSrc);
+write("/how-it-works", page({
+  title: `${how.meta.title} | KnowYourSpend`,
+  description: "How KnowYourSpend decides which country owns each shop you pay: the built-in list, local independents, the online look-up, the rules we follow and how sure we are.",
+  path: "/how-it-works",
+  main: `<article class="doc how">${how.html.replace(/<h1>(.*?)<\/h1>/, `<h1>$1</h1>\n<p class="updated">Last updated ${esc(how.meta.updated ?? "")}</p>`)}</article>`,
+}));
+
+// Help page
+const help = markdown(`# Help and contact
+
+## Does my statement get uploaded?
+
+No. KnowYourSpend reads it on your phone, or in your browser if you use the web version. Amounts, dates,
+balances and account numbers stay on your device, and in any encrypted backup or account copy you make, which
+only you can open. What can leave is the name of a shop the app doesn't
+know, so it can look up the owner; filters hold back names that look like a person or something
+sensitive. You can switch look-ups off in Settings → Shops we don't know.
+
+## How do I get a statement from my bank?
+
+In your banking app or online banking, look for Statements, choose a month, and save it as a PDF, or
+export your transactions as a CSV. The app's + button has step-by-step guides for ${GUIDES} banks and cards, including
+Monzo, Starling, Revolut, Barclays, Lloyds, NatWest, Nationwide and Santander.
+
+## A shop has the wrong country. What can I do?
+
+Tap the shop in the report to see why it counts where it does, then choose "Set the country myself";
+your choice is kept with the rest of your data, which only you can read. Please also tell us at hello@knowyourspend.org so we can look into it
+and fix it for everyone.
+
+## How do you know who owns a shop?
+
+From our own list of who owns over ${BRANDS} shops and brands, built from company registers and open
+data, and, if you allow it, an online look-up for the rest. Tap any shop in the app to see the reasons
+for that shop. The whole method is on [How we work out where your money goes](/how-it-works).
+
+## What does "Local independent" mean?
+
+A small business we can't name an owner for, like a café, a market stall or a barber, that looks local:
+paid with a card reader small businesses use (Square, SumUp or Zettle), or with a name like CAFE or
+BAKERY, or found to be local by our look-up. It's counted in the country where you paid, because almost
+all of them are owned there.
+
+## What does "Estimated" mean?
+
+For any other shop we can't link to an owner, the app counts it under the country where you paid, read
+from the country code, town or web address your bank prints. An unknown shop in Leeds is almost
+always UK-owned. You can switch estimates off in Settings.
+
+## What do "Checked", "Matched" and "Unverified" mean?
+
+How sure we are about the owner. Checked: a person verified each step. Matched: worked out from
+official company identifiers that agree, or found by name in an open dataset. Unverified: a best guess,
+often from AI, labelled so you can tell.
+
+## Do I need to install anything?
+
+No. KnowYourSpend runs in your phone's browser. To open it like an app, add it to your home screen: in
+Safari tap Share, then "Add to Home Screen"; in Chrome choose "Install app" or "Add to Home screen".
+That also helps your browser keep your data, which lives on your phone. Saving an encrypted backup
+(Settings → Back up or move your data) or an encrypted copy in an optional account (Settings → Your
+account) gives you a copy you control.
+
+## Can I keep my results?
+
+Yes. Tap "Email me my results" to send yourself the percentages and the well-known shops you pay most
+(never amounts, dates or balances). No account needed; we use your address to send that email and
+don't keep it unless you ask for updates. To open your data on another phone or computer, sign in with
+your email in Settings → Your account and choose a passphrase. Your data is encrypted with it on your
+device before it's saved, so we can't read it, and if you forget the passphrase we can't recover it.
+
+## How do I delete my data?
+
+Settings → Delete all my data. Your data is on your device, so that deletes the app's copy of it,
+including any temporary copies of files you picked. Deleting the app, or clearing the site's data in
+your browser, does the same. Backups you saved elsewhere stay where you put them. If you made an
+account, Settings → Delete my account deletes it and its encrypted copy.
+
+## Is it free?
+
+Yes. There are no ads and no in-app purchases, and you don't need an account.
+
+## Contact
+
+Email hello@knowyourspend.org. We aim to reply within two working days.
+`);
+write("/support", page({ title: "Help and contact | KnowYourSpend", description: "Answers to common questions about KnowYourSpend, and how to contact us.", path: "/support", main: `<article class="doc">${help.html}</article>` }));
+
+write("/404", page({ title: "Page not found | KnowYourSpend", description: "This page doesn't exist.", path: "/404", main: `<article class="doc"><h1>This page doesn't exist</h1><p><a href="/">Go to the home page</a></p></article>` }));
+
+writeFileSync(join(out, "robots.txt"), `User-agent: *\nAllow: /\nSitemap: ${cfg.origin}/sitemap.xml\n`);
+writeFileSync(join(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${["/", "/api", "/statements", "/how-it-works", "/privacy", "/terms", "/support"].map((p) => `<url><loc>${cfg.origin}${p}</loc></url>`).join("")}</urlset>\n`);
+
+console.log(`Built ${readdirSync(out).length} entries in dist/ (pixel: ${cfg.metaPixelId ? "on, behind consent" : "off"}; iPhone: ${ios ? "live" : "not yet"}; Android: ${android ? "live" : "not yet"})`);

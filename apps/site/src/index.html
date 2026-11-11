@@ -1,0 +1,54 @@
+<section class="search" id="top">
+  <p class="services"><a href="#q">Look-up</a><span aria-hidden="true">·</span><a href="/api">API</a><span aria-hidden="true">·</span><a href="/statements">Statements &amp; receipts</a></p>
+  <h1>Who owns the shops you pay?</h1>
+  <p class="lede">Look up any shop, brand, or line from a bank statement or receipt, here or from your own code with our API. See who owns it, and exactly how we know.</p>
+
+  <form id="lookup" class="lookup" role="search" action="#" data-open-brands="{{OPEN_BRANDS}}" data-lookup-url="{{LOOKUP_URL}}" data-lookup-key="{{LOOKUP_KEY}}" data-report="{{EMAIL}}">
+    <label class="vh" for="q">A shop, a company, or a line from a statement or receipt</label>
+    <div class="box">
+      <input id="q" name="q" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="140" placeholder="e.g. COSTA COFFEE 43012 LONDON GB" required>
+      <button class="btn primary" type="submit">Look up</button>
+    </div>
+    <div class="opts">
+      <label for="country">Your bank's country</label>
+      <select id="country" name="c">{{COUNTRY_OPTIONS}}</select>
+    </div>
+    <p class="sends" id="sends">Names we know are matched here, in your browser. If we don't know one, only the shop's name goes to our online look-up.</p>
+  </form>
+  <p class="dev-line">Building something? <a href="/api">Get the same answers as JSON from our API</a>.</p>
+
+  <p class="try"><span>Try</span>
+    <button type="button" class="chip" data-q="COSTA COFFEE 43012 LONDON GB">COSTA COFFEE 43012 LONDON GB</button>
+    <button type="button" class="chip" data-q="PAYPAL *NETFLIX">PAYPAL *NETFLIX</button>
+    <button type="button" class="chip" data-q="AMZN MKTP UK*2X4AB12C3">AMZN MKTP UK*2X4AB12C3</button>
+    <button type="button" class="chip" data-q="Boots">Boots</button>
+    <button type="button" class="chip" data-q="SQ *THE BEAN HOUSE">SQ *THE BEAN HOUSE</button>
+  </p>
+
+  <div id="answer" class="answer-slot" aria-live="polite"></div>
+  <noscript><p class="aside">The search needs JavaScript. You can still <a href="/statements">check a whole statement</a> or read <a href="/how-it-works">how we work out who owns what</a>.</p></noscript>
+</section>
+
+<section class="services-cards" aria-label="What KnowYourSpend does">
+  <div class="service">
+    <p class="eyebrow">For developers <span class="badge">Opening soon</span></p>
+    <h2>The API</h2>
+    <p>Send shop names or statement lines from your own app or spreadsheet. Get back the owner, the ownership chain, the countries and the sources, as JSON. Our open data is ready to use now.</p>
+    <p class="go"><a class="btn" href="/api">Read the API docs</a></p>
+  </div>
+  <div class="service">
+    <p class="eyebrow">In your browser</p>
+    <h2>Statements and receipts</h2>
+    <p>See which countries own every shop on a bank statement, or every brand on a receipt. It's read on your device: amounts, dates and balances never leave it.</p>
+    <p class="go"><a class="btn primary" data-store="web" data-cta="home-add" href="{{APP}}/add-statement">Add a statement</a><a class="btn" data-store="web" data-cta="home-receipt" href="{{APP}}/add-receipt">Add a receipt</a></p>
+    <p class="more"><a href="/statements">How it works, and what stays private</a></p>
+  </div>
+  <div class="service">
+    <p class="eyebrow">On your computer</p>
+    <h2>Run it yourself, offline</h2>
+    <p>Not comfortable using a website? Our free script checks a statement on your own computer. After a one-off download of our open data, nothing leaves it.</p>
+    <p class="go"><a class="btn" href="/statements#run-it-yourself">Get the script</a></p>
+  </div>
+</section>
+
+<p class="privacy-line">Free, with no account, no ads and no trackers. We keep the names people look up and their answers, never who asked. <a href="/statements#privacy">How we protect your data</a> · <a href="{{SOURCE}}">Source code</a></p>

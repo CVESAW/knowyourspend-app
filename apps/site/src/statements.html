@@ -1,0 +1,172 @@
+<section class="hero statements-hero" id="top">
+  <div class="hero-text">
+    <p class="eyebrow">Statements and receipts</p>
+    <h1>Check a whole statement or receipt</h1>
+    <p class="lede">See your spending by the country that owns each business. Choose how you'd like to do it.</p>
+  </div>
+</section>
+
+<section class="choices" aria-label="Ways to check a statement">
+  <div class="choice">
+    <h2>Try it live</h2>
+    <p>Open the app in your browser, with no account. Add a bank statement, or a photo of a receipt. It's read on your device: amounts, dates and balances never leave it.</p>
+    {{CTAS}}
+  </div>
+  <div class="choice" id="run-it-yourself">
+    <h2>Not comfortable? Run it on your computer</h2>
+    <p>Download our script and run it yourself. It's one file you can read. After a one-off download of our open ownership data, it works entirely offline: nothing about your statement leaves your computer.</p>
+    <pre><code>python3 kys.py data update
+python3 kys.py statement my-statement.csv</code></pre>
+    <p>For shops our list doesn't know, add <code>--online</code>. It shows you the shop names first, then sends only those to our look-up.</p>
+    {{DOWNLOAD}}
+  </div>
+  <div class="choice" id="privacy">
+    <h2>How we protect your data</h2>
+    <ul>
+      <li>Your statement is never uploaded. It's read on your device and stays there.</li>
+      <li>Only the names of shops we don't know are looked up. Names that look like a person's, or something sensitive, are held back, and you see the list first.</li>
+      <li>We keep the names and their answers, never who asked.</li>
+      <li>No ads, no trackers and no account needed. The code is open for anyone to check.</li>
+    </ul>
+    <p><a href="#transparency">Every place your data can go</a></p>
+  </div>
+</section>
+
+<section class="how">
+  <h2>How it works</h2>
+  <div class="how-grid">
+    <ol class="steps">
+      <li><h3>Save a statement from your bank</h3><p>In your banking app, find Statements and save one as a PDF or CSV. The app has step-by-step guides for {{GUIDES}} banks and cards.</p></li>
+      <li><h3>Add it to KnowYourSpend</h3><p>It's read on your phone, usually in a few seconds. Nothing to sign up for.</p></li>
+      <li><h3>See who you pay</h3><p>Your spending by the owner's country, the companies you pay most, and where each answer came from. Snap a till receipt to see the brands in your basket too.</p></li>
+    </ol>
+    <figure class="strip" aria-label="Example: eight lines from a made-up bank statement and the country that owns each business">
+      <ol class="lines">
+        <li data-c="GB"><span class="d">12 Oct</span><span class="p">TESCO STORES 3456 LONDON</span><span class="a">£64.20</span><span class="o">United Kingdom</span></li>
+        <li data-c="US"><span class="d">12 Oct</span><span class="p">AMZNMKTPLACE AMAZON.CO.UK</span><span class="a">£17.49</span><span class="o">United States</span></li>
+        <li data-c="DE"><span class="d">13 Oct</span><span class="p">LIDL GB LONDON</span><span class="a">£27.30</span><span class="o">Germany</span></li>
+        <li data-c="US"><span class="d">14 Oct</span><span class="p">NETFLIX.COM</span><span class="a">£12.99</span><span class="o">United States</span></li>
+        <li data-c="GB"><span class="d">15 Oct</span><span class="p">GREGGS 1234 LONDON</span><span class="a">£4.10</span><span class="o">United Kingdom</span></li>
+        <li data-c="GB" class="est"><span class="d">16 Oct</span><span class="p">SQ *THE OLD BAKEHOUSE</span><span class="a">£7.20</span><span class="o">United Kingdom, a local independent (Square card reader)</span></li>
+        <li data-c="person" class="person"><span class="d">16 Oct</span><span class="p">JANE SMITH DINNER</span><span class="a">£25.00</span><span class="o">A person: not counted, never sent</span></li>
+        <li data-c="DE"><span class="d">17 Oct</span><span class="p">ALDI 84 LEEDS</span><span class="a">£31.60</span><span class="o">Germany</span></li>
+      </ol>
+      <div class="split" role="img" aria-label="United Kingdom 46%, Germany 36%, United States 18%">
+        <div class="seg" data-c="GB"><b>46%</b> UK</div>
+        <div class="seg" data-c="DE"><b>36%</b> Germany</div>
+        <div class="seg" data-c="US"><b>18%</b> US</div>
+      </div>
+      <figcaption>The made-up statement behind the sample result.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="stays" id="safe">
+  <h2>Is it safe to add my bank statement?</h2>
+  <p class="intro">Your statement is read on your phone, not uploaded. Here's exactly what stays and what can leave.</p>
+  <div class="cols">
+    <div>
+      <h3>Stays on your phone</h3>
+      <ul>
+        <li>Your statement file</li>
+        <li>Amounts, dates and balances</li>
+        <li>Account and card numbers</li>
+        <li>The names of people you pay</li>
+        <li>Receipt photos, which are read and then thrown away</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Can leave: you see it first and can stop it</h3>
+      <ul>
+        <li>The names of shops the app doesn't already know, so it can look up who owns them. Names that look like a person or something sensitive are held back, you see the list before anything is sent, and you can switch look-ups off.</li>
+        <li>Your results, if you ask us to email them to you: percentages and well-known shop names, never amounts.</li>
+        <li>An encrypted copy of your data, if you choose to save it to an account. It's locked with a passphrase only you know, so we can't read it.</li>
+      </ul>
+      <p class="aside">Check it yourself: add one statement, then turn on airplane mode and add another. It still works.</p>
+    </div>
+  </div>
+</section>
+
+<section class="transparency" id="transparency">
+  <p class="eyebrow">Radical transparency</p>
+  <h2>Every place your data can go</h2>
+  <p class="intro">We'd rather show you than ask you to trust us. This is the full list: who holds what, for how long, and how to keep it from us.</p>
+  <table class="ledger">
+    <thead><tr><th scope="col">What</th><th scope="col">Who holds it</th><th scope="col">For how long</th><th scope="col">To keep it from us</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Your statement: amounts, dates, balances, account numbers and the people you pay</th><td data-label="Who holds it">Only your phone (or your browser, on the web)</td><td data-label="For how long">Until you delete it</td><td data-label="To keep it from us">Nothing to do: it never reaches us</td></tr>
+      <tr><th scope="row">Names of shops the app, or the search box on our home page, doesn't know</th><td data-label="Who holds it">Our look-up service (Supabase, Ireland). It may ask Wikidata, the Global LEI register, Companies House and Mistral AI (France) about the name</td><td data-label="For how long">The name and its answer, 3 days to a year, and how many times each name has been asked about, until a year after the last time. Names it decides aren't a business aren't kept. No record of who asked: just a scrambled code made from your connection's IP address, with that day's look-up counts, kept 2 days to stop misuse</td><td data-label="To keep it from us">In the app: Settings → Shops we don't know → Never. On the website, the line under the search box shows what would be sent before you search</td></tr>
+      <tr><th scope="row">Your email address and results, if you ask us to email them</th><td data-label="Who holds it">Sent through Brevo (France). We don't keep your address</td><td data-label="For how long">Brevo's delivery log: 1 month. Scrambled codes that stop misuse: 2 days</td><td data-label="To keep it from us">Don't use "Email me my results"</td></tr>
+      <tr><th scope="row">A copy of your data, if you make an account</th><td data-label="Who holds it">Supabase (Ireland), locked on your phone first with a passphrase only you know, so we can't read it. Your email address, which Brevo (France) uses to send your sign-in codes</td><td data-label="For how long">Until you delete your account. Brevo's delivery log: 1 month</td><td data-label="To keep it from us">Don't make one: you don't need it</td></tr>
+      <tr><th scope="row">Your email address, if you're signed in and ask for occasional updates</th><td data-label="Who holds it">Us (Supabase, Ireland), with when and how you agreed; sent through Brevo (France)</td><td data-label="For how long">Until you unsubscribe (a link in every email)</td><td data-label="To keep it from us">Leave the updates box unticked</td></tr>
+      <tr><th scope="row">Emails you send us</th><td data-label="Who holds it">Forwarded by Cloudflare to our Gmail inbox (Google)</td><td data-label="For how long">Up to 2 years after your last message</td><td data-label="To keep it from us">Don't email us</td></tr>
+      <tr><th scope="row">Anonymous counts</th><td data-label="Who holds it">Us: one running total per action per day, with nothing about you</td><td data-label="For how long">Kept as totals</td><td data-label="To keep it from us">They're off unless you switch them on</td></tr>
+      <tr><th scope="row">Your visit</th><td data-label="Who holds it">{{VISIT_WHO}}</td><td data-label="For how long">Request logs: an hour at Vercel, 7 days at Supabase</td><td data-label="To keep it from us">{{VISIT_KEEP}}</td></tr>
+    </tbody>
+  </table>
+  <div class="cols">
+    <div class="zero">
+      <h3>Use it without us holding anything</h3>
+      <p>Set look-ups to Never, and skip the email and the account. Then nothing you add ever leaves your phone, and we hold nothing about you. You still get your result: shops on our built-in list of {{BRANDS}} brands are matched on your phone, and the rest are counted by where you paid, or you can set them yourself.</p>
+    </div>
+    <div>
+      <h3>Don't take our word for it</h3>
+      <ul>
+        <li><b>Read the code.</b> The app, the statement reader, the brand list and the look-up service are open source, under the MIT licence: <a href="{{SOURCE}}">{{SOURCE_LABEL}}</a>.</li>
+        <li><b>See every request.</b> In the app, Settings → What we can see lists each look-up it has sent, with exactly what was in it.</li>
+        <li><b>Two addresses, no more.</b> The app's security policy lets it connect only to its own address and our look-up service, and your browser blocks anything else. You can see the policy in your browser's developer tools.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="method">
+  <h2>How we know who owns a shop</h2>
+  <p>KnowYourSpend carries its own list of who owns over {{BRANDS}} shops and brands, so matching happens on your phone. It's built from open data and company registers: Wikidata, the Global LEI register and OpenStreetMap's brand list. Shops that aren't on it can be looked up online, if you allow it.</p>
+  <p>Every answer shows where it came from and how sure we are: <b>Checked</b> (verified by a person), <b>Matched</b> (official records agree) or <b>Unverified</b> (a best guess). Small businesses like cafés and market stalls are counted where you paid, marked "Local independent"; any other shop it doesn't know is counted the same way, marked "Estimated". Or you can set the country yourself.</p>
+  <p><a href="/how-it-works">Read exactly how we work it out</a>: every step, the rules we follow and how accurate it is. In the app, tap any shop to see why it counts where it does.</p>
+  <p class="aside">Spotted a mistake? <a href="mailto:{{EMAIL}}?subject=Ownership%20mistake">Tell us</a> and we'll fix it for everyone.</p>
+</section>
+
+<section class="faq">
+  <h2>Questions</h2>
+  <details>
+    <summary>What exactly gets sent?</summary>
+    <p>By default, only the names of shops the app doesn't recognise, so it can look up their owners. It shows you the list first and holds back anything that looks like a person's name or a sensitive shop. Amounts, dates, balances and account details are never sent. You can switch look-ups off in Settings and nothing is sent at all.</p>
+  </details>
+  <details>
+    <summary>Do I need an account?</summary>
+    <p>No. Everything works without one. If you want, you can email your results to yourself, or sign in with just your email to keep an encrypted copy of your data and open it on another device.</p>
+  </details>
+  <details>
+    <summary>Which banks and files work?</summary>
+    <p>CSV statements from Monzo, Starling, Revolut, Barclays, Lloyds, NatWest, RBS, Nationwide, Santander, Wise and N26, credit card CSVs from Barclaycard, MBNA, Tesco Bank, Aqua and Amex, OFX and QIF files from any bank, and PDF statements (tested with Revolut, Monzo, Barclays and first direct). The app works out which bank a file is from. For other banks, a CSV can be read by matching its columns, and the app has a step-by-step guide to downloading from each bank.</p>
+  </details>
+  <details>
+    <summary>What does "owned outside the UK" mean?</summary>
+    <p>We follow each business up to its ultimate parent company and use the country where that parent is based. A shop on your high street can be owned by a company based abroad. It says nothing about where the staff are, where tax is paid or where the products are made. <a href="/how-it-works">How we work it out</a>.</p>
+  </details>
+  <details>
+    <summary>Do I need to install anything?</summary>
+    <p>No. It runs in your phone's browser. To open it like an app, add it to your home screen: in Safari tap Share, then "Add to Home Screen"; in Chrome choose "Install app" or "Add to Home screen".</p>
+  </details>
+  <details>
+    <summary>Is it really free?</summary>
+    <p>Yes. There are no ads and nothing to buy, and we don't sell data: your statement never reaches us.</p>
+  </details>
+  <details>
+    <summary>How do I delete my data?</summary>
+    <p>In the app, Settings → Delete all my data. It's only on your device, so that removes it. If you made an account, Settings → Delete my account removes that too.</p>
+  </details>
+</section>
+
+<section class="end">
+  <h2>See who you pay</h2>
+  <p>All it takes is one statement. Free, with no account.</p>
+  {{CTAS}}
+</section>
+
+<div class="sticky" id="sticky" aria-hidden="true">
+  <a class="btn primary" data-store="web" data-cta="sticky" href="{{APP}}/add-statement" tabindex="-1">Add my statement</a>
+  <a class="btn" data-store="web" data-cta="sticky-demo" href="{{APP}}/?demo=1" tabindex="-1">Try a sample</a>
+</div>

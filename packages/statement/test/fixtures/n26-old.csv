@@ -1,0 +1,4 @@
+"Date","Payee","Account number","Transaction type","Payment reference","Category","Amount (EUR)","Amount (Foreign Currency)","Type Foreign Currency","Exchange Rate"
+"2019-05-01","REWE Markt GmbH","","MasterCard Payment","","Food & Groceries","-15.20","-15.20","EUR","1.0"
+"2019-05-02","Erika Mustermann","DE89370400440532013000","Outgoing Transfer","Rent","Rent","-400.00","","",""
+"2019-05-03","ACME GmbH","DE02120300000000202051","Income","Salary","Income","2500.00","","",""

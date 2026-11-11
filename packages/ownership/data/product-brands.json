@@ -1,0 +1,1919 @@
+[
+  {
+    "id": "cadbury",
+    "display_name": "Cadbury",
+    "kind": "product_brand",
+    "aliases": [
+      "CADBURY",
+      "CADB",
+      "DAIRY MILK",
+      "CDM",
+      "CADBURYS"
+    ],
+    "chain": [
+      {
+        "name": "Cadbury",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Mondelez International, Inc.",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Made in the UK (Bournville) but owned by Mondelez since 2010.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "mondelez-other",
+    "display_name": "Mondelez brands (Oreo, Toblerone, belVita…)",
+    "kind": "product_brand",
+    "aliases": [
+      "OREO",
+      "TOBLERONE",
+      "BELVITA",
+      "MILKA",
+      "RITZ"
+    ],
+    "chain": [
+      {
+        "name": "Oreo / Toblerone / belVita / Milka / Ritz",
+        "relation": "brand_of",
+        "country": "US",
+        "source": "llm"
+      },
+      {
+        "name": "Mondelez International, Inc.",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "philadelphia",
+    "display_name": "Philadelphia",
+    "kind": "product_brand",
+    "aliases": [
+      "PHILADELPHIA",
+      "PHILA"
+    ],
+    "chain": [
+      {
+        "name": "Philadelphia",
+        "relation": "brand_of",
+        "country": "US",
+        "source": "llm"
+      },
+      {
+        "name": "Mondelez International, Inc.",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Outside North America, Philadelphia is a Mondelez brand.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "heinz",
+    "display_name": "Heinz",
+    "kind": "product_brand",
+    "aliases": [
+      "HEINZ",
+      "HNZ",
+      "BEANZ"
+    ],
+    "chain": [
+      {
+        "name": "Heinz",
+        "relation": "brand_of",
+        "country": "US",
+        "source": "llm"
+      },
+      {
+        "name": "The Kraft Heinz Company",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment). Checked against a fetched primary/press source on 2026-09-28 (see sources).",
+    "sources": [
+      {
+        "label": "CNBC: Kraft Heinz pauses split (11 Feb 2026)",
+        "url": "https://www.cnbc.com/2026/02/11/kraft-heinz-pauses-split-new-ceo-challenges.html"
+      }
+    ],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "The 2025 plan to split Kraft Heinz into two companies was paused in Feb 2026, so Kraft Heinz remains the owner.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "coca-cola",
+    "display_name": "Coca-Cola",
+    "kind": "product_brand",
+    "aliases": [
+      "COCA COLA",
+      "COKE",
+      "COCA-COLA",
+      "DIET COKE",
+      "COKE ZERO",
+      "FANTA",
+      "SPRITE",
+      "SCHWEPPES"
+    ],
+    "chain": [
+      {
+        "name": "Coca-Cola",
+        "relation": "brand_of",
+        "country": "US",
+        "source": "llm"
+      },
+      {
+        "name": "Coca-Cola Europacific Partners plc (GB bottler)",
+        "relation": "operator",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "The Coca-Cola Company",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Brand-owner rule: a UK bottler or licensee is shown as an operator hop, but owner_country follows the brand owner. In GB, Schweppes is a Coca-Cola brand.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "innocent",
+    "display_name": "innocent",
+    "kind": "product_brand",
+    "aliases": [
+      "INNOCENT",
+      "INNOCENT SMOOTHIE"
+    ],
+    "chain": [
+      {
+        "name": "innocent drinks",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "The Coca-Cola Company",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "walkers",
+    "display_name": "Walkers (PepsiCo)",
+    "kind": "product_brand",
+    "aliases": [
+      "WALKERS",
+      "WLKRS",
+      "DORITOS",
+      "QUAVERS",
+      "WOTSITS",
+      "MONSTER MUNCH",
+      "SENSATIONS"
+    ],
+    "chain": [
+      {
+        "name": "Walkers",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "PepsiCo, Inc.",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "pepsi",
+    "display_name": "Pepsi",
+    "kind": "product_brand",
+    "aliases": [
+      "PEPSI",
+      "PEPSI MAX",
+      "PEPSIMAX"
+    ],
+    "chain": [
+      {
+        "name": "Pepsi",
+        "relation": "brand_of",
+        "country": "US",
+        "source": "llm"
+      },
+      {
+        "name": "Carlsberg Britvic (GB bottler)",
+        "relation": "operator",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "PepsiCo, Inc.",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Brand-owner rule: a UK bottler or licensee is shown as an operator hop, but owner_country follows the brand owner. Britvic bottles Pepsi in GB and has been owned by Carlsberg since Jan 2025.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "tropicana",
+    "display_name": "Tropicana",
+    "kind": "product_brand",
+    "aliases": [
+      "TROPICANA"
+    ],
+    "chain": [
+      {
+        "name": "Tropicana",
+        "relation": "brand_of",
+        "country": "US",
+        "source": "llm"
+      },
+      {
+        "name": "Tropicana Brands Group",
+        "relation": "owned_by",
+        "country": "US",
+        "source": "llm"
+      },
+      {
+        "name": "PAI Partners",
+        "relation": "ultimate_parent",
+        "country": "FR",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "FR",
+    "legal_country": "FR",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment). Checked against a fetched primary/press source on 2026-09-28 (see sources).",
+    "sources": [
+      {
+        "label": "PAI Partners: Tropicana Brands Group",
+        "url": "https://www.paipartners.com/investment/tropicana-brands-group/"
+      }
+    ],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "shared_ownership": true,
+    "notes": "Majority rule: PAI Partners (FR private equity) holds a majority and PepsiCo a minority (39% at the 2022 carve-out). PE rule.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "robinsons",
+    "display_name": "Robinsons (Britvic)",
+    "kind": "product_brand",
+    "aliases": [
+      "ROBINSONS",
+      "ROBINSON'S",
+      "FRUIT SHOOT",
+      "J2O",
+      "TANGO"
+    ],
+    "chain": [
+      {
+        "name": "Robinsons",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Britvic",
+        "relation": "owned_by",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Carlsberg A/S",
+        "relation": "ultimate_parent",
+        "country": "DK",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "DK",
+    "legal_country": "DK",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Britvic was acquired by Carlsberg (DK) in Jan 2025.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "kelloggs",
+    "display_name": "Kellogg's (Kellanova)",
+    "kind": "product_brand",
+    "aliases": [
+      "KELLOGGS",
+      "KELLOGG'S",
+      "KELL",
+      "COCO POPS",
+      "CRUNCHY NUT",
+      "RICE KRISPIES",
+      "SPECIAL K",
+      "FROSTIES"
+    ],
+    "chain": [
+      {
+        "name": "Kellogg's (UK)",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Kellanova",
+        "relation": "owned_by",
+        "country": "US",
+        "source": "llm"
+      },
+      {
+        "name": "Mars, Incorporated",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment). Checked against a fetched primary/press source on 2026-09-28 (see sources).",
+    "sources": [
+      {
+        "label": "Mars completes acquisition of Kellanova (11 Dec 2025)",
+        "url": "https://www.mars.com/news-and-stories/press-releases-statements/mars-completes-acquisition-of-kellanova"
+      }
+    ],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Mars completed its Kellanova acquisition in Dec 2025. The North American Kellogg's cereal business (WK Kellogg) is a separate company.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "pringles",
+    "display_name": "Pringles",
+    "kind": "product_brand",
+    "aliases": [
+      "PRINGLES"
+    ],
+    "chain": [
+      {
+        "name": "Pringles",
+        "relation": "brand_of",
+        "country": "US",
+        "source": "llm"
+      },
+      {
+        "name": "Kellanova",
+        "relation": "owned_by",
+        "country": "US",
+        "source": "llm"
+      },
+      {
+        "name": "Mars, Incorporated",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment). Checked against a fetched primary/press source on 2026-09-28 (see sources).",
+    "sources": [
+      {
+        "label": "Mars completes acquisition of Kellanova (11 Dec 2025)",
+        "url": "https://www.mars.com/news-and-stories/press-releases-statements/mars-completes-acquisition-of-kellanova"
+      }
+    ],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "mars",
+    "display_name": "Mars (Snickers, Twix, M&M's…)",
+    "kind": "product_brand",
+    "aliases": [
+      "MARS",
+      "SNICKERS",
+      "TWIX",
+      "M&MS",
+      "M&M'S",
+      "MALTESERS",
+      "GALAXY",
+      "BOUNTY",
+      "MILKY WAY",
+      "BENS ORIGINAL",
+      "DOLMIO",
+      "WHISKAS",
+      "PEDIGREE"
+    ],
+    "chain": [
+      {
+        "name": "Mars brands",
+        "relation": "brand_of",
+        "country": "US",
+        "source": "llm"
+      },
+      {
+        "name": "Mars, Incorporated",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Family-owned private company. Natural persons are not hops; the top company is the ultimate parent.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "nestle",
+    "display_name": "Nestlé (KitKat, Nescafé…)",
+    "kind": "product_brand",
+    "aliases": [
+      "NESTLE",
+      "NESCAFE",
+      "KITKAT",
+      "KIT KAT",
+      "AERO",
+      "SMARTIES",
+      "PURINA",
+      "FELIX"
+    ],
+    "chain": [
+      {
+        "name": "Nestlé brands",
+        "relation": "brand_of",
+        "country": "CH",
+        "source": "llm"
+      },
+      {
+        "name": "Nestlé S.A.",
+        "relation": "ultimate_parent",
+        "country": "CH",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "CH",
+    "legal_country": "CH",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Shreddies and Cheerios in GB are Cereal Partners (Nestlé/General Mills JV), so they are not aliased here.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "hellmanns",
+    "display_name": "Hellmann's",
+    "kind": "product_brand",
+    "aliases": [
+      "HELLMANNS",
+      "HELLMANN'S",
+      "HELLM"
+    ],
+    "chain": [
+      {
+        "name": "Hellmann's",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Unilever PLC",
+        "relation": "ultimate_parent",
+        "country": "GB",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "GB",
+    "legal_country": "GB",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "marmite",
+    "display_name": "Marmite",
+    "kind": "product_brand",
+    "aliases": [
+      "MARMITE"
+    ],
+    "chain": [
+      {
+        "name": "Marmite",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Unilever PLC",
+        "relation": "ultimate_parent",
+        "country": "GB",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "GB",
+    "legal_country": "GB",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "unilever-other",
+    "display_name": "Unilever brands (Dove, Persil, Knorr…)",
+    "kind": "product_brand",
+    "aliases": [
+      "DOVE",
+      "PERSIL",
+      "KNORR",
+      "COMFORT",
+      "SURF",
+      "LYNX",
+      "VASELINE",
+      "COLMANS"
+    ],
+    "chain": [
+      {
+        "name": "Unilever brands",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Unilever PLC",
+        "relation": "ultimate_parent",
+        "country": "GB",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "GB",
+    "legal_country": "GB",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "ben-and-jerrys",
+    "display_name": "Ben & Jerry's",
+    "kind": "product_brand",
+    "aliases": [
+      "BEN & JERRY'S",
+      "BEN&JERRYS",
+      "BEN AND JERRYS",
+      "B&J"
+    ],
+    "chain": [
+      {
+        "name": "Ben & Jerry's",
+        "relation": "brand_of",
+        "country": "US",
+        "source": "llm"
+      },
+      {
+        "name": "The Magnum Ice Cream Company N.V.",
+        "relation": "ultimate_parent",
+        "country": "NL",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "NL",
+    "legal_country": "NL",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment). Checked against a fetched primary/press source on 2026-09-28 (see sources).",
+    "sources": [
+      {
+        "label": "Euronext: The Magnum Ice Cream Company lists",
+        "url": "https://www.euronext.com/en/about/media/euronext-press-releases/magnum-ice-cream-company-lists-euronext"
+      }
+    ],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "STALE ASSUMPTION CORRECTED: no longer Unilever. Demerged into The Magnum Ice Cream Company (Amsterdam) in Dec 2025. The independent Ben & Jerry's board dispute is ongoing.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "walls-magnum",
+    "display_name": "Wall's / Magnum",
+    "kind": "product_brand",
+    "aliases": [
+      "WALLS",
+      "WALL'S",
+      "MAGNUM",
+      "CORNETTO",
+      "CARTE D'OR",
+      "SOLERO"
+    ],
+    "chain": [
+      {
+        "name": "Wall's ice cream / Magnum",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "The Magnum Ice Cream Company N.V.",
+        "relation": "ultimate_parent",
+        "country": "NL",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "NL",
+    "legal_country": "NL",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment). Checked against a fetched primary/press source on 2026-09-28 (see sources).",
+    "sources": [
+      {
+        "label": "Euronext: The Magnum Ice Cream Company lists",
+        "url": "https://www.euronext.com/en/about/media/euronext-press-releases/magnum-ice-cream-company-lists-euronext"
+      }
+    ],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "AMBIGUOUS: 'WALLS' on a receipt can also mean Wall's sausages, a separate brand no longer linked to Unilever/Magnum. Needs a category check.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "pg-tips",
+    "display_name": "PG Tips",
+    "kind": "product_brand",
+    "aliases": [
+      "PG TIPS",
+      "PGTIPS",
+      "PG TIP"
+    ],
+    "chain": [
+      {
+        "name": "PG Tips",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Lipton Teas and Infusions",
+        "relation": "owned_by",
+        "country": "NL",
+        "source": "llm"
+      },
+      {
+        "name": "CVC Capital Partners",
+        "relation": "ultimate_parent",
+        "country": "LU",
+        "legal_country": "JE",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "LU",
+    "legal_country": "JE",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment). Checked against a fetched primary/press source on 2026-09-28 (see sources).",
+    "sources": [
+      {
+        "label": "Lipton Teas and Infusions: our shareholder",
+        "url": "https://www.liptonteas.com/our-company/governance/our-shareholder/"
+      }
+    ],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "NOT Unilever since 1 Jul 2022: owned by CVC (PE rule). CVC Capital Partners plc is Jersey-incorporated and run from Luxembourg (analyst knowledge). The LTI headquarters country is unverified.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "tetley",
+    "display_name": "Tetley",
+    "kind": "product_brand",
+    "aliases": [
+      "TETLEY",
+      "TETLEYS"
+    ],
+    "chain": [
+      {
+        "name": "Tetley",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Tata Consumer Products Ltd",
+        "relation": "ultimate_parent",
+        "country": "IN",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "IN",
+    "legal_country": "IN",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "yorkshire-tea",
+    "display_name": "Yorkshire Tea",
+    "kind": "product_brand",
+    "aliases": [
+      "YORKSHIRE TEA",
+      "YORKS TEA",
+      "TAYLORS OF HARROGATE"
+    ],
+    "chain": [
+      {
+        "name": "Yorkshire Tea",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Bettys & Taylors Group Ltd",
+        "relation": "ultimate_parent",
+        "country": "GB",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "GB",
+    "legal_country": "GB",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Family-owned Harrogate company.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "kenco",
+    "display_name": "Kenco / Douwe Egberts",
+    "kind": "product_brand",
+    "aliases": [
+      "KENCO",
+      "DOUWE EGBERTS",
+      "TASSIMO"
+    ],
+    "chain": [
+      {
+        "name": "Kenco / Douwe Egberts / Tassimo",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "JDE Peet's N.V.",
+        "relation": "owned_by",
+        "country": "NL",
+        "source": "llm"
+      },
+      {
+        "name": "Keurig Dr Pepper Inc.",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment). Checked against a fetched primary/press source on 2026-09-28 (see sources).",
+    "sources": [
+      {
+        "label": "Keurig Dr Pepper acquires JDE Peet's",
+        "url": "https://www.keurigdrpepper.com/keurig-dr-pepper-acquires-jde-peets-and-announces-rafael-oliveira-as-ceo-of-future-global-coffee-co/"
+      }
+    ],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "KDP completed its JDE Peet's acquisition in 2026 and plans to separate a global coffee company. Re-check when the separation happens.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "warburtons",
+    "display_name": "Warburtons",
+    "kind": "product_brand",
+    "aliases": [
+      "WARBURTONS",
+      "WARBS"
+    ],
+    "chain": [
+      {
+        "name": "Warburtons",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Warburtons Ltd",
+        "relation": "ultimate_parent",
+        "country": "GB",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "GB",
+    "legal_country": "GB",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Family-owned.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "hovis",
+    "display_name": "Hovis",
+    "kind": "product_brand",
+    "aliases": [
+      "HOVIS"
+    ],
+    "chain": [
+      {
+        "name": "Hovis",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Hovis Bakeries (ABF)",
+        "relation": "owned_by",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Associated British Foods plc",
+        "relation": "ultimate_parent",
+        "country": "GB",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "GB",
+    "legal_country": "GB",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment). Checked against a fetched primary/press source on 2026-09-28 (see sources).",
+    "sources": [
+      {
+        "label": "Food Manufacture: Allied renamed Hovis Bakeries after ABF acquisition completes (Jul 2026)",
+        "url": "https://www.foodmanufacture.co.uk/Article/2026/07/08/allied-bakeries-and-hovis-group-will-operate-as-hovis-bakeries/"
+      }
+    ],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "CHANGED 2026: ABF bought Hovis and merged it with Allied Bakeries (Kingsmill) as Hovis Bakeries in Jul 2026. ABF is controlled by Wittington Investments (GB).",
+    "category": "grocery_household"
+  },
+  {
+    "id": "kingsmill",
+    "display_name": "Kingsmill",
+    "kind": "product_brand",
+    "aliases": [
+      "KINGSMILL",
+      "KINGSM"
+    ],
+    "chain": [
+      {
+        "name": "Kingsmill",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Hovis Bakeries (ABF)",
+        "relation": "owned_by",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Associated British Foods plc",
+        "relation": "ultimate_parent",
+        "country": "GB",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "GB",
+    "legal_country": "GB",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment). Checked against a fetched primary/press source on 2026-09-28 (see sources).",
+    "sources": [
+      {
+        "label": "ABF to acquire Hovis Group",
+        "url": "https://www.abf.co.uk/media/news/2025/ABF-to-acquire-hovis-group"
+      }
+    ],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "muller",
+    "display_name": "Müller",
+    "kind": "product_brand",
+    "aliases": [
+      "MULLER",
+      "MÜLLER",
+      "MULLER CORNER",
+      "MULLERLIGHT",
+      "MULLER LIGHT"
+    ],
+    "chain": [
+      {
+        "name": "Müller",
+        "relation": "brand_of",
+        "country": "DE",
+        "source": "llm"
+      },
+      {
+        "name": "Unternehmensgruppe Theo Müller",
+        "relation": "ultimate_parent",
+        "country": "DE",
+        "legal_country": "LU",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "DE",
+    "legal_country": "LU",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Family-owned; the group holding company is Luxembourg-registered (analyst knowledge). Müller Milk & Ingredients is the UK operator.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "danone",
+    "display_name": "Danone (Actimel, Activia…)",
+    "kind": "product_brand",
+    "aliases": [
+      "DANONE",
+      "ACTIMEL",
+      "ACTIVIA",
+      "OYKOS"
+    ],
+    "chain": [
+      {
+        "name": "Danone brands",
+        "relation": "brand_of",
+        "country": "FR",
+        "source": "llm"
+      },
+      {
+        "name": "Danone S.A.",
+        "relation": "ultimate_parent",
+        "country": "FR",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "FR",
+    "legal_country": "FR",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "alpro",
+    "display_name": "Alpro",
+    "kind": "product_brand",
+    "aliases": [
+      "ALPRO"
+    ],
+    "chain": [
+      {
+        "name": "Alpro",
+        "relation": "brand_of",
+        "country": "BE",
+        "source": "llm"
+      },
+      {
+        "name": "Danone S.A.",
+        "relation": "ultimate_parent",
+        "country": "FR",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "FR",
+    "legal_country": "FR",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "arla",
+    "display_name": "Arla",
+    "kind": "product_brand",
+    "aliases": [
+      "ARLA",
+      "CRAVENDALE"
+    ],
+    "chain": [
+      {
+        "name": "Arla",
+        "relation": "brand_of",
+        "country": "DK",
+        "source": "llm"
+      },
+      {
+        "name": "Arla Foods amba",
+        "relation": "ultimate_parent",
+        "country": "DK",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "DK",
+    "legal_country": "DK",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Farmer-owned co-operative (DK/SE/DE/UK members).",
+    "category": "grocery_household"
+  },
+  {
+    "id": "lurpak",
+    "display_name": "Lurpak",
+    "kind": "product_brand",
+    "aliases": [
+      "LURPAK"
+    ],
+    "chain": [
+      {
+        "name": "Lurpak",
+        "relation": "brand_of",
+        "country": "DK",
+        "source": "llm"
+      },
+      {
+        "name": "Arla Foods amba",
+        "relation": "ultimate_parent",
+        "country": "DK",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "DK",
+    "legal_country": "DK",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "anchor",
+    "display_name": "Anchor",
+    "kind": "product_brand",
+    "aliases": [
+      "ANCHOR",
+      "ANCHOR BUTTER",
+      "ANCHOR SPREADABLE"
+    ],
+    "chain": [
+      {
+        "name": "Anchor (UK)",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Arla Foods amba",
+        "relation": "ultimate_parent",
+        "country": "DK",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "DK",
+    "legal_country": "DK",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Anchor in the UK is licensed to Arla. Elsewhere Anchor is a Fonterra (NZ) brand.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "mcvities",
+    "display_name": "McVitie's",
+    "kind": "product_brand",
+    "aliases": [
+      "MCVITIES",
+      "MCVITIE'S",
+      "MCV",
+      "JAFFA CAKES",
+      "HOBNOBS"
+    ],
+    "chain": [
+      {
+        "name": "McVitie's",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "pladis Global",
+        "relation": "owned_by",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Yıldız Holding A.Ş.",
+        "relation": "ultimate_parent",
+        "country": "TR",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "TR",
+    "legal_country": "TR",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "mr-kipling",
+    "display_name": "Mr Kipling",
+    "kind": "product_brand",
+    "aliases": [
+      "MR KIPLING",
+      "MRKIPLING"
+    ],
+    "chain": [
+      {
+        "name": "Mr Kipling",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Premier Foods plc",
+        "relation": "ultimate_parent",
+        "country": "GB",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "GB",
+    "legal_country": "GB",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "premier-foods",
+    "display_name": "Premier Foods brands (Bisto, Oxo…)",
+    "kind": "product_brand",
+    "aliases": [
+      "BISTO",
+      "OXO",
+      "BATCHELORS",
+      "AMBROSIA",
+      "SHARWOODS"
+    ],
+    "chain": [
+      {
+        "name": "Premier Foods brands",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Premier Foods plc",
+        "relation": "ultimate_parent",
+        "country": "GB",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "GB",
+    "legal_country": "GB",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "birds-eye",
+    "display_name": "Birds Eye",
+    "kind": "product_brand",
+    "aliases": [
+      "BIRDS EYE",
+      "BIRDSEYE"
+    ],
+    "chain": [
+      {
+        "name": "Birds Eye",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Nomad Foods Limited",
+        "relation": "ultimate_parent",
+        "country": "GB",
+        "legal_country": "VG",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "GB",
+    "legal_country": "VG",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Nomad Foods is run from the UK and incorporated in the British Virgin Islands (analyst knowledge).",
+    "category": "grocery_household"
+  },
+  {
+    "id": "quorn",
+    "display_name": "Quorn",
+    "kind": "product_brand",
+    "aliases": [
+      "QUORN"
+    ],
+    "chain": [
+      {
+        "name": "Quorn",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Marlow Foods Ltd",
+        "relation": "owned_by",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Monde Nissin Corporation",
+        "relation": "ultimate_parent",
+        "country": "PH",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "PH",
+    "legal_country": "PH",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [
+      {
+        "label": "Food Manufacture: Quorn owner reports loss (Sep 2025)",
+        "url": "https://www.foodmanufacture.co.uk/Article/2025/09/30/quorn-owner-reports-28m-loss-as-sales-fall/"
+      }
+    ],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "colgate",
+    "display_name": "Colgate",
+    "kind": "product_brand",
+    "aliases": [
+      "COLGATE",
+      "COLG"
+    ],
+    "chain": [
+      {
+        "name": "Colgate",
+        "relation": "brand_of",
+        "country": "US",
+        "source": "llm"
+      },
+      {
+        "name": "Colgate-Palmolive Company",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "pg-household",
+    "display_name": "Fairy / Ariel (P&G)",
+    "kind": "product_brand",
+    "aliases": [
+      "FAIRY",
+      "ARIEL",
+      "PAMPERS",
+      "LENOR",
+      "FEBREZE",
+      "OLAY",
+      "GILLETTE",
+      "HEAD & SHOULDERS",
+      "PANTENE",
+      "ORAL B",
+      "DAZ"
+    ],
+    "chain": [
+      {
+        "name": "P&G brands",
+        "relation": "brand_of",
+        "country": "US",
+        "source": "llm"
+      },
+      {
+        "name": "The Procter & Gamble Company",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "reckitt",
+    "display_name": "Reckitt brands (Dettol, Finish…)",
+    "kind": "product_brand",
+    "aliases": [
+      "DETTOL",
+      "VANISH",
+      "FINISH",
+      "CILLIT BANG",
+      "HARPIC",
+      "AIR WICK"
+    ],
+    "chain": [
+      {
+        "name": "Reckitt household brands",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Reckitt Benckiser Group plc",
+        "relation": "ultimate_parent",
+        "country": "GB",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "GB",
+    "legal_country": "GB",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "andrex",
+    "display_name": "Andrex",
+    "kind": "product_brand",
+    "aliases": [
+      "ANDREX"
+    ],
+    "chain": [
+      {
+        "name": "Andrex",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Arbex (tissue JV)",
+        "relation": "owned_by",
+        "country": "NL",
+        "source": "llm"
+      },
+      {
+        "name": "Suzano S.A.",
+        "relation": "ultimate_parent",
+        "country": "BR",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "BR",
+    "legal_country": "BR",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment). Checked against a fetched primary/press source on 2026-09-28 (see sources).",
+    "sources": [
+      {
+        "label": "Kimberly-Clark: Introducing Arbex",
+        "url": "https://www.investor.kimberly-clark.com/news-releases/news-release-details/introducing-arbex-new-global-leader-tissue-and-hygiene"
+      }
+    ],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "shared_ownership": true,
+    "co_owners": [
+      {
+        "name": "Suzano S.A.",
+        "country": "BR",
+        "share": 51
+      },
+      {
+        "name": "Kimberly-Clark Corporation",
+        "country": "US",
+        "share": 49
+      }
+    ],
+    "notes": "CHANGED 2026: Andrex moved to Arbex on 1 Jul 2026, a tissue JV headquartered in NL. Majority rule: Suzano (BR) is the majority holder at 51/49; the split is from the 2025 deal announcement and was not in the fetched release. Review.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "red-bull",
+    "display_name": "Red Bull",
+    "kind": "product_brand",
+    "aliases": [
+      "RED BULL",
+      "REDBULL"
+    ],
+    "chain": [
+      {
+        "name": "Red Bull",
+        "relation": "brand_of",
+        "country": "AT",
+        "source": "llm"
+      },
+      {
+        "name": "Red Bull GmbH",
+        "relation": "ultimate_parent",
+        "country": "AT",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "AT",
+    "legal_country": "AT",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "shared_ownership": true,
+    "co_owners": [
+      {
+        "name": "Yoovidhya family (TCC)",
+        "country": "TH",
+        "share": 51
+      },
+      {
+        "name": "Mateschitz family",
+        "country": "AT",
+        "share": 49
+      }
+    ],
+    "notes": "Family-held company rule: natural persons are not hops, so the top operating company (Red Bull GmbH, AT) is the ultimate parent. Note that 51% is held by the Thai Yoovidhya family. Review whether the majority rule should give TH.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "haribo",
+    "display_name": "Haribo",
+    "kind": "product_brand",
+    "aliases": [
+      "HARIBO"
+    ],
+    "chain": [
+      {
+        "name": "Haribo",
+        "relation": "brand_of",
+        "country": "DE",
+        "source": "llm"
+      },
+      {
+        "name": "HARIBO GmbH & Co. KG",
+        "relation": "ultimate_parent",
+        "country": "DE",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "DE",
+    "legal_country": "DE",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Family-owned.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "ferrero",
+    "display_name": "Ferrero (Nutella, Kinder…)",
+    "kind": "product_brand",
+    "aliases": [
+      "FERRERO",
+      "NUTELLA",
+      "KINDER",
+      "TIC TAC",
+      "THORNTONS"
+    ],
+    "chain": [
+      {
+        "name": "Ferrero brands",
+        "relation": "brand_of",
+        "country": "IT",
+        "source": "llm"
+      },
+      {
+        "name": "Ferrero International S.A.",
+        "relation": "ultimate_parent",
+        "country": "IT",
+        "legal_country": "LU",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "IT",
+    "legal_country": "LU",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Run from Alba/Luxembourg; the holding company is incorporated in Luxembourg (LU). owner_country IT is analyst judgement. Family-owned.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "weetabix",
+    "display_name": "Weetabix",
+    "kind": "product_brand",
+    "aliases": [
+      "WEETABIX",
+      "WEETOS",
+      "ALPEN"
+    ],
+    "chain": [
+      {
+        "name": "Weetabix",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Post Holdings, Inc.",
+        "relation": "ultimate_parent",
+        "country": "US",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "US",
+    "legal_country": "US",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "branston",
+    "display_name": "Branston",
+    "kind": "product_brand",
+    "aliases": [
+      "BRANSTON"
+    ],
+    "chain": [
+      {
+        "name": "Branston",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Mizkan Holdings Co., Ltd.",
+        "relation": "ultimate_parent",
+        "country": "JP",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "JP",
+    "legal_country": "JP",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "oatly",
+    "display_name": "Oatly",
+    "kind": "product_brand",
+    "aliases": [
+      "OATLY"
+    ],
+    "chain": [
+      {
+        "name": "Oatly",
+        "relation": "brand_of",
+        "country": "SE",
+        "source": "llm"
+      },
+      {
+        "name": "Oatly Group AB",
+        "relation": "ultimate_parent",
+        "country": "SE",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "SE",
+    "legal_country": "SE",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "lucozade-ribena",
+    "display_name": "Lucozade / Ribena",
+    "kind": "product_brand",
+    "aliases": [
+      "LUCOZADE",
+      "RIBENA"
+    ],
+    "chain": [
+      {
+        "name": "Lucozade / Ribena",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Suntory Beverage & Food Ltd",
+        "relation": "ultimate_parent",
+        "country": "JP",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "JP",
+    "legal_country": "JP",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "heineken",
+    "display_name": "Heineken",
+    "kind": "product_brand",
+    "aliases": [
+      "HEINEKEN",
+      "BIRRA MORETTI",
+      "AMSTEL",
+      "FOSTERS"
+    ],
+    "chain": [
+      {
+        "name": "Heineken brands",
+        "relation": "brand_of",
+        "country": "NL",
+        "source": "llm"
+      },
+      {
+        "name": "Heineken N.V.",
+        "relation": "ultimate_parent",
+        "country": "NL",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "NL",
+    "legal_country": "NL",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": "Foster's in the UK is brewed and owned under licence by Heineken UK.",
+    "category": "grocery_household"
+  },
+  {
+    "id": "ab-inbev",
+    "display_name": "AB InBev (Stella, Budweiser…)",
+    "kind": "product_brand",
+    "aliases": [
+      "STELLA ARTOIS",
+      "STELLA",
+      "BUDWEISER",
+      "CORONA",
+      "BUD LIGHT",
+      "BECKS"
+    ],
+    "chain": [
+      {
+        "name": "AB InBev brands",
+        "relation": "brand_of",
+        "country": "BE",
+        "source": "llm"
+      },
+      {
+        "name": "Anheuser-Busch InBev SA/NV",
+        "relation": "ultimate_parent",
+        "country": "BE",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "BE",
+    "legal_country": "BE",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  },
+  {
+    "id": "diageo",
+    "display_name": "Diageo (Guinness, Smirnoff…)",
+    "kind": "product_brand",
+    "aliases": [
+      "GUINNESS",
+      "SMIRNOFF",
+      "GORDONS",
+      "BAILEYS",
+      "JOHNNIE WALKER",
+      "CAPTAIN MORGAN",
+      "TANQUERAY"
+    ],
+    "chain": [
+      {
+        "name": "Diageo brands",
+        "relation": "brand_of",
+        "country": "GB",
+        "source": "llm"
+      },
+      {
+        "name": "Diageo plc",
+        "relation": "ultimate_parent",
+        "country": "GB",
+        "source": "llm"
+      }
+    ],
+    "owner_country": "GB",
+    "legal_country": "GB",
+    "tier": "LLM_GUESS",
+    "technique": "Analyst/model knowledge (cutoff mid-2026); not run through the registry pipeline (product brands were outside the coverage experiment).",
+    "sources": [],
+    "as_of": "2026-09-28",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "category": "grocery_household"
+  }
+]

@@ -1,0 +1,25 @@
+KnowYourSpend shows which countries own the companies behind your everyday spending.
+
+Add a bank statement (a PDF or CSV from your banking app) or take a photo of a receipt. KnowYourSpend reads it on your phone, works out who owns each shop, and shows your spending by the owner's country: a pie chart, a ranked list, a map and a timeline.
+
+PRIVATE BY DESIGN
+• Your statement is read on your phone. Amounts, dates, balances and account details are never uploaded.
+• Receipt photos are read on your phone and not kept.
+• No account needed, no ads, no advertising trackers.
+• Signing in is optional, with a code sent by email. It only keeps an encrypted copy of your data, to open on another device, and only your passphrase opens it.
+• Every report has a "What data leaves your phone" panel that lists what, if anything, was sent and why.
+• Look-ups for shops we don't know are on by default and send the shop name only. Filters hold back people's names and sensitive payees, and you can switch look-ups off.
+• Only if you choose: email yourself your results (percentages and well-known shop names, never amounts), or send anonymous counts of how often the app is used.
+• Receipt reading on the phone uses Google's ML Kit, which sends Google basic diagnostics (never the photo or its text).
+
+WHAT YOU SEE
+• The share of your spending that goes to companies owned in the UK, the US, Germany, France and elsewhere
+• Who you pay most, and who ultimately owns them
+• Where each answer came from, and how sure we are
+• "Which country is this?" to fix any shop yourself
+• A share card with your percentages, never your amounts
+
+Reads CSV statements from Monzo, Starling, Revolut, Barclays, Lloyds, NatWest, RBS, Nationwide, Santander, Wise and N26, credit card CSVs from Barclaycard, MBNA, Tesco Bank, Aqua and Amex, OFX and QIF files from any bank, and PDF statements (tested with Revolut, Monzo and Barclays). Other banks' CSV files can be read by matching their columns.
+
+GOOD TO KNOW
+Ownership estimates are based on published data (Companies House, Wikidata, GLEIF and OpenStreetMap) and, where those are missing or out of date, AI estimates labelled "Unverified". They may contain errors; tell us and we'll look into it. Brand names are used for identification only; no affiliation or endorsement. KnowYourSpend doesn't give financial advice and can't move money.

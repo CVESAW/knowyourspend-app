@@ -1,0 +1,32 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+
+# Node / Expo
+node_modules/
+.expo/
+dist/
+# the Python tool is published as one generated file (tools/python/build.mjs --check keeps it current)
+!tools/python/dist/
+web-build/
+*.log
+npm-debug.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Real statements and receipts for local testing: never commit
+_private-test-data/
+
+# Generated
+services/lookup/eval/results*.json
+packages/ownership/scripts/.wikidata-cache.json

@@ -1,0 +1,55 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+example
+
+# generated native folders
+/ios
+/android
+
+# OCR assets are copied in by scripts/copy-ocr-assets.mjs (postinstall)
+public/ocr/
+public/pdf/
+
+# e2e artefacts
+e2e/.backup-test.json
+e2e/failure.png
+src/lib/pdf-engine.generated.ts
+src/lib/open-brands-url.generated.ts
+public/data/
+store/screenshots/*/raw-*.png

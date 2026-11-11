@@ -1,0 +1,55 @@
+{
+ "revolut": {
+  "rows": 46,
+  "out": 1957.93,
+  "in": 1850.0,
+  "first": "Amazon",
+  "closing": 1092.07
+ },
+ "monzo": {
+  "rows": 30,
+  "out": 1182.79,
+  "in": 1850.0,
+  "first": "Amazon",
+  "closing": 1867.21
+ },
+ "barclays": {
+  "rows": 30,
+  "out": 1182.79,
+  "in": 1850.0,
+  "first": "Amazon",
+  "closing": 1867.21
+ },
+ "revolut-2026": {
+  "rows": 28,
+  "out": 3279.66,
+  "in": 5550.0
+ },
+ "firstdirect": {
+  "rows": 15,
+  "out": 646.42,
+  "in": 1900.0
+ },
+ "revolut-multicurrency": {
+  "rows": 9,
+  "out": 255.15,
+  "in": 1900.0,
+  "byCurrency": {
+   "EUR": {
+    "rows": 2,
+    "out": 4.2,
+    "in": 50.0
+   },
+   "GBP": {
+    "rows": 6,
+    "out": 232.95,
+    "in": 1850.0
+   },
+   "USD": {
+    "rows": 1,
+    "out": 18.0,
+    "in": 0.0
+   }
+  }
+ }
+}
